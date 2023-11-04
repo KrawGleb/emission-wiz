@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.API", "EmissionWiz.API\EmissionWiz.API.csproj", "{5094F385-9C81-412E-9203-8D0B99D41D4D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5094F385-9C81-412E-9203-8D0B99D41D4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5094F385-9C81-412E-9203-8D0B99D41D4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5094F385-9C81-412E-9203-8D0B99D41D4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5094F385-9C81-412E-9203-8D0B99D41D4D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4DE0A0A1-C0F0-45E1-A9FA-C29E2443415B}
+	EndGlobalSection
+EndGlobal
