@@ -1,23 +1,22 @@
 ﻿using EmissionWiz.Logic.Formulas.MaxConcentrationSingleSourceFormulas;
-using EmissionWiz.Models.Calculations;
+using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationSingleSourceCalculationManagers;
+using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Reports.Blocks;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleSource;
 
 // Метод расчета максимальных разовых концентраций от выбросов одиночного точечного источника
-public class MaxConcentrationSingleSourceCalculationManager : IMaxConcentrationSingleSourceCalculationManager
+public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalculationManager
 {
     private readonly ICalculationReportManager _reportManager;
 
-    public MaxConcentrationSingleSourceCalculationManager(ICalculationReportManager reportManager)
+    public SingleSourceEmissionCalculationManager(ICalculationReportManager reportManager)
     {
         _reportManager = reportManager;
     }
 
-    // TODO: Add report
-
-    public double CalculateMaxConcentration(MaxConcentrationInputModel model)
+    public SingleSourceEmissionCalculationResult Calculate(SingleSourceInputModel model)
     {
         var sourceProperties = GetEmissionSourceProperties(model);
         IMaxConcentrationSingleSourceCalculationSubManager? subManager;
@@ -34,14 +33,16 @@ public class MaxConcentrationSingleSourceCalculationManager : IMaxConcentrationS
             subManager = new HotEmissionMaxConcentrationSingleSourceCalculationManager(_reportManager);
         }
 
+        var result = subManager?.CalculateMaxConcentration(model, sourceProperties)
+            ?? throw new InvalidOperationException();
+
         using var testFile = File.Open("C:\\Users\\krawc\\Desktop\\Test\\test.pdf", FileMode.OpenOrCreate);
         _reportManager.Generate(testFile);
 
-        return subManager?.CalculateMaxConcentration(model, sourceProperties) 
-            ?? throw new InvalidOperationException();
+        return result;
     }
     
-    private double GetV(MaxConcentrationInputModel model)
+    private double GetV(SingleSourceInputModel model)
     {
         var result =  Math.PI * Math.Pow(model.D, 2d) / 4 * model.W;
 
@@ -59,7 +60,7 @@ public class MaxConcentrationSingleSourceCalculationManager : IMaxConcentrationS
         return result;
     }
 
-    private EmissionSourceProperties GetEmissionSourceProperties(MaxConcentrationInputModel model)
+    private EmissionSourceProperties GetEmissionSourceProperties(SingleSourceInputModel model)
     {
         var v = GetV(model);
 
@@ -68,16 +69,38 @@ public class MaxConcentrationSingleSourceCalculationManager : IMaxConcentrationS
         var f = 1000d * (Math.Pow(model.W, 2d) * model.D) / (Math.Pow(model.H, 2d) * model.DeltaT);
         var fe = 800d * Math.Pow(vmI, 3d);
 
-        var reportBlock = new FormulaBlock();
+        var reportBlock = new FormulaBlock("Коэффициенты m и n определяются в зависимости от характеризующих свойства источника выброса параметров:");
         reportBlock.PushFormula(new VmFormula(),
-            new VmFormula.VFormulaModel()
+            new VmFormula.Model()
             {
                 V1 = v,
                 DeltaT = model.DeltaT,
                 H = model.H,
                 Result = vm
             });
-
+        reportBlock.PushFormula(new VmIFormula(),
+            new VmIFormula.Model
+            {
+                D = model.D,
+                H = model.H,
+                W = model.W,
+                Result = vmI
+            });
+        reportBlock.PushFormula(new FFormula(),
+            new FFormula.Model
+            {
+                D = model.D,
+                H = model.H,
+                W = model.W,
+                DeltaT = model.DeltaT,
+                Result = f
+            });
+        reportBlock.PushFormula(new FeFormula(),
+            new FeFormula.Model
+            {
+                Vm = vm,
+                Result = fe
+            });
         _reportManager.AddBlock(reportBlock);
 
         return new EmissionSourceProperties

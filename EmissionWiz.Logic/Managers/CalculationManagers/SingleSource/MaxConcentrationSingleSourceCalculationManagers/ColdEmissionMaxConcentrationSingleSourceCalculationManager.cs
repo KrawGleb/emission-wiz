@@ -1,7 +1,7 @@
-﻿using EmissionWiz.Models.Calculations;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 
-namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleSource;
+namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationSingleSourceCalculationManagers;
 
 internal class ColdEmissionMaxConcentrationSingleSourceCalculationManager : BaseMaxConcentrationSingleSourceCalculationManager, IMaxConcentrationSingleSourceCalculationSubManager
 {
@@ -12,7 +12,7 @@ internal class ColdEmissionMaxConcentrationSingleSourceCalculationManager : Base
         _reportManager = reportManager;
     }
 
-    public double CalculateMaxConcentration(MaxConcentrationInputModel model, EmissionSourceProperties sourceProperties)
+    public double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         var numerator = GetNumerator(model, sourceProperties);
         var denumerator = GetDenominator(model);
@@ -20,20 +20,20 @@ internal class ColdEmissionMaxConcentrationSingleSourceCalculationManager : Base
         return numerator / denumerator;
     }
 
-    private double GetNumerator(MaxConcentrationInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetNumerator(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         var k = GetK(model, sourceProperties);
-        var n = GetNCoefficient(sourceProperties.VmI);
+        var (n, _) = GetNCoefficient(sourceProperties.VmI);
 
-        return model.A * model.M * model.F * n * model.N * k;
+        return model.A * model.M * model.F * n * model.Eta * k;
     }
 
-    private double GetDenominator(MaxConcentrationInputModel model)
+    private double GetDenominator(SingleSourceInputModel model)
     {
         return Math.Pow(Math.Sqrt(model.H), 4d);
     }
 
-    private double GetK(MaxConcentrationInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetK(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         return model.D / (8d * sourceProperties.V);
     }

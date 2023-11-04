@@ -1,7 +1,7 @@
-﻿using EmissionWiz.Models.Calculations;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 
-namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleSource;
+namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationSingleSourceCalculationManagers;
 
 internal class LowWindMaxConcentrationSingleSourceCalculationManager : BaseMaxConcentrationSingleSourceCalculationManager, IMaxConcentrationSingleSourceCalculationSubManager
 {
@@ -12,7 +12,7 @@ internal class LowWindMaxConcentrationSingleSourceCalculationManager : BaseMaxCo
         _reportManager = reportManager;
     }
 
-    public double CalculateMaxConcentration(MaxConcentrationInputModel model, EmissionSourceProperties sourceProperties)
+    public double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         var numerator = GetNumeratort(model, sourceProperties);
         var denominator = GetDenomerator(model);
@@ -20,22 +20,23 @@ internal class LowWindMaxConcentrationSingleSourceCalculationManager : BaseMaxCo
         return numerator / denominator;
     }
 
-    private double GetNumeratort(MaxConcentrationInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetNumeratort(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         var m = GetMICoefficient(sourceProperties);
 
-        return model.A * model.M * model.F * m * model.N;
+        return model.A * model.M * model.F * m * model.Eta;
     }
 
-    private double GetDenomerator(MaxConcentrationInputModel model)
+    private double GetDenomerator(SingleSourceInputModel model)
     {
         return Math.Pow(Math.Cbrt(model.H), 7d);
     }
 
     private double GetMICoefficient(EmissionSourceProperties sourceProperties)
     {
+        var (m, _) = GetMCoefficient(sourceProperties);
         if (sourceProperties.Vm < 0.5)
-            return 2.86 * GetMCoefficient(sourceProperties);
+            return 2.86 * m;
         else
             return 0.9;
     }

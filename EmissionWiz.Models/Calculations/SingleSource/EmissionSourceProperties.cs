@@ -1,4 +1,4 @@
-﻿namespace EmissionWiz.Models.Calculations;
+﻿namespace EmissionWiz.Models.Calculations.SingleSource;
 
 public class EmissionSourceProperties
 {

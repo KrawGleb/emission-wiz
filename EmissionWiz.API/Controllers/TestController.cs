@@ -9,9 +9,9 @@ namespace EmissionWiz.API.Controllers
     [ApiController]
     public class TestController : ControllerBase
     {
-        private readonly IMaxConcentrationSingleSourceCalculationManager _maxConcentrationManager;
+        private readonly ISingleSourceEmissionCalculationManager _maxConcentrationManager;
 
-        public TestController(IMaxConcentrationSingleSourceCalculationManager maxConcentrationManager)
+        public TestController(ISingleSourceEmissionCalculationManager maxConcentrationManager)
         {
             _maxConcentrationManager = maxConcentrationManager;
         }
@@ -28,7 +28,7 @@ namespace EmissionWiz.API.Controllers
                 EmissionTemperature = 160,
                 M = 4.1,
                 D = 1,
-                N = 1,
+                Eta = 1,
                 W = 7.06
             };
 

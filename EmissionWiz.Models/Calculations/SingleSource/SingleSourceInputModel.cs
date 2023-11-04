@@ -1,6 +1,6 @@
-﻿namespace EmissionWiz.Models.Calculations;
+﻿namespace EmissionWiz.Models.Calculations.SingleSource;
 
-public class MaxConcentrationInputModel
+public class SingleSourceInputModel
 {
     /// <summary>
     /// Коэффициент, зависящий от температурной стратификации атмосферы, определяющий условия горизонтального и вертикального рассеивания ЗВ в атмосферном воздухе 
@@ -35,7 +35,7 @@ public class MaxConcentrationInputModel
     /// <summary>
     /// Безразмерный коэффициент, учитывающий влияние рельефа местности
     /// </summary>
-    public double N { get; set; }
+    public double Eta { get; set; }
 
     /// <summary>
     /// Тв - Температурой атмосферного воздуха, °C

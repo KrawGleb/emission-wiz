@@ -2,7 +2,7 @@
 
 internal class VmFormula : BaseFormula
 {
-    internal class VFormulaModel
+    internal class Model
     {
         public double V1 { get; set; }
         public double DeltaT { get; set; }

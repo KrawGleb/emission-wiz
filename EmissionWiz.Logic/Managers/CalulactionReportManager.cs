@@ -7,17 +7,25 @@ using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using MigraDocCore.Rendering;
 using PdfSharpCore.Utils;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Runtime.InteropServices;
 
 namespace EmissionWiz.Logic.Managers;
 
 public class CalulactionReportManager : ICalculationReportManager
 {
     private readonly List<BaseBlock> _blocks = new();
+    private readonly IPdfManager _pdfManager;
+
+    public CalulactionReportManager(IPdfManager pdfManager)
+    {
+        _pdfManager = pdfManager;
+    }
 
     public void Generate(Stream destination)
     {
         var document = new Document();
-        // TODO: define styles
+
+        _pdfManager.DefinePdfStyles(document);
 
         var section = document.AddSection();
         section.PageSetup.PageFormat = PageFormat.A4;
@@ -28,7 +36,7 @@ public class CalulactionReportManager : ICalculationReportManager
 
         section.PageSetup.BottomMargin = Unit.FromCentimeter(0);
         section.PageSetup.TopMargin = Unit.FromCentimeter(1);
-        section.PageSetup.LeftMargin = Unit.FromCentimeter(0.2);
+        section.PageSetup.LeftMargin = Unit.FromCentimeter(1);
         section.PageSetup.RightMargin = Unit.FromCentimeter(0.2);
 
         section.PageSetup.FooterDistance = "0 cm";
@@ -62,9 +70,24 @@ public class CalulactionReportManager : ICalculationReportManager
 
     private void RenderFormulaBlock(Section section, FormulaBlock block)
     {
+        var blockComment = block.Comment;
+        if (!string.IsNullOrWhiteSpace(blockComment))
+        {
+            var blockCommentParagraph = section.AddParagraph(blockComment);
+            blockCommentParagraph.Format.SpaceAfter = Unit.FromCentimeter(0.35);
+        }
+
         foreach (var (formula, model) in block.Formulas)
         {
             var latex = formula.Format(model);
+            var comment = formula.Comment;
+            
+            if (!string.IsNullOrWhiteSpace(comment))
+            {
+                var commentParagraph = section.AddParagraph(comment);
+                commentParagraph.Format.SpaceAfter = Unit.FromCentimeter(0.35);
+            }
+            
             var painter = new MathPainter()
             {
                 LaTeX = latex,
@@ -77,8 +100,7 @@ public class CalulactionReportManager : ICalculationReportManager
             if (ImageSource.ImageSourceImpl == null)
                 ImageSource.ImageSourceImpl = new ImageSharpImageSource<Rgba32>();
 
-            section.AddParagraph();
-            section.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
+            var sectionImage = section.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
             section.AddParagraph();
         }
     }

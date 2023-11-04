@@ -10,8 +10,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IMaxConcentrationSingleSourceCalculationManager, MaxConcentrationSingleSourceCalculationManager>();
+// TODO: Register by script
+builder.Services.AddScoped<ISingleSourceEmissionCalculationManager, SingleSourceEmissionCalculationManager>();
 builder.Services.AddScoped<ICalculationReportManager, CalulactionReportManager>();
+builder.Services.AddTransient<IPdfManager, PdfManager>();
 
 var app = builder.Build();
 
