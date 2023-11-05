@@ -7,7 +7,12 @@ public interface ISingleSourceEmissionCalculationManager
 }
 
 
-public interface IMaxConcentrationSingleSourceCalculationSubManager
+public interface IMaxConcentrationCalculationSubManager
 {
     double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
+}
+
+public interface IDangerousDistanceCalculationManager
+{
+    double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
 }

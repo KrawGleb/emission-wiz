@@ -1,13 +1,13 @@
 ﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 
-namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationSingleSourceCalculationManagers;
+namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 
-internal class LowWindMaxConcentrationSingleSourceCalculationManager : BaseMaxConcentrationSingleSourceCalculationManager, IMaxConcentrationSingleSourceCalculationSubManager
+internal class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationCalculationManager, IMaxConcentrationCalculationSubManager
 {
     private readonly ICalculationReportManager _reportManager;
 
-    public LowWindMaxConcentrationSingleSourceCalculationManager(ICalculationReportManager reportManager)
+    public LowWindMaxConcentrationCalculationManager(ICalculationReportManager reportManager)
     {
         _reportManager = reportManager;
     }

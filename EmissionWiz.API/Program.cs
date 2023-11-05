@@ -12,7 +12,7 @@ builder.Services.AddSwaggerGen();
 
 // TODO: Register by script
 builder.Services.AddScoped<ISingleSourceEmissionCalculationManager, SingleSourceEmissionCalculationManager>();
-builder.Services.AddScoped<ICalculationReportManager, CalulactionReportManager>();
+builder.Services.AddScoped<ICalculationReportManager, CalculationReportManager>();
 builder.Services.AddTransient<IPdfManager, PdfManager>();
 
 var app = builder.Build();

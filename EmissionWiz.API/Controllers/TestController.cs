@@ -1,6 +1,4 @@
-﻿using EmissionWiz.Models.Calculations;
-using EmissionWiz.Models.Interfaces.Managers;
-using Microsoft.AspNetCore.Http;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmissionWiz.API.Controllers
@@ -19,7 +17,7 @@ namespace EmissionWiz.API.Controllers
         [HttpGet("test")]
         public async Task<IActionResult> Get()
         {
-            var input = new MaxConcentrationInputModel
+            var input = new SingleSourceInputModel
             {
                 A = 160,
                 H = 30,
@@ -32,7 +30,7 @@ namespace EmissionWiz.API.Controllers
                 W = 7.06
             };
 
-            return Ok(_maxConcentrationManager.CalculateMaxConcentration(input));
+            return Ok(_maxConcentrationManager.Calculate(input));
         }
     }
 }

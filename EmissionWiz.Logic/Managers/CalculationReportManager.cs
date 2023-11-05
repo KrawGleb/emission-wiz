@@ -11,12 +11,12 @@ using System.Runtime.InteropServices;
 
 namespace EmissionWiz.Logic.Managers;
 
-public class CalulactionReportManager : ICalculationReportManager
+public class CalculationReportManager : ICalculationReportManager
 {
     private readonly List<BaseBlock> _blocks = new();
     private readonly IPdfManager _pdfManager;
 
-    public CalulactionReportManager(IPdfManager pdfManager)
+    public CalculationReportManager(IPdfManager pdfManager)
     {
         _pdfManager = pdfManager;
     }

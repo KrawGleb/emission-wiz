@@ -2,9 +2,9 @@
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Reports.Blocks;
 
-namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationSingleSourceCalculationManagers;
+namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 
-internal abstract class BaseMaxConcentrationSingleSourceCalculationManager
+internal abstract class BaseMaxConcentrationCalculationManager
 {
     protected (double, FormulaBlock) GetNCoefficient(double vm)
     {

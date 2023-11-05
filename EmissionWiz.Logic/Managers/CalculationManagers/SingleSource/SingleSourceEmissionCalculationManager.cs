@@ -1,5 +1,6 @@
 ﻿using EmissionWiz.Logic.Formulas.MaxConcentrationSingleSourceFormulas;
-using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationSingleSourceCalculationManagers;
+using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
+using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Reports.Blocks;
@@ -19,29 +20,61 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
     public SingleSourceEmissionCalculationResult Calculate(SingleSourceInputModel model)
     {
         var sourceProperties = GetEmissionSourceProperties(model);
-        IMaxConcentrationSingleSourceCalculationSubManager? subManager;
-        if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
-        {
-            subManager = new ColdEmissionMaxConcentrationSingleSourceCalculationManager(_reportManager);
-        }
-        else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
-        {
-            subManager = new LowWindMaxConcentrationSingleSourceCalculationManager(_reportManager);
-        }
-        else
-        {
-            subManager = new HotEmissionMaxConcentrationSingleSourceCalculationManager(_reportManager);
-        }
 
-        var result = subManager?.CalculateMaxConcentration(model, sourceProperties)
-            ?? throw new InvalidOperationException();
+        var result = new SingleSourceEmissionCalculationResult()
+        {
+            MaxConcentration = CalculateMaxConcentration(model, sourceProperties),
+            DangerousDistance = CalculateDangerousDistance(model, sourceProperties)
+        };
 
         using var testFile = File.Open("C:\\Users\\krawc\\Desktop\\Test\\test.pdf", FileMode.OpenOrCreate);
         _reportManager.Generate(testFile);
 
         return result;
     }
+
+    private double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    {
+        IMaxConcentrationCalculationSubManager? subManager;
+        if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
+        {
+            subManager = new ColdEmissionMaxConcentrationCalculationManager(_reportManager);
+        }
+        else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
+        {
+            subManager = new LowWindMaxConcentrationCalculationManager(_reportManager);
+        }
+        else
+        {
+            subManager = new HotEmissionMaxConcentrationCalculationManager(_reportManager);
+        }
+
+        var maxConcentration = subManager.CalculateMaxConcentration(model, sourceProperties);
+
+        return maxConcentration;
+    }
     
+    private double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    {
+        IDangerousDistanceCalculationManager? subManager;
+        if (sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5))
+        {
+            subManager = new ColdEmissionDangerousDistanceCalculationManager(_reportManager);
+        }
+        else if (sourceProperties.F < 100)
+        {
+            subManager = new LowWindDangerousDistanceCalculationManager(_reportManager);
+        }
+        else
+        {
+            subManager = new HotEmissionDangerousDistanceCalculationManager(_reportManager);
+        }
+
+        var dangerousDistance = subManager.CalculateDangerousDistance(model,sourceProperties);
+
+        return dangerousDistance;
+    }
+
     private double GetV(SingleSourceInputModel model)
     {
         var result =  Math.PI * Math.Pow(model.D, 2d) / 4 * model.W;
