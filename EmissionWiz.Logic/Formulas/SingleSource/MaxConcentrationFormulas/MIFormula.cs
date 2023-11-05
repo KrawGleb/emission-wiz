@@ -1,4 +1,4 @@
-﻿using static EmissionWiz.Models.Constants;
+﻿using static EmissionWiz.Common.Constants;
 
 namespace EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
 
@@ -25,7 +25,7 @@ internal class MIFormula : BaseFormula
     {
         if (_vm < 0.5)
         {
-            _nearbyComment = $", при v{MathChars.Lower.m} < 0.5";
+            _nearbyComment = ", при v{{math Lower|m} < 0.5";
             return @"m' = 2.86 \cdot m = 2.86 \cdot {{trimByPrecision MCoef}} = {{trimByPrecision Result}}";
         }
         else

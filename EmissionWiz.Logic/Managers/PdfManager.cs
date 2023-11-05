@@ -1,4 +1,4 @@
-﻿using EmissionWiz.Models;
+﻿using EmissionWiz.Common;
 using EmissionWiz.Models.Interfaces.Managers;
 using MigraDocCore.DocumentObjectModel;
 

@@ -1,5 +1,8 @@
-﻿using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
+using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
+using EmissionWiz.Models.Reports.Blocks;
+using static EmissionWiz.Common.Constants;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 
@@ -14,16 +17,40 @@ internal class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentra
 
     public double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
-        var numerator = GetNumerator(model, sourceProperties);
+        var formulaModel = new ColdEmissionCFormula.Model
+        {
+            A = model.A,
+            Eta = model.Eta,
+            F = model.F,
+            M = model.M,
+            H = model.H
+        };
+        var reportBlock = new FormulaBlock();
+        reportBlock.Comment = "Для {{math f}}{{math GoE}}100 (или 0{{math LoE}}{{math Delta}}T{{math LoE}}0.5) и v{{math Lower|m}}\'{{math GoE}}0.5 (холодные выбросы) при расчете c{{math Lower|m}} используется формула: ";
+
+        var numerator = GetNumerator(model, sourceProperties, formulaModel, reportBlock);
         var denumerator = GetDenominator(model);
 
-        return numerator / denumerator;
+        var result = numerator / denumerator;
+
+        reportBlock.PushFormula(new ColdEmissionCFormula(), formulaModel);
+        _reportManager.AddBlock(reportBlock);
+
+        return result;
     }
 
-    private double GetNumerator(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetNumerator(SingleSourceInputModel model, EmissionSourceProperties sourceProperties, ColdEmissionCFormula.Model formulaModel, FormulaBlock block)
     {
-        var k = GetK(model, sourceProperties);
-        var (n, _) = GetNCoefficient(sourceProperties.VmI);
+        var (k, kBlock) = GetK(model, sourceProperties);
+        var (n, nBlock) = GetNCoefficient(sourceProperties.VmI);
+
+        nBlock.Comment = $"Коэффициент n определяется при v{MathChars.Lower.m} = v{MathChars.Lower.m}\':";
+
+        block.PushBlock(nBlock);
+        block.PushBlock(kBlock);
+
+        formulaModel.KCoef = k;
+        formulaModel.NCoef = n;
 
         return model.A * model.M * model.F * n * model.Eta * k;
     }
@@ -33,8 +60,18 @@ internal class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentra
         return Math.Pow(Math.Sqrt(model.H), 4d);
     }
 
-    private double GetK(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private (double, FormulaBlock) GetK(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
-        return model.D / (8d * sourceProperties.V);
+        var result = model.D / (8d * sourceProperties.V);
+
+        var reportBlock = new FormulaBlock();
+        reportBlock.PushFormula(new KCoefFormula(), new KCoefFormula.Model
+        {
+            D = model.D,
+            V1 = sourceProperties.V,
+            Result = result
+        });
+
+        return (result, reportBlock);
     }
 }

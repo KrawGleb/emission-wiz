@@ -5,6 +5,8 @@ namespace EmissionWiz.Models.Reports.Blocks;
 
 public class FormulaBlock : BaseBlock
 {
+
+    public List<FormulaBlock> NestedBlocks { get; set; } = new();
     public List<(IFormula, object)> Formulas { get; set; } = new();
     public string? Comment { get; set; }
 
@@ -13,5 +15,9 @@ public class FormulaBlock : BaseBlock
         Comment = comment;
     }
 
-    public void PushFormula(IFormula formula, object model) => Formulas.Add((formula, model));
+    public void PushFormula(IFormula formula, object model) =>
+        Formulas.Add((formula, model));
+
+    public void PushBlock(FormulaBlock block) =>
+        NestedBlocks.Add(block);
 }

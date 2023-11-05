@@ -1,4 +1,4 @@
-﻿using static EmissionWiz.Models.Constants;
+﻿using static EmissionWiz.Common.Constants;
 
 namespace EmissionWiz.Logic.Formulas.SingleSource.DangerousDistanceFormulas;
 

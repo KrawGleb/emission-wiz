@@ -1,5 +1,6 @@
 ﻿using CSharpMath.SkiaSharp;
-using EmissionWiz.Models;
+using EmissionWiz.Common;
+using EmissionWiz.Common.Templates;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Reports.Areas;
 using EmissionWiz.Models.Reports.Blocks;
@@ -84,17 +85,22 @@ public class CalculationReportManager : ICalculationReportManager
 
     private void RenderFormulaBlock(Section section, FormulaBlock block)
     {
-        var blockComment = block.Comment;
+        var blockComment = HbsTemplateManager.Format(block.Comment, Constants.MathCharsObj);
         if (!string.IsNullOrWhiteSpace(blockComment))
         {
             var blockCommentParagraph = section.AddParagraph(blockComment);
             blockCommentParagraph.Format.SpaceAfter = Unit.FromCentimeter(0.35);
         }
 
+        foreach (var nestedBlock in block.NestedBlocks)
+        {
+            RenderFormulaBlock(section, nestedBlock);
+        }
+
         foreach (var (formula, model) in block.Formulas)
         {
             var latex = formula.Format(model);
-            var comment = formula.Comment;
+            var comment = HbsTemplateManager.Format(formula.Comment, Constants.MathCharsObj); 
             var nearbyComment = formula.NearbyComment;
             
             if (!string.IsNullOrWhiteSpace(comment))

@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.API", "EmissionWiz.API\EmissionWiz.API.csproj", "{5094F385-9C81-412E-9203-8D0B99D41D4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.API", "EmissionWiz.API\EmissionWiz.API.csproj", "{5094F385-9C81-412E-9203-8D0B99D41D4D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AB1F14D8-8271-4FB2-A585-A4EE9BE43CA6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.Logic", "EmissionWiz.Logic\EmissionWiz.Logic.csproj", "{ED884F15-592F-42AC-847C-904D8782E8D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.Logic", "EmissionWiz.Logic\EmissionWiz.Logic.csproj", "{ED884F15-592F-42AC-847C-904D8782E8D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.Models", "EmissionWiz.Models\EmissionWiz.Models.csproj", "{29D690E4-4520-43AC-BAD9-578481362696}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.Models", "EmissionWiz.Models\EmissionWiz.Models.csproj", "{29D690E4-4520-43AC-BAD9-578481362696}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.Common", "EmissionWiz.Common\EmissionWiz.Common.csproj", "{14FFE15D-EE24-4912-B0F1-240B6F629053}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{29D690E4-4520-43AC-BAD9-578481362696}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29D690E4-4520-43AC-BAD9-578481362696}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29D690E4-4520-43AC-BAD9-578481362696}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14FFE15D-EE24-4912-B0F1-240B6F629053}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14FFE15D-EE24-4912-B0F1-240B6F629053}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14FFE15D-EE24-4912-B0F1-240B6F629053}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14FFE15D-EE24-4912-B0F1-240B6F629053}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

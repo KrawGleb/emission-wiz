@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EmissionWiz.Common\EmissionWiz.Common.csproj" />
     <ProjectReference Include="..\EmissionWiz.Models\EmissionWiz.Models.csproj" />
   </ItemGroup>
 

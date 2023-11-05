@@ -1,6 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using EmissionWiz.Common.Helpers;
 
-namespace EmissionWiz.Models;
+namespace EmissionWiz.Common;
 
 public static class Constants
 {
@@ -18,9 +18,9 @@ public static class Constants
         public const int StandartPrecision = 3;
     }
 
-    public static class MathChars
+    public class MathChars
     {
-        public static class Lower
+        public class Lower
         {
             public const char m = 'ₘ';
         }
@@ -28,7 +28,9 @@ public static class Constants
         public const char GoE = '≥';
         public const char LoE = '≤';
 
+        public const char Delta = 'Δ';
         public const char f = 'ƒ';
-
     }
+
+    public static IDictionary<string, string>? MathCharsObj = ExpandoObjectBuilder.FromInstance(new MathChars());
 }

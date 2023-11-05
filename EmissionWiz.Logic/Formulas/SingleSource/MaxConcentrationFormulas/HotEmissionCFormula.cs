@@ -17,7 +17,7 @@ internal class HotEmissionCFormula : BaseFormula
     }
 
     public override string? Comment =>
-        "Максимальная приземная разовая концентрация ЗВ cₘ, мг/м³, при выбросе ГВС из одиночного точечного источника с круглым устьем достигается при опасной скорости ветра uₘ на расстоянии xₘ от источника выброса и определяется по формуле:";
+        "Максимальная приземная разовая концентрация ЗВ c{{math Lower|m}}, мг/м³, при выбросе ГВС из одиночного точечного источника с круглым устьем достигается при опасной скорости ветра uₘ на расстоянии xₘ от источника выброса и определяется по формуле:";
 
     public override string Template =>
         @"c_{m}=\frac{ A \cdot M \cdot F \cdot m \cdot n\cdot \eta }{ H^2 \cdot \sqrt[3]{V_{1} \cdot \Delta T } }=\frac{ {{trimByPrecision A}} \cdot {{trimByPrecision M}} \cdot {{trimByPrecision F}} \cdot {{trimByPrecision m}} \cdot {{trimByPrecision n}} \cdot {{trimByPrecision eta}} }{ {{trimByPrecision H}}^2 \cdot \sqrt[3]{ {{trimByPrecision V1}} \cdot {{trimByPrecision DeltaT}} } } = {{trimByPrecision Result}} \frac{мг}{м^3}";

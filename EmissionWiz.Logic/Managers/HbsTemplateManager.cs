@@ -1,8 +1,8 @@
-﻿using EmissionWiz.Models;
+﻿using EmissionWiz.Common.Helpers;
 using HandlebarsDotNet;
 using System.Globalization;
 
-namespace EmissionWiz.Logic.Managers;
+namespace EmissionWiz.Common.Templates;
 
 public static class HbsTemplateManager
 {
@@ -10,7 +10,7 @@ public static class HbsTemplateManager
     {
         Handlebars.RegisterHelper("trimByPrecision", (output, context, data) =>
         {
-            var format = $"0.{new string('#', Constants.Templates.StandartPrecision)}";
+            var format = $"0.{new string('#', 3)}";
 
             var number = data[0];
             if (number is int i)
@@ -30,10 +30,28 @@ public static class HbsTemplateManager
                 output.WriteSafeString(dd.ToString(format, CultureInfo.InvariantCulture));
             }
         });
+        Handlebars.RegisterHelper("math", (output, context, data) =>
+        {
+            var name = data[0].ToString();
+            if (name != null && Constants.MathCharsObj != null && Constants.MathCharsObj.ContainsKey(name))
+            {
+                output.WriteSafeString(Constants.MathCharsObj[name]);
+            }
+            else
+            {
+                output.WriteSafeString(name);
+            }
+        });
     }
 
-    public static string Format(string template, object model)
+    public static string Format(string? template, object? model)
     {
+        if (model == null)
+            return template ?? "";
+
+        if (string.IsNullOrEmpty(template))
+            return "";
+ 
         var templateCompiled = Handlebars.Compile(template);
 
         return templateCompiled(model);
