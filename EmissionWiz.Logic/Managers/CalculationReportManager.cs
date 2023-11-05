@@ -1,4 +1,5 @@
 ﻿using CSharpMath.SkiaSharp;
+using EmissionWiz.Models;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Reports.Areas;
 using EmissionWiz.Models.Reports.Blocks;
@@ -7,7 +8,6 @@ using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using MigraDocCore.Rendering;
 using PdfSharpCore.Utils;
 using SixLabors.ImageSharp.PixelFormats;
-using System.Runtime.InteropServices;
 
 namespace EmissionWiz.Logic.Managers;
 
@@ -15,10 +15,17 @@ public class CalculationReportManager : ICalculationReportManager
 {
     private readonly List<BaseBlock> _blocks = new();
     private readonly IPdfManager _pdfManager;
+    private string? _title;
 
     public CalculationReportManager(IPdfManager pdfManager)
     {
         _pdfManager = pdfManager;
+    }
+
+    public ICalculationReportManager SetTitle(string title)
+    {
+        _title = title;
+        return this;
     }
 
     public void Generate(Stream destination)
@@ -40,6 +47,13 @@ public class CalculationReportManager : ICalculationReportManager
         section.PageSetup.RightMargin = Unit.FromCentimeter(0.2);
 
         section.PageSetup.FooterDistance = "0 cm";
+
+        if (!string.IsNullOrWhiteSpace(_title))
+        {
+            var title = section.AddParagraph(_title, Constants.Pdf.CustomStyleNames.Title);
+            title.Format.Alignment = ParagraphAlignment.Center;
+            title.Format.SpaceAfter = Unit.FromCentimeter(0.5);
+        }
 
         foreach (var block in _blocks)
         {
@@ -81,6 +95,7 @@ public class CalculationReportManager : ICalculationReportManager
         {
             var latex = formula.Format(model);
             var comment = formula.Comment;
+            var nearbyComment = formula.NearbyComment;
             
             if (!string.IsNullOrWhiteSpace(comment))
             {
@@ -91,7 +106,7 @@ public class CalculationReportManager : ICalculationReportManager
             var painter = new MathPainter()
             {
                 LaTeX = latex,
-                FontSize = 12
+                FontSize = 13
             };
 
             var image = painter.DrawAsStream(format: SkiaSharp.SKEncodedImageFormat.Png)
@@ -100,7 +115,32 @@ public class CalculationReportManager : ICalculationReportManager
             if (ImageSource.ImageSourceImpl == null)
                 ImageSource.ImageSourceImpl = new ImageSharpImageSource<Rgba32>();
 
-            var sectionImage = section.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
+            if (string.IsNullOrEmpty(nearbyComment))
+            {
+                var sectionImage = section.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
+            }
+            else
+            {
+                var layoutTable = section.AddTable();
+                layoutTable.Borders.Visible = false;
+
+                var leftColumn = layoutTable.AddColumn();
+                leftColumn.Format.Alignment = ParagraphAlignment.Center;
+                leftColumn.Width = Unit.FromCentimeter(section.PageSetup.PageWidth.Centimeter / 2d);
+
+                var rightColumn = layoutTable.AddColumn();
+                rightColumn.Format.Alignment = ParagraphAlignment.Left;
+                rightColumn.Width = Unit.FromCentimeter(section.PageSetup.PageWidth.Centimeter / 2d);
+
+                var row = layoutTable.AddRow();
+                var imageCell = row.Cells[0];
+
+                imageCell.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
+
+                var commentCell = row.Cells[1];
+                commentCell.AddParagraph(nearbyComment);
+            }
+
             section.AddParagraph();
         }
     }

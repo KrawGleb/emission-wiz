@@ -1,4 +1,4 @@
-﻿using EmissionWiz.Logic.Formulas.MaxConcentrationSingleSourceFormulas;
+﻿using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
 using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 using EmissionWiz.Models.Calculations.SingleSource;
@@ -28,7 +28,9 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         };
 
         using var testFile = File.Open("C:\\Users\\krawc\\Desktop\\Test\\test.pdf", FileMode.OpenOrCreate);
-        _reportManager.Generate(testFile);
+        _reportManager
+            .SetTitle("Расчет максимальных разовых концентраций от выбросов \nодиночного точечного источника")
+            .Generate(testFile);
 
         return result;
     }

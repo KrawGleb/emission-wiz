@@ -1,4 +1,4 @@
-﻿namespace EmissionWiz.Logic.Formulas.MaxConcentrationSingleSourceFormulas;
+﻿namespace EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
 
 internal class FeFormula : BaseFormula
 {

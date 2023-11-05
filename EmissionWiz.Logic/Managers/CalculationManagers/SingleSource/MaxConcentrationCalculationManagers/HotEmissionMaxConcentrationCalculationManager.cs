@@ -1,4 +1,4 @@
-﻿using EmissionWiz.Logic.Formulas.MaxConcentrationSingleSourceFormulas;
+﻿using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Reports.Blocks;

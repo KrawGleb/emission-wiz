@@ -2,6 +2,7 @@
 
 public interface IFormula
 {
+    string? Comment { get; }
+    string? NearbyComment { get; }
     string Format(object model);
-    string Comment { get; }
 }

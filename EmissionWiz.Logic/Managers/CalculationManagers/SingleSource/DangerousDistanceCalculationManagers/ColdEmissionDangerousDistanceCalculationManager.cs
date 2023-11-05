@@ -25,6 +25,9 @@ internal class ColdEmissionDangerousDistanceCalculationManager : BaseDangerousDi
             result = 16d * Math.Sqrt(sourceProperties.VmI); 
         }
 
+
+
+
         return result;
     }
 }
