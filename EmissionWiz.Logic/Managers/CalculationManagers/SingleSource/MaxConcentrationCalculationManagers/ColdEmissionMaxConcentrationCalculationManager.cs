@@ -16,8 +16,6 @@ public class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentrati
 
         var result = numerator / denumerator;
 
-        _reportModelBuilder.SetCmResultValue(result);
-
         return result;
     }
 

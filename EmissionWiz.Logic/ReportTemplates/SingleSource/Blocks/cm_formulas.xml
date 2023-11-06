@@ -30,8 +30,14 @@
 	<block ref="/m_formulas.xml" />
 	<block ref="/n_formulas.xml" />
 
+	<text>
+		Максимальная приземная разовая концентрация ЗВ c{{math Lower|m}}, мг/м³, при выбросе ГВС из одиночного точечного источника с круглым устьем достигается при опасной скорости ветра uₘ на расстоянии xₘ от источника выброса и определяется по формуле:
+	</text>
+	
 	{{#if HotEmission}}
-
+		<formula>
+			c_{m}=\frac{ A \cdot M \cdot F \cdot m \cdot n\cdot \eta }{ H^2 \cdot \sqrt[3]{V_{1} \cdot \Delta T } }=\frac{ {{trimByPrecision A}} \cdot {{trimByPrecision M}} \cdot {{trimByPrecision F}} \cdot {{trimByPrecision MCoef}} \cdot {{trimByPrecision NCoef}} \cdot {{trimByPrecision Eta}} }{ {{trimByPrecision H}}^2 \cdot \sqrt[3]{ {{trimByPrecision V1}} \cdot {{trimByPrecision DeltaT}} } } = {{trimByPrecision CmResult}} \frac{мг}{м^3}
+		</formula>
 	{{/if}}
 
 	{{#if ColdEmission}}

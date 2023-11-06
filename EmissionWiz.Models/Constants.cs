@@ -24,6 +24,8 @@ public static class Constants
         {
             public const char m = 'ₘ';
             public const char e = 'ₑ';
+            public const char dot = '̣';
+
         }
 
         public const char GoE = '≥';

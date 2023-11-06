@@ -16,8 +16,6 @@ public class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationCal
 
         var result = numerator / denominator;
 
-        _reportModelBuilder.SetCmResultValue(result);
-
         return result;
     }
 

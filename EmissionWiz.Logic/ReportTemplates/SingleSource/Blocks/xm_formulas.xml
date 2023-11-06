@@ -14,15 +14,15 @@
 		{{#if Vm_LoE_05}} <!-- vm <= 0.5 -->
 
 		<formula comment="(при v{{math Lower|m}} {{math LoE}} 0.5):">
-			d = 2.48 \cdot (1 + 0.28 \cdot \sqrt[3]{f_{e} }) = \\\\
-			\\quad 2.48 \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision Fe}} }) = {{trimByPrecision DCoef}} \\quad .
+			d = 2.48 \cdot (1 + 0.28 \cdot \sqrt[3]{f_{e} }) \\\\
+			\\quad = 2.48 \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision Fe}} }) = {{trimByPrecision DCoef}} \\quad .
 		</formula>
 		
 		{{else}}
 			{{#if Vm_LoE_2}} <!-- 0.5 < vm <= 2 -->
 			<formula comment="(при 0.5 {{math L}} v{{math Lower|m}} {{math LoE}} 2):">
-				d = 4.95 \cdot v_{m} \cdot (1 + 0.28 \cdot \sqrt[3]{f}) = \\\\
-				\\quad 4.95 \cdot {{trimByPrecision Vm}} \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision F}} }) = {{trimByPrecision DCoef}} \\quad .
+				d = 4.95 \cdot v_{m} \cdot (1 + 0.28 \cdot \sqrt[3]{f}) \\\\
+				\\quad = 4.95 \cdot {{trimByPrecision Vm}} \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision F}} }) = {{trimByPrecision DCoef}} \\quad .
 			</formula>
 			{{else}} <!-- vm > 2 -->
 			<formula comment="(при v{{math Lower|m}} {{math G}} 2):">

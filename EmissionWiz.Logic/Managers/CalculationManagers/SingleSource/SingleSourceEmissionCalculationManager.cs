@@ -64,7 +64,11 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
 
-        return subManager.CalculateMaxConcentration(model, sourceProperties); 
+        var cm = subManager.CalculateMaxConcentration(model, sourceProperties);
+
+        _reportModelBuilder.SetCmResultValue(cm);
+
+        return cm;
     }
     
     private double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
@@ -72,7 +76,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         IDangerousWindSpeedCalculationManager? subManager;
         if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
             subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IColdEmissionDangerousWindSpeedCalculationManager>();
-        else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
+        else if (sourceProperties.F < 100)
             subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindDangerousWindSpeedCalculationManager>();
         else
             subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionDangerousWindSpeedCalculationManager>();
@@ -80,7 +84,11 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
 
-        return subManager.CalculateDangerousWindSpeed(model, sourceProperties);
+        var um = subManager.CalculateDangerousWindSpeed(model, sourceProperties);
+        
+        _reportModelBuilder.SetUmValue(um);
+
+        return um;
     }
     
     private double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
@@ -105,6 +113,8 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
         var result = intermediateResults.MaxConcentration * r;
 
+        _reportModelBuilder.SetCmuValue(result);
+
         return result;
     }
 
@@ -121,6 +131,8 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         {
             result = (3 * ratio) / (2 * Math.Pow(ratio, 2) - ratio + 2);
         }
+
+        _reportModelBuilder.SetRCoefValue(result);
 
         return result;
     }

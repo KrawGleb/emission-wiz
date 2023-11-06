@@ -1,19 +1,9 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.DangerousWindSpeedFormulas;
-using EmissionWiz.Models.Calculations.SingleSource;
-using EmissionWiz.Models.Interfaces.Managers;
-using EmissionWiz.Models.Reports.Blocks;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerouesWindSpeedCalculationManagers;
 
 public class LowWindDangerousWindSpeedCalculationManager : ILowWindDangerousWindSpeedCalculationManager
 {
-    private readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
-
-    public LowWindDangerousWindSpeedCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder)
-    {
-        _reportModelBuilder = reportModelBuilder;
-    }
-
     public double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         double result;

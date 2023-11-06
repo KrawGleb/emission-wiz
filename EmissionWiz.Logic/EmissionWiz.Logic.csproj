@@ -22,10 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="ReportTemplates\SingleSource\Blocks\dangerous_distance.xml">
+    <None Update="ReportTemplates\SingleSource\Blocks\cmu_formulas.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ReportTemplates\SingleSource\Blocks\max_concentration.xml">
+    <None Update="ReportTemplates\SingleSource\Blocks\um_formulas.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\Blocks\xm_formulas.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\Blocks\cm_formulas.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="ReportTemplates\SingleSource\Blocks\mi_formulas.xml">

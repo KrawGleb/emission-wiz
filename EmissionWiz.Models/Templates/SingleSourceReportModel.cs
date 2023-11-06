@@ -18,19 +18,26 @@ public class SingleSourceReportModel
     public double FeResult { get; set; }
     public double V1Result { get; set; }
     public double CmResult { get; set; }
+    public double CmuResult { get; set; }
     public double XmResult { get; set; }
+    public double UmResult { get; set; }
 
     public double MICoef { get; set; }
     public double MCoef { get; set; }
     public double NCoef { get; set; }
     public double KCoef { get; set; }
     public double DCoef { get; set; }
+    public double RCoef { get; set; }
 
     public double V1 => V1Result;
     public double Vm => VmResult;
     public double VmI => VmIResult;
     public double F => FResult;
     public double Fe => FeResult;
+    public double Um => UmResult;
+
+    public double WindRatio => U / UmResult;
+    public bool WindRatio_G_1 => WindRatio > 1;
 
     public bool ColdEmission => (FResult >= 100 || (0 <= DeltaT && DeltaT <= 0.5)) && VmIResult > 0.5;
     public bool LowWind => (FResult < 100 && VmResult < 0.5) || (FResult >= 100 && VmIResult < 0.5);

@@ -4,4 +4,6 @@
 	одиночного точечного источника</title>
 	<block ref="/Blocks/cm_formulas.xml" />
 	<block ref="/Blocks/xm_formulas.xml" />
+	<block ref="/Blocks/um_formulas.xml" />
+	<block ref="/Blocks/cmu_formulas.xml"/>
 </block>

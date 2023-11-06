@@ -1,7 +1,5 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.DangerousDistanceFormulas;
-using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
-using EmissionWiz.Models.Reports.Blocks;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 

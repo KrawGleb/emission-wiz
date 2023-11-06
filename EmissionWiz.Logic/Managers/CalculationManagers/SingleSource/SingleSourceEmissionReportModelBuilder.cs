@@ -83,6 +83,28 @@ public class SingleSourceEmissionReportModelBuilder : ISingleSourceEmissionRepor
         return this;
     }
 
+    public ISingleSourceEmissionReportModelBuilder SetUmValue(double vm)
+    {
+        _model.UmResult = vm;
+
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetCmuValue(double cmu)
+    {
+        _model.CmuResult = cmu;
+
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetRCoefValue(double r)
+    {
+        _model.RCoef = r;
+
+        return this;
+    }
+
+
 
     public SingleSourceReportModel Build() => _model; 
 }
