@@ -6,7 +6,7 @@ namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcent
 
 internal abstract class BaseMaxConcentrationCalculationManager
 {
-    protected (double, FormulaBlock) GetNCoefficient(double vm)
+    protected (double, FormulaBlock) GetNCoefficient(double vm, bool useSpecial = false)
     {
         double result;
         if (vm < 0.5d)
@@ -23,7 +23,7 @@ internal abstract class BaseMaxConcentrationCalculationManager
         }
 
         var reportBlock = new FormulaBlock();
-        reportBlock.PushFormula(new NCoefFormula(vm), new NCoefFormula.Model
+        reportBlock.PushFormula(new NCoefFormula(vm, useSpecial), new NCoefFormula.Model
         {
             Vm = vm,
             Result = result

@@ -14,13 +14,19 @@ namespace EmissionWiz.Logic.Managers;
 
 public class CalculationReportManager : ICalculationReportManager
 {
-    private readonly List<BaseBlock> _blocks = new();
     private readonly IPdfManager _pdfManager;
+    private List<BaseBlock> _blocks = new();
     private string? _title;
 
     public CalculationReportManager(IPdfManager pdfManager)
     {
         _pdfManager = pdfManager;
+    }
+
+    public void Reset()
+    {
+        _blocks = new();
+        _title = null;
     }
 
     public ICalculationReportManager SetTitle(string title)
@@ -101,7 +107,7 @@ public class CalculationReportManager : ICalculationReportManager
         {
             var latex = formula.Format(model);
             var comment = HbsTemplateManager.Format(formula.Comment, Constants.MathCharsObj); 
-            var nearbyComment = formula.NearbyComment;
+            var nearbyComment = HbsTemplateManager.Format(formula.NearbyComment, Constants.MathCharsObj);
             
             if (!string.IsNullOrWhiteSpace(comment))
             {
@@ -112,21 +118,26 @@ public class CalculationReportManager : ICalculationReportManager
             var painter = new MathPainter()
             {
                 LaTeX = latex,
-                FontSize = 13
+                FontSize = 13,
+                
             };
 
-            var image = painter.DrawAsStream(format: SkiaSharp.SKEncodedImageFormat.Png)
-                ?? throw new InvalidOperationException("Failed to draw formula");
+            
 
             if (ImageSource.ImageSourceImpl == null)
                 ImageSource.ImageSourceImpl = new ImageSharpImageSource<Rgba32>();
 
             if (string.IsNullOrEmpty(nearbyComment))
             {
+                var image = painter.DrawAsStream(format: SkiaSharp.SKEncodedImageFormat.Png)
+                    ?? throw new InvalidOperationException("Failed to draw formula");
                 var sectionImage = section.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
             }
             else
             {
+                var image = painter.DrawAsStream(format: SkiaSharp.SKEncodedImageFormat.Png, textPainterCanvasWidth: 1000)
+                    ?? throw new InvalidOperationException("Failed to draw formula");
+                
                 var layoutTable = section.AddTable();
                 layoutTable.Borders.Visible = false;
 

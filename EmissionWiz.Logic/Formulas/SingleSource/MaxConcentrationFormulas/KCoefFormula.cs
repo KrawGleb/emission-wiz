@@ -9,5 +9,5 @@ internal class KCoefFormula : BaseFormula
         public double Result { get; set; }
     }
 
-    public override string Template => @"K = \frac{ D }{ 8 * V_{1} } = \frac{ {{trimByPrecision D}} }{ 8 * {{trimByPrecision V}} } = {{trimByPrecision Result}}";
+    public override string Template => @"K = \frac{ D }{ 8 * V_{1} } = \frac{ {{trimByPrecision D}} }{ 8 * {{trimByPrecision V1}} } = {{trimByPrecision Result}}";
 }

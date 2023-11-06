@@ -25,12 +25,12 @@ internal class MIFormula : BaseFormula
     {
         if (_vm < 0.5)
         {
-            _nearbyComment = ", при v{{math Lower|m} < 0.5";
+            _nearbyComment = ", при v{{math Lower|m}} < 0.5";
             return @"m' = 2.86 \cdot m = 2.86 \cdot {{trimByPrecision MCoef}} = {{trimByPrecision Result}}";
         }
         else
         {
-            _nearbyComment = $", при {MathChars.f}{MathChars.GoE}100, v{MathChars.Lower.m}\'<0.5";
+            _nearbyComment = ", при {{math f}} {{math GoE}} 100, v{{math Lower|m}}\' < 0.5";
             return @"m' = 0.9";
         }
     }

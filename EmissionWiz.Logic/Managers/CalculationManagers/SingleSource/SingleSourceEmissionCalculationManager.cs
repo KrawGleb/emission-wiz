@@ -1,4 +1,6 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
+﻿using EmissionWiz.Logic.Formulas.SingleSource;
+using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
+using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerouesWindSpeedCalculationManagers;
 using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 using EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 using EmissionWiz.Models.Calculations.SingleSource;
@@ -17,22 +19,25 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         _reportManager = reportManager;
     }
 
-    public SingleSourceEmissionCalculationResult Calculate(SingleSourceInputModel model)
+    public SingleSourceEmissionCalculationResult Calculate(SingleSourceInputModel model, string reportName)
     {
         var sourceProperties = GetEmissionSourceProperties(model);
 
-        var result = new SingleSourceEmissionCalculationResult()
+        var intermediateResults = new SingleSourceEmissionCalculationResult()
         {
             MaxConcentration = CalculateMaxConcentration(model, sourceProperties),
-            DangerousDistance = CalculateDangerousDistance(model, sourceProperties)
+            DangerousDistance = CalculateDangerousDistance(model, sourceProperties),
+            DangerousWindSpeed = CalculateDangerousWindSpeed(model, sourceProperties)
         };
 
-        using var testFile = File.Open("C:\\Users\\krawc\\Desktop\\Test\\test.pdf", FileMode.OpenOrCreate);
+        intermediateResults.MaxUntowardConcentrationDistance = CalculateMaxUntowardConcentrationDistance(model, sourceProperties, intermediateResults);
+
+        using var testFile = File.Open($"C:\\Users\\krawc\\Desktop\\Test\\{reportName}", FileMode.OpenOrCreate);
         _reportManager
             .SetTitle("Расчет максимальных разовых концентраций от выбросов \nодиночного точечного источника")
             .Generate(testFile);
 
-        return result;
+        return intermediateResults;
     }
 
     private double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
@@ -56,6 +61,25 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         return maxConcentration;
     }
     
+    private double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    {
+        IDangerousWindSpeedCalculationManager? subManager;
+        if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
+        {
+            subManager = new ColdEmissionDangerousWindSpeedCalculationManager(_reportManager);
+        }
+        else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
+        {
+            subManager = new LowWindDangerousWindSpeedCalculationManager(_reportManager);
+        }
+        else
+        {
+            subManager = new HotEmissionDangerousWindSpeedCalculationManager(_reportManager);
+        }
+
+        return subManager.CalculateDangerousWindSpeed(model, sourceProperties);
+    }
+
     private double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         IDangerousDistanceCalculationManager? subManager;
@@ -75,6 +99,45 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         var dangerousDistance = subManager.CalculateDangerousDistance(model,sourceProperties);
 
         return dangerousDistance;
+    }
+
+    public double CalculateMaxUntowardConcentrationDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties, SingleSourceEmissionCalculationResult intermediateResults)
+    {
+        var reportBlock = new FormulaBlock();
+        
+        var (r, rBlock) = GetRCoef(model, intermediateResults);
+        reportBlock.PushBlock(rBlock);
+
+        var result = intermediateResults.MaxConcentration * r;
+
+        _reportManager.AddBlock(reportBlock);
+
+        return result;
+    }
+
+    private (double, FormulaBlock) GetRCoef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
+    {
+        var ratio = model.U / intermediateResults.DangerousWindSpeed;
+        
+        double result;
+        if (ratio <= 1)
+        {
+            result = 0.67 * ratio + 1.67 * Math.Pow(ratio, 2) - 1.34 * Math.Pow(ratio, 3);
+        }
+        else
+        {
+            result = (3 * ratio) / (2 * Math.Pow(ratio, 2) - ratio + 2);
+        }
+
+        var reportBlock = new FormulaBlock();
+        reportBlock.PushFormula(new RCoefFormula(ratio), new RCoefFormula.Model
+        {
+            U = model.U,
+            Um = intermediateResults.DangerousWindSpeed,
+            Result = result
+        });
+
+        return (result, reportBlock);
     }
 
     private double GetV(SingleSourceInputModel model)

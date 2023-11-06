@@ -26,7 +26,7 @@ internal class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentra
             H = model.H
         };
         var reportBlock = new FormulaBlock();
-        reportBlock.Comment = "Для {{math f}}{{math GoE}}100 (или 0{{math LoE}}{{math Delta}}T{{math LoE}}0.5) и v{{math Lower|m}}\'{{math GoE}}0.5 (холодные выбросы) при расчете c{{math Lower|m}} используется формула: ";
+        reportBlock.Comment = "Для {{math f}} {{math GoE}} 100 (или 0 {{math LoE}} {{math Delta}} T {{math LoE}} 0.5) и v{{math Lower|m}}\' {{math GoE}} 0.5 (холодные выбросы) при расчете c{{math Lower|m}} используется формула: ";
 
         var numerator = GetNumerator(model, sourceProperties, formulaModel, reportBlock);
         var denumerator = GetDenominator(model);
@@ -42,9 +42,9 @@ internal class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentra
     private double GetNumerator(SingleSourceInputModel model, EmissionSourceProperties sourceProperties, ColdEmissionCFormula.Model formulaModel, FormulaBlock block)
     {
         var (k, kBlock) = GetK(model, sourceProperties);
-        var (n, nBlock) = GetNCoefficient(sourceProperties.VmI);
+        var (n, nBlock) = GetNCoefficient(sourceProperties.VmI, true);
 
-        nBlock.Comment = $"Коэффициент n определяется при v{MathChars.Lower.m} = v{MathChars.Lower.m}\':";
+        nBlock.Comment = "Коэффициент n определяется при v{{math Lower|m}} = v{{math Lower|m}}\'.";
 
         block.PushBlock(nBlock);
         block.PushBlock(kBlock);
@@ -69,6 +69,32 @@ internal class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentra
         {
             D = model.D,
             V1 = sourceProperties.V,
+            Result = result
+        });
+
+        return (result, reportBlock);
+    }
+
+    private (double, FormulaBlock) GetSpecialNCoefficient(double vm)
+    {
+        double result;
+        if (vm < 0.5d)
+        {
+            result = 4.4d * vm;
+        }
+        else if (vm < 2)
+        {
+            result = 0.532 * Math.Pow(vm, 2d) - 2.13 * vm + 3.13;
+        }
+        else
+        {
+            result = 1;
+        }
+
+        var reportBlock = new FormulaBlock();
+        reportBlock.PushFormula(new NCoefFormula(vm), new NCoefFormula.Model
+        {
+            Vm = vm,
             Result = result
         });
 

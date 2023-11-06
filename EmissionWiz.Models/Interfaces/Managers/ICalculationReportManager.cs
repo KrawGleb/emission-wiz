@@ -7,4 +7,5 @@ public interface ICalculationReportManager
     ICalculationReportManager SetTitle(string title);
     void Generate(Stream destination);
     void AddBlock(BaseBlock block);
+    void Reset();
 }
