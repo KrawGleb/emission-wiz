@@ -2,7 +2,7 @@
 
 public class EmissionSourceProperties
 {
-    public double V { get; set; }
+    public double V1 { get; set; }
     public double Vm { get; set; }
     public double VmI { get; set; }
     public double F { get; set; }

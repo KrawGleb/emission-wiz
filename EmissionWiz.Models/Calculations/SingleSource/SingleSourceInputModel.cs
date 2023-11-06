@@ -15,7 +15,7 @@ public class SingleSourceInputModel
     /// <summary>
     /// Безразмерный коэффициент, учитывающий скорость оседания ЗВ (газообразных и аэрозолей, включая твердые частицы) в атмосферном воздухе
     /// </summary>
-    public double F { get; set; }
+    public double FCoef { get; set; }
 
     /// <summary>
     /// Высота источника выброса, м

@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	{{#if LowWind}}
+		<!-- Skip for low wind -->
+	{{else}}
+		<text>
+			Коэффициент n определяется по формуле:
+		</text>
+		{{#if F_Less_100}} <!-- f < 100 -->
+			{{#if Vm_Less_05}}
+				<formula comment=", при v{{math Lower|m}} &#60; 0.5">
+					n = 4.4 \cdot v_{m} = 4.4 \cdot {{trimByPrecision Vm}} = {{trimByPrecision  NCoef}}
+				</formula>
+			{{else}}
+				{{#if Vm_Less_2}}
+					<formula comment=", при 0.5 {{math LoE}} v{{math Lower|m}} &#60; 2">
+						n = 0.532 \cdot v_{m}^2 - 2.13 \cdot v_{m} + 3.13  \\\\
+						\\quad = 0.532 \cdot {{trimByPrecision Vm}}^2 - 2.13 \cdot {{ trimByPrecision Vm}} + 3.13 = {{trimByPrecision NCoef}} \\quad .
+					</formula>
+				{{else}}
+					<formula comment=", при v{{math Lower|m}} {{math GoE}} 2">
+						n = 1
+					</formula>
+				{{/if}}
+			{{/if}}
+		{{else}}
+			<text>
+				При {{math f}} {{math GoE}} 100 (или 0 {{math LoE}} {{math Delta}} T {{math L}} 0.5) n определяется при v{{math Lower|m}} = v{{math Lower|m}}'
+			</text>
+			{{#if VmI_Less_05}}
+				<formula comment=", при v{{math Lower|m}}' &#60; 0.5">
+					n = 4.4 \cdot v_{m} = 4.4 \cdot {{trimByPrecision VmI}} = {{trimByPrecision  NCoef}}
+				</formula>
+			{{else}}
+				{{#if VmI_Less_2}}
+					<formula comment=", при 0.5 {{math LoE}} v{{math Lower|m}} &#60; 2">
+						n = 0.532 \cdot v_{m}^2 - 2.13 \cdot v_{m} + 3.13 \\\\
+						\\quad = 0.532 \cdot {{trimByPrecision VmI}}^2 - 2.13 \cdot {{ trimByPrecision VmI}} + 3.13 = {{trimByPrecision NCoef}} \\quad .
+					</formula>
+				{{else}}
+					<formula comment=", при v{{math Lower|m}} {{math GoE}} 2">
+						n = 1
+					</formula>
+				{{/if}}
+			{{/if}}
+		{{/if}}
+	{{/if}}
+</block>

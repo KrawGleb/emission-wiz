@@ -9,6 +9,9 @@
   <ItemGroup>
     <PackageReference Include="CSharpMath.SkiaSharp" Version="0.5.1" />
     <PackageReference Include="Handlebars.Net" Version="2.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
     <PackageReference Include="MigraDocCore.DocumentObjectModel" Version="1.3.62" />
     <PackageReference Include="MigraDocCore.Rendering" Version="1.3.62" />
   </ItemGroup>
@@ -16,6 +19,27 @@
   <ItemGroup>
     <ProjectReference Include="..\EmissionWiz.Common\EmissionWiz.Common.csproj" />
     <ProjectReference Include="..\EmissionWiz.Models\EmissionWiz.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ReportTemplates\SingleSource\Blocks\dangerous_distance.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\Blocks\max_concentration.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\Blocks\mi_formulas.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\Blocks\m_formulas.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\Blocks\n_formulas.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ReportTemplates\SingleSource\main.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

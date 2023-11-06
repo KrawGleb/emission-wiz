@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<block>
+		<text>
+			Расход ГВЗ:
+		</text>
+		<formula>
+			V_{1} = \frac{\pi \cdot D^{2}}{4}\cdot \omega_{0} = \frac{\pi \cdot {{trimByPrecision D}}^{2}}{4}\cdot {{trimByPrecision W}} = {{trimByPrecision V1Result}}
+		</formula>
+	</block>
+
+	<block>
+		<text>
+			Коэффициенты m и n определяются в зависимости от характеризующих свойства источника выброса параметров v{{math Lower|m}}, v{{math Lower|m}}', {{math f}} и {{math f}}{{math Lower|e}}:
+		</text>
+		<formula>
+			\nu_{m} = 0.65 \cdot \sqrt[3]{\frac{V_{1} \cdot \Delta T}{H}} = 0.65 \cdot \sqrt[3]{\frac{ {{trimByPrecision V1}} \cdot {{trimByPrecision DeltaT}} }{ {{trimByPrecision H}} }} = {{trimByPrecision VmResult}}
+		</formula>
+		<formula>
+			{\nu_{m}}' = 1.3 \cdot \frac{\omega_{0} \cdot D }{ H } = 1.3 \cdot \frac{ {{trimByPrecision W}} \cdot {{trimByPrecision D}} }{ {{trimByPrecision H}} } = {{trimByPrecision VmIResult}}
+		</formula>
+		<formula>
+			f = 1000 \cdot \frac{ \omega_{0}^2 \cdot D }{ H^2 \cdot \Delta T } = 1000 \cdot \frac{ {{trimByPrecision W }}^2 \cdot {{trimByPrecision D }} }{ {{trimByPrecision H}} ^2 \cdot {{trimByPrecision DeltaT}} } = {{trimByPrecision FResult}}
+		</formula>
+		<formula>
+			f_{e} = 800\cdot ({\nu}'_{m})^{3} = 800\cdot ({{trimByPrecision Vm }})^{3} = {{trimByPrecision FeResult}}
+		</formula>
+	</block>
+
+	<block ref="/m_formulas.xml" />
+	<block ref="/n_formulas.xml" />
+
+	{{#if HotEmission}}
+
+	{{/if}}
+
+	{{#if ColdEmission}}
+		<text>
+			Для {{math f}} {{math GoE}} 100 (или 0 {{math LoE}} {{math Delta}}T {{math L}} 0.5) и v{{math Lower|m}}' {{math GoE}} 0.5 (холодные выбросы) при расчете c{{math Lower|m}} используется формула:
+		</text>
+		<formula>
+			c_{m} = \frac{A \cdot M \cdot F \cdot n \cdot \eta}{ H^{4/3} } \cdot K = \frac{ {{trimByPrecision A}}  \cdot {{trimByPrecision M}} \cdot {{trimByPrecision FCoef}} \cdot {{trimByPrecision NCoef}} \cdot {{trimByPrecision Eta}} }{ {{trimByPrecision H}} ^{4/3} } \cdot {{trimByPrecision KCoef}} = {{trimByPrecision CmResult}}
+		</formula>
+		<text>
+			где
+		</text>
+		<formula>
+			K = \frac{ D }{ 8 * V_{1} } = \frac{ {{trimByPrecision D}} }{ 8 * {{trimByPrecision V1}} } = {{trimByPrecision KCoef}}
+		</formula>
+	{{/if}}
+
+	{{#if LowWind}}
+		<text>
+			Для {{math f}} {{math L}} 100 и v{{math m}} {{math L}} 0.5 или {{math f}} {{math GoE}} 100 и v{{math Lower|m}}' {{math LoE}} 0.5 (случаи предельно малых опасных скоростей ветра) расчет c{{math Lower|m}} производится по формуле:
+		</text>
+		<formula>
+			c_{m} = \frac{A \cdot M\cdot F \cdot m' \cdot \eta}{H^{\frac{7}{3} } } = \frac{ {{trimByPrecision A}} \cdot {{trimByPrecision M}} \cdot {{trimByPrecision FCoef}} \cdot {{trimByPrecision MICoef}} \cdot {{trimByPrecision Eta}} }{  {{trimByPrecision H}}^{\frac{7}{3} } } = {{trimByPrecision CmResult}}
+		</formula>
+		<text>
+			где
+		</text>
+		<block ref="/mi_formulas.xml"/>
+	{{/if}}
+</block>

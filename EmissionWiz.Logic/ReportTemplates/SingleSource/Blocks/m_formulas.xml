@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<text>
+		Коэффициент m определяется по формуле:
+	</text>
+	{{#if Fe_Less_f_Less100}} <!-- fe < f < 100 -->
+		<formula>
+			m = \frac{1}{ 0.67 + 0.1 \cdot \sqrt{f} + 0.34 \cdot \sqrt[3]{f} } = \frac{1}{ 0.67 + 0.1 \cdot \sqrt{ {{trimByPrecision Fe}} } + 0.34 \cdot \sqrt[3]{ {{trimByPrecision Fe}} } } = {{trimByPrecision MCoef}}
+		</formula>
+		<text>
+			Для {{math f}}{{math Lower|e}} &#60; {{math f}} &#60; 100 коэффициент m вычисляется при {{math f}} &#60; {{math f}}{{math Lower|e}}
+		</text>
+	{{else}}
+		{{#if F_Less_100}} <!-- f < 100 -->
+			<formula>
+				m = \frac{1}{ 0.67 + 0.1 \cdot \sqrt{f} + 0.34 \cdot \sqrt[3]{f} } = \frac{1}{ 0.67 + 0.1 \cdot \sqrt{ {{trimByPrecision F}} } + 0.34 \cdot \sqrt[3]{ {{trimByPrecision F}} } } = {{trimByPrecision MCoef}}
+			</formula>
+		{{else}}
+			<formula>
+				m = \frac{1.47}{\sqrt[3]{f}} = \frac{1.47}{\sqrt[3]{ {{trimByPrecision F}} }} = {{trimByPrecision MCoef}}
+			</formula>
+		{{/if}}
+	{{/if}}
+</block>

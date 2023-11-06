@@ -1,12 +1,18 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
-using EmissionWiz.Models.Calculations.SingleSource;
-using EmissionWiz.Models.Reports.Blocks;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
+using EmissionWiz.Models.Interfaces.Managers;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 
-internal abstract class BaseMaxConcentrationCalculationManager
+public abstract class BaseMaxConcentrationCalculationManager
 {
-    protected (double, FormulaBlock) GetNCoefficient(double vm, bool useSpecial = false)
+    protected readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
+
+    public BaseMaxConcentrationCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder)
+    {
+        _reportModelBuilder = reportModelBuilder;
+    }
+
+    protected double GetNCoefficient(double vm)
     {
         double result;
         if (vm < 0.5d)
@@ -22,17 +28,12 @@ internal abstract class BaseMaxConcentrationCalculationManager
             result = 1;
         }
 
-        var reportBlock = new FormulaBlock();
-        reportBlock.PushFormula(new NCoefFormula(vm, useSpecial), new NCoefFormula.Model
-        {
-            Vm = vm,
-            Result = result
-        });
+        _reportModelBuilder.SetNCoefValue(result);
 
-        return (result, reportBlock);
+        return result;
     }
 
-    protected (double, FormulaBlock) GetMCoefficient(EmissionSourceProperties sourceProperties)
+    protected double GetMCoefficient(EmissionSourceProperties sourceProperties)
     {
         var f = sourceProperties.F;
 
@@ -43,13 +44,8 @@ internal abstract class BaseMaxConcentrationCalculationManager
             ? Math.Pow(0.67d + 0.1 * Math.Sqrt(f) + 0.34 * Math.Cbrt(f), -1d)
             : 1.47d / Math.Cbrt(f);
 
-        var reportBlock = new FormulaBlock();
-        reportBlock.PushFormula(new MCoefFormula(f), new MCoefFormula.Model
-        {
-            F = f,
-            Result = result
-        });
-
-        return (result, reportBlock);
+        _reportModelBuilder.SetMCoefValue(result);
+        
+        return result;
     }
 }

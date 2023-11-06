@@ -14,4 +14,8 @@
     <ProjectReference Include="..\EmissionWiz.Common\EmissionWiz.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Interfaces\Managers\NewFolder\" />
+  </ItemGroup>
+
 </Project>

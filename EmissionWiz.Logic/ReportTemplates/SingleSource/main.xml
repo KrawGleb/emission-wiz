@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<title>Расчет максимальных разовых концентраций от выбросов 
+	одиночного точечного источника</title>
+	<block ref="/Blocks/cm_formulas.xml" />
+	<block ref="/Blocks/xm_formulas.xml" />
+</block>

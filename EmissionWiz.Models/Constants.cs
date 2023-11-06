@@ -23,14 +23,32 @@ public static class Constants
         public class Lower
         {
             public const char m = 'ₘ';
+            public const char e = 'ₑ';
         }
 
         public const char GoE = '≥';
         public const char LoE = '≤';
+        public const string G = "&gt;";
+        public const string L = "&lt;";
 
         public const char Delta = 'Δ';
         public const char f = 'ƒ';
     }
 
-    public static IDictionary<string, string>? MathCharsObj = ExpandoObjectBuilder.FromInstance(new MathChars());
+    public static IDictionary<string, object?>? MathCharsObj = ExpandoObjectBuilder.FromObject(new MathChars(), true)
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+     ;
 }
+
+
+

@@ -5,13 +5,13 @@ using EmissionWiz.Models.Reports.Blocks;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerouesWindSpeedCalculationManagers;
 
-internal class LowWindDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager
+public class LowWindDangerousWindSpeedCalculationManager : ILowWindDangerousWindSpeedCalculationManager
 {
-    private readonly ICalculationReportManager _reportManager;
+    private readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
 
-    public LowWindDangerousWindSpeedCalculationManager(ICalculationReportManager reportManager)
+    public LowWindDangerousWindSpeedCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder)
     {
-        _reportManager = reportManager;
+        _reportModelBuilder = reportModelBuilder;
     }
 
     public double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
@@ -30,17 +30,6 @@ internal class LowWindDangerousWindSpeedCalculationManager : IDangerousWindSpeed
         {
             result = sourceProperties.Vm * (1 + 0.12d * Math.Sqrt(sourceProperties.F));
         }
-
-        var reportBlock = new FormulaBlock();
-        reportBlock.Comment = "Опасная скорость ветра u{{math Lower|m}} на стандартном уровне флюгера (10м от уровня земли), при которой достигается наибольшая приземная концентрация ЗВ с{{math Lower|m}}";
-        reportBlock.PushFormula(new LowWindDangerousWindSpeedFormula(sourceProperties.Vm), new LowWindDangerousWindSpeedFormula.Model
-        {
-            Vm = sourceProperties.Vm,
-            F = sourceProperties.F,
-            Result = result
-        });
-
-        _reportManager.AddBlock(reportBlock);
 
         return result;
     }

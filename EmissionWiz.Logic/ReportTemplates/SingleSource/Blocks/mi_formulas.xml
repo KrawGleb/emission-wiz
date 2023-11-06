@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	{{#if Vm_Less_05}}
+	<formula comment=", при v{{math Lower|m}} {{math L}} 0.5">
+			m' = 2.86 \cdot m = 2.86 \cdot {{trimByPrecision MCoef}} = {{trimByPrecision MICoef}}
+		</formula>
+	
+	{{else}}
+		<formula comment=", при {{math f}} {{math GoE}} 100, v{{math Lower|m}}' {{math L}} 0.5">
+			m' = 0.9
+		</formula>
+	{{/if}}
+</block>

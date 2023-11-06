@@ -1,55 +1,31 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.MaxConcentrationFormulas;
-using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
-using EmissionWiz.Models.Reports.Blocks;
-using static EmissionWiz.Common.Constants;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 
-internal class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationCalculationManager, IMaxConcentrationCalculationSubManager
+public class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationCalculationManager, ILowWindMaxConcentrationCalculationSubManager
 {
-    private readonly ICalculationReportManager _reportManager;
-
-    public LowWindMaxConcentrationCalculationManager(ICalculationReportManager reportManager)
+    public LowWindMaxConcentrationCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder) : base(reportModelBuilder)
     {
-        _reportManager = reportManager;
     }
 
     public double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
-        var formulaModel = new LowWindCFormula.Model
-        {
-            A = model.A,
-            Eta = model.Eta,
-            F = model.F,
-            H = model.H,
-            M = model.M,
-        };
-
-        var reportBlock = new FormulaBlock()
-        {
-            Comment = $"При {MathChars.f} < 100 и v{MathChars.Lower.m} < 0,5 или {MathChars.f} {MathChars.GoE} 100 и v{MathChars.Lower.m}\' < 0,5 (случаи предельно малых опасных скоростей ветра) расчет c{MathChars.Lower.m} производится по формуле:"
-        };
-
-        var numerator = GetNumeratort(model, sourceProperties, formulaModel, reportBlock);
+        var numerator = GetNumeratort(model, sourceProperties);
         var denominator = GetDenomerator(model);
 
         var result = numerator / denominator;
-        formulaModel.Result = result;
-       
-        reportBlock.PushFormula(new LowWindCFormula(), formulaModel);
-        _reportManager.AddBlock(reportBlock);
+
+        _reportModelBuilder.SetCmResultValue(result);
 
         return result;
     }
 
-    private double GetNumeratort(SingleSourceInputModel model, EmissionSourceProperties sourceProperties, LowWindCFormula.Model formulaModel, FormulaBlock block)
+    private double GetNumeratort(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
-        var m = GetMICoefficient(sourceProperties, block);
+        var mi = GetMICoefficient(sourceProperties);
 
-        formulaModel.Mi = m;
-
-        return model.A * model.M * model.F * m * model.Eta;
+        return model.A * model.M * model.FCoef * mi * model.Eta;
     }
 
     private double GetDenomerator(SingleSourceInputModel model)
@@ -57,21 +33,19 @@ internal class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationC
         return Math.Pow(Math.Cbrt(model.H), 7d);
     }
 
-    private double GetMICoefficient(EmissionSourceProperties sourceProperties, FormulaBlock block)
+    private double GetMICoefficient(EmissionSourceProperties sourceProperties)
     {
-        var (m, _) = GetMCoefficient(sourceProperties);
+        var m = GetMCoefficient(sourceProperties);
 
         double result;
         if (sourceProperties.Vm < 0.5)
             result = 2.86 * m;
-        else
+        else if (sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
             result = 0.9;
+        else
+            throw new InvalidOperationException("Cannot calculate mi coef");
 
-        block.PushFormula(new MIFormula(sourceProperties.Vm), new MIFormula.Model
-        {
-            MCoef = m,
-            Result = result
-        });
+        _reportModelBuilder.SetMICoefValue(result);
 
         return result;
     }

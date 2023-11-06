@@ -3,9 +3,9 @@ using EmissionWiz.Models.Interfaces.Managers;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 
-internal class ColdEmissionDangerousDistanceCalculationManager : BaseDangerousDistanceCalculationManager
+public class ColdEmissionDangerousDistanceCalculationManager : BaseDangerousDistanceCalculationManager, IColdEmissionDangerousDistanceCalculationManager
 {
-    public ColdEmissionDangerousDistanceCalculationManager(ICalculationReportManager reportManager) : base(reportManager)
+    public ColdEmissionDangerousDistanceCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder) : base(reportModelBuilder)
     { }
 
     protected override double CalculateDCoef(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
@@ -24,9 +24,6 @@ internal class ColdEmissionDangerousDistanceCalculationManager : BaseDangerousDi
         {
             result = 16d * Math.Sqrt(sourceProperties.VmI); 
         }
-
-
-
 
         return result;
     }

@@ -1,13 +1,11 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.DangerousDistanceFormulas;
-using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
-using EmissionWiz.Models.Reports.Blocks;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 
-internal class LowWindDangerousDistanceCalculationManager : BaseDangerousDistanceCalculationManager
+public class LowWindDangerousDistanceCalculationManager : BaseDangerousDistanceCalculationManager, ILowWindDangerousDistanceCalculationManager
 {
-    public LowWindDangerousDistanceCalculationManager(ICalculationReportManager reportManager) : base(reportManager)
+    public LowWindDangerousDistanceCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder) : base(reportModelBuilder)
     {
     }
 
@@ -26,16 +24,6 @@ internal class LowWindDangerousDistanceCalculationManager : BaseDangerousDistanc
         {
             result = 7 * Math.Sqrt(sourceProperties.Vm) * (1 + 0.28d * Math.Cbrt(sourceProperties.F));
         }
-
-        var reportBlock = new FormulaBlock();
-        reportBlock.PushFormula(new LowWindDCoefFormula(sourceProperties.Vm), new LowWindDCoefFormula.Model
-        {
-            F = sourceProperties.F,
-            Fe = sourceProperties.Fe,
-            Vm = sourceProperties.Vm,
-            Result = result
-        });
-        _reportManager.AddBlock(reportBlock);
 
         return result;
     }

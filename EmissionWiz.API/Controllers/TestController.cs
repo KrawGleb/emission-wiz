@@ -9,26 +9,20 @@ namespace EmissionWiz.API.Controllers
     public class TestController : ControllerBase
     {
         private readonly ISingleSourceEmissionCalculationManager _maxConcentrationManager;
-        private readonly ICalculationReportManager _reportManager;
 
-        public TestController(
-            ISingleSourceEmissionCalculationManager maxConcentrationManager,
-            ICalculationReportManager reportManager)
+        public TestController(ISingleSourceEmissionCalculationManager maxConcentrationManager)
         {
             _maxConcentrationManager = maxConcentrationManager;
-            _reportManager = reportManager;
         }
 
         [HttpGet("hot")]
         public async Task<IActionResult> Get()
         {
-            var outputs = new List<SingleSourceEmissionCalculationResult>();
-
             var hot = new SingleSourceInputModel
             {
                 A = 160,
                 H = 10,
-                F = 1,
+                FCoef = 1,
                 AirTemperature = 25.3,
                 EmissionTemperature = 25.3+3,
                 M = 4.1,
@@ -38,8 +32,7 @@ namespace EmissionWiz.API.Controllers
                 U = 4
             };
 
-            return Ok(_maxConcentrationManager.Calculate(hot, "HotEmission.pdf"));
-            
+            return Ok(await _maxConcentrationManager.Calculate(hot, "HotEmission.pdf"));
         }
 
         [HttpGet("cold")] 
@@ -49,7 +42,7 @@ namespace EmissionWiz.API.Controllers
             {
                 A = 160,
                 H = 10,
-                F = 1,
+                FCoef = 1,
                 AirTemperature = 25.3,
                 EmissionTemperature = 25.3 + 3,
                 M = 4.1,
@@ -59,7 +52,7 @@ namespace EmissionWiz.API.Controllers
                 U = 4
             };
 
-            return Ok(_maxConcentrationManager.Calculate(cold, "ColdEmission.pdf"));
+            return Ok(await _maxConcentrationManager.Calculate(cold, "ColdEmission.pdf"));
         }
 
         [HttpGet("low_wind")]
@@ -69,7 +62,7 @@ namespace EmissionWiz.API.Controllers
             {
                 A = 160,
                 H = 15,
-                F = 1,
+                FCoef = 1,
                 AirTemperature = 25.3,
                 EmissionTemperature = 25.3 + 3,
                 M = 4.1,
@@ -79,7 +72,7 @@ namespace EmissionWiz.API.Controllers
                 U = 4
             };
 
-            return Ok(_maxConcentrationManager.Calculate(lowWind, "LowWindEmission.pdf"));
+            return Ok(await _maxConcentrationManager.Calculate(lowWind, "LowWindEmission.pdf"));
         }
     }
 }

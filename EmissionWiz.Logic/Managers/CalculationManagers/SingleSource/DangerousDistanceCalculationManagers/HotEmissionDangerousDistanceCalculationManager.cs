@@ -5,24 +5,15 @@ using EmissionWiz.Models.Reports.Blocks;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 
-internal class HotEmissionDangerousDistanceCalculationManager : BaseDangerousDistanceCalculationManager
+public class HotEmissionDangerousDistanceCalculationManager : BaseDangerousDistanceCalculationManager, IHotEmissionDangerousDistanceCalculationManager
 {
-    public HotEmissionDangerousDistanceCalculationManager(ICalculationReportManager reportManager) : base(reportManager)
+    public HotEmissionDangerousDistanceCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder) : base(reportModelBuilder)
     {
     }
 
     protected override double CalculateDCoef(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         var result = 5.7d * model.H;
-
-        var reportBlock = new FormulaBlock();
-        reportBlock.PushFormula(new HotEmissionDangerousDistanceFormula(), new DangerousDistanceFormula.Model
-        {
-            H = model.H,
-            Result = result
-        });
-
-        _reportManager.AddBlock(reportBlock);
 
         return result;
     }

@@ -1,34 +1,25 @@
-﻿using EmissionWiz.Logic.Formulas.SingleSource.DangerousDistanceFormulas;
-using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
-using EmissionWiz.Models.Reports.Blocks;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 
-internal class BaseDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager
+public class BaseDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager
 {
-    protected readonly ICalculationReportManager _reportManager;
+    protected readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
 
-    public BaseDangerousDistanceCalculationManager(ICalculationReportManager reportManager)
+    public BaseDangerousDistanceCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder)
     {
-        _reportManager = reportManager;
+        _reportModelBuilder = reportModelBuilder;
     }
 
     public virtual double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         var d = CalculateDCoef(model, sourceProperties);
-        var result = ((5 - model.F) / 4d) * d * model.H;
+        var result = ((5 - model.FCoef) / 4d) * d * model.H;
 
-        var reportBlock = new FormulaBlock();
-        reportBlock.PushFormula(new DangerousDistanceFormula(), new DangerousDistanceFormula.Model
-        {
-            DCoef = d,
-            F = model.F,
-            H = model.H,
-            Result = result
-        });
-
-        _reportManager.AddBlock(reportBlock);
+        _reportModelBuilder
+            .SetDCoefValue(d)
+            .SetXmValue(result);
 
         return result;
     }

@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	{{#if F_Less_100}} <!-- f < 100 -->
+		<text>
+			Расстояние x{{math Lower|m}} от источника выброса, на котором приземная концентрация ЗВ при неблагоприятных метеорологических условиях достигает максимального значения c{{math Lower|m}}, определяется по формуле:
+		</text>
+		<formula>
+			x_{m}=\frac{5 - F}{4} \cdot d \cdot H = \frac{5 - {{trimByPrecision FCoef}} }{4} \cdot {{trimByPrecision DCoef}} \cdot {{trimByPrecision H}} = {{trimByPrecision XmResult}} м
+		</formula>
+		<text>
+			Безразмерный коэффициент d при {{math f}} {{math L}} 100 находится по формуле:
+		</text>
+	
+		{{#if Vm_LoE_05}} <!-- vm <= 0.5 -->
+
+		<formula comment="(при v{{math Lower|m}} {{math LoE}} 0.5):">
+			d = 2.48 \cdot (1 + 0.28 \cdot \sqrt[3]{f_{e} }) = \\\\
+			\\quad 2.48 \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision Fe}} }) = {{trimByPrecision DCoef}} \\quad .
+		</formula>
+		
+		{{else}}
+			{{#if Vm_LoE_2}} <!-- 0.5 < vm <= 2 -->
+			<formula comment="(при 0.5 {{math L}} v{{math Lower|m}} {{math LoE}} 2):">
+				d = 4.95 \cdot v_{m} \cdot (1 + 0.28 \cdot \sqrt[3]{f}) = \\\\
+				\\quad 4.95 \cdot {{trimByPrecision Vm}} \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision F}} }) = {{trimByPrecision DCoef}} \\quad .
+			</formula>
+			{{else}} <!-- vm > 2 -->
+			<formula comment="(при v{{math Lower|m}} {{math G}} 2):">
+				d = 7 \cdot \sqrt{v_{m}} \cdot (1 + 0.28 \cdot \sqrt[3]{f}) = 7 \cdot \sqrt{ {{trimByPrecision Vm}} } \cdot (1 + 0.28 \cdot \sqrt[3]{ {{trimByPrecision F}} }) = {{trimByPrecision DCoef}}
+			</formula>
+			{{/if}}
+		{{/if}}
+	{{else}}
+	{{#if F_GoE_100_DeltaT_Between_0_05}}
+		<text>
+			Расстояние x{{math Lower|m}} от источника выброса, на котором приземная концентрация ЗВ при неблагоприятных метеорологических условиях достигает максимального значения c{{math Lower|m}}, определяется по формуле:
+		</text>
+		<formula>
+			x_{m}=\frac{5 - F}{4} \cdot d \cdot H = \frac{5 - {{trimByPrecision FCoef}} }{4} \cdot {{trimByPrecision DCoef}} \cdot {{trimByPrecision H}} = {{trimByPrecision XmResult}} м
+		</formula>
+		<text>
+			Безразмерный коэффициент d при {{math f}} {{math GoE}} 100 или 0 {{math LoE}} {{math Delta}}T {{math L}} 0.5 находится по формуле:
+		</text>
+	
+		{{#if VmI_LoE_05}} <!-- vm' <= 0.5 -->
+			
+		<formula comment="(при v{{math Lower|m}}' {{math LoE}} 0.5):">
+			d = 5.7
+		</formula>
+		
+		{{else}}
+			{{#if VmI_LoE_2}} <!-- 0.5 < vm' <= 2 -->
+				
+				<formula comment="(при 0.5 {{math L}} v{{math Lower|m}}' {{math LoE}} 2):">
+					d = 11.4 \cdot v_{m}' = 11.4 \cdot {{trimByPrecision VmI}} = {{trimByPrecision DCoef}}
+				</formula>
+				
+			{{else}} <!-- vm' > 2 -->
+				
+				<formula comment="(при v{{math Lower|m}} {{math G}} 2):">
+					d = 16 \cdot \sqrt{v_{m}'} = 16 \cdot \sqrt{ {{trimByPrecision VmI}} } = {{trimByPrecision DCoef}}
+				</formula>
+			{{/if}}
+		{{/if}}
+	{{else}}
+			<text>
+				Для источника выброса фиксированной высоты H при 0 {{math LoE}} v{{math Lower|m}}' {{math LoE}} 0.5 и -0.5 {{math LoE}} {{math Delta}}T {{math LoE}} 0 значение x{{math Lower|m}} принимается равным
+			</text>
+			<formula>
+				x_{m} = 5.7 \cdot H = 5.7 \cdot {{trimByPrecision H}} = {{trimByPrecision XmResult}} м
+			</formula>
+		{{/if}}
+	{{/if}}
+</block>
