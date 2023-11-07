@@ -3,15 +3,31 @@
 	<text>
 		При опасной скорости ветра x{{math Lower|m}} приземная концентрация ЗВ с в атмосферном воздухе на оси факела от точечного источника, определяемой как геометрическое место точек в пространстве, которые на каждом заданном расстоянии от источника соответствуют максимальному значению концентрации ЗВ, а также как их проекция на подстилающую поверхность (то есть на взаимодействующую с атмосферой поверхности земли, в том числе, почву, поверхность воды,снежный и растительный покров), на различных х от источника выброса вычисляется по формуле:
 	</text>
+	
+	{{#if S1_Case7}}
+	<formula>
+		c = s_{1}^{н} \cdot c_{m} = {{trimByPrecision S1HCoef}} \cdot {{trimByPrecision CmResult}} = {{trimByPrecision CResult}}
+	</formula>
+	{{else}}
 	<formula>
 		c = s_{1} \cdot c_{m} = {{trimByPrecision S1Coef}} \cdot {{trimByPrecision CmResult}} = {{trimByPrecision CResult}}
 	</formula>
+	{{/if}}
 
 	{{#if S1_Case1}}
-	<formula comment=", при x/x{{math Lower|m}} {{math LoE}} 1">
-		s_{1} = 3 \cdot (x/x_{m})^{4} \cdot (x/x_{m})^{3} + 6 \cdot (x/x_{m})^{2}  \\\\
-		\\quad \\quad = 3 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{4} \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{3} + 6 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{2} = {{trimByPrecision S1Coef}} \\quad \\quad .
-	</formula>
+		<formula comment=", при x/x{{math Lower|m}} {{math LoE}} 1">
+			s_{1} = 3 \cdot (x/x_{m})^{4} \cdot (x/x_{m})^{3} + 6 \cdot (x/x_{m})^{2}  \\\\
+			\\quad \\quad = 3 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{4} \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{3} + 6 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{2} = {{trimByPrecision S1Coef}} \\quad \\quad .
+		</formula>
+		
+		{{#if S1_Case7}}
+		<text>
+			Для наземных и низких источников выброса (высотой H не более 10м) при x/x{{math Lower|m}} {{math L}} 1 величина s<small>1</small> заменяется на величину определяемую по формуле: 
+		</text>
+		<formula>
+			s_{1}^{н} = 0.125 \cdot (10 - H) + 0.125 \cdot (H - 2) \cdot s_{1} = 0.125 \cdot (10 - {{trimByPrecision H}} ) + 0.125 \cdot ( {{trimByPrecision H}} - 2) \cdot {{trimByPrecision S1Coef}} = {{trimByPrecision S1HCoef}}
+		</formula>
+		{{/if}}
 	{{/if}}
 
 	{{#if S1_Case2}}

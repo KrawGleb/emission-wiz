@@ -23,4 +23,5 @@ public interface ISingleSourceEmissionReportModelBuilder
     ISingleSourceEmissionReportModelBuilder SetXmuValue(double xmu);
     ISingleSourceEmissionReportModelBuilder SetS1Value(double s1);
     ISingleSourceEmissionReportModelBuilder SetCValue(double c);
+    ISingleSourceEmissionReportModelBuilder SetS1HValue(double s1h);
 }

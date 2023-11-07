@@ -40,7 +40,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
         var r = GetRCoef(model, intermediateResults);
         var p = GetPCoef(model, intermediateResults);
-        
+
         sourceProperties.RCoef = r;
         sourceProperties.PCoef = p;
 
@@ -52,7 +52,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
         var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
         await _reportManager.FromTemplate(testFile, path, _reportModelBuilder.Build());
-        
+
         return intermediateResults;
     }
 
@@ -78,7 +78,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
         return cm;
     }
-    
+
     private double CalculateUm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         IDangerousWindSpeedCalculationManager? subManager;
@@ -93,12 +93,12 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
             throw new InvalidOperationException("Failed to get required calculation manager");
 
         var um = subManager.CalculateDangerousWindSpeed(model, sourceProperties);
-        
+
         _reportModelBuilder.SetUmValue(um);
 
         return um;
     }
-    
+
     private double CalculateXm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         IDangerousDistanceCalculationManager? subManager;
@@ -108,7 +108,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
             subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindDangerousDistanceCalculationManager>();
         else
             subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionDangerousDistanceCalculationManager>();
-        
+
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
 
@@ -136,7 +136,18 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
     public double CalculateC(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
     {
         var s1 = GetS1Coef(model, intermediateResults);
-        var result = s1 * intermediateResults.Cm;
+
+        double result;
+        if (model.H < 10 && model.X / intermediateResults.Xm < 1)
+        {
+            var s1h = 0.125 * (10 - model.H) + 0.125 * (model.H - 2) * s1;
+            _reportModelBuilder.SetS1HValue(s1h);
+            result = s1h * intermediateResults.Cm;
+        }
+        else
+        {
+            result = s1 * intermediateResults.Cm;
+        }
 
         _reportModelBuilder.SetCValue(result);
 
@@ -151,15 +162,15 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         {
             result = 3 * Math.Pow(ratio, 4d) * Math.Pow(ratio, 3d) + 6 * Math.Pow(ratio, 2d);
         }
-        else if(1 < ratio && ratio <= 8)
+        else if (1 < ratio && ratio <= 8)
         {
             result = 1.13 / (0.13 * Math.Pow(ratio, 2d) + 1);
         }
-        else if(8 < ratio && ratio <= 100 && model.FCoef <= 1.5)
+        else if (8 < ratio && ratio <= 100 && model.FCoef <= 1.5)
         {
             result = ratio / (3.556 * Math.Pow(ratio, 2d) - 35.2 * ratio + 120);
         }
-        else if(8 < ratio && ratio <= 100 && model.FCoef > 1.5)
+        else if (8 < ratio && ratio <= 100 && model.FCoef > 1.5)
         {
             result = 1 / (0.1 * Math.Pow(ratio, 2d) + 2.456 * ratio - 17.8);
         }
@@ -180,7 +191,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
     private double GetRCoef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
     {
         var ratio = model.U / intermediateResults.Um;
-        
+
         double result;
         if (ratio <= 1)
         {
@@ -221,7 +232,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
     private double GetV1(SingleSourceInputModel model)
     {
-        var result =  Math.PI * Math.Pow(model.D, 2d) / 4 * model.W;
+        var result = Math.PI * Math.Pow(model.D, 2d) / 4 * model.W;
 
         return result;
     }

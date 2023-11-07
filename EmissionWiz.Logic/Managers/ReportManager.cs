@@ -184,7 +184,7 @@ public class ReportManager : IReportManager
             var small = nodeAsDoc.Root?.Element("small");
             if (small != null)
             {
-                paragraph.AddFormattedText(small.Value.Trim(), Constants.Pdf.CustomStyleNames.SmallText);
+                paragraph.AddFormattedText(small.Value.Trim() + " ", Constants.Pdf.CustomStyleNames.SmallText);
             }
             else
             {

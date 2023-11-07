@@ -1,5 +1,4 @@
 ﻿using EmissionWiz.Models.Calculations.SingleSource;
-using EmissionWiz.Models.Interfaces.Managers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmissionWiz.API.Controllers
@@ -21,7 +20,7 @@ namespace EmissionWiz.API.Controllers
             var hot = new SingleSourceInputModel
             {
                 A = 160,
-                H = 10,
+                H = 9,
                 FCoef = 1,
                 AirTemperature = 25.3,
                 EmissionTemperature = 25.3+3,

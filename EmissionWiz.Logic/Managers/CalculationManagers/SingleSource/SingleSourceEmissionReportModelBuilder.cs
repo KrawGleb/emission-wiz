@@ -133,5 +133,12 @@ public class SingleSourceEmissionReportModelBuilder : ISingleSourceEmissionRepor
         return this;
     }
 
+    public ISingleSourceEmissionReportModelBuilder SetS1HValue(double s1h)
+    {
+        _model.S1HCoef = s1h;
+
+        return this;
+    }
+
     public SingleSourceReportModel Build() => _model; 
 }

@@ -33,6 +33,7 @@ public class SingleSourceReportModel
     public double RCoef { get; set; }
     public double PCoef { get; set; }
     public double S1Coef { get; set; }
+    public double S1HCoef { get; set; }
 
     public double V1 => V1Result;
     public double Vm => VmResult;
@@ -75,4 +76,5 @@ public class SingleSourceReportModel
     public bool S1_Case4 => 8 < DistanceRatio && DistanceRatio <= 100 && FCoef > 1.5;
     public bool S1_Case5 => DistanceRatio > 100 && FCoef <= 1.5;
     public bool S1_Case6 => DistanceRatio > 100 && FCoef > 1.5;
+    public bool S1_Case7 => DistanceRatio < 1 && H < 10;
 }
