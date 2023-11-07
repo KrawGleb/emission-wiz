@@ -11,6 +11,7 @@ public class SingleSourceReportModel
     public double Eta { get; set; }
     public double U { get; set; }
     public double DeltaT { get; set; }
+    public double X { get; set; }
 
     public double VmResult { get; set; }
     public double VmIResult { get; set; }
@@ -20,7 +21,9 @@ public class SingleSourceReportModel
     public double CmResult { get; set; }
     public double CmuResult { get; set; }
     public double XmResult { get; set; }
+    public double XmuResult { get; set; }
     public double UmResult { get; set; }
+    public double CResult { get; set; }
 
     public double MICoef { get; set; }
     public double MCoef { get; set; }
@@ -28,6 +31,8 @@ public class SingleSourceReportModel
     public double KCoef { get; set; }
     public double DCoef { get; set; }
     public double RCoef { get; set; }
+    public double PCoef { get; set; }
+    public double S1Coef { get; set; }
 
     public double V1 => V1Result;
     public double Vm => VmResult;
@@ -35,8 +40,11 @@ public class SingleSourceReportModel
     public double F => FResult;
     public double Fe => FeResult;
     public double Um => UmResult;
+    public double Xm => XmResult;
 
     public double WindRatio => U / UmResult;
+    public bool WindRatio_LoE_025 => WindRatio <= 0.25;
+    public bool WindRatio_LoE_1 => !WindRatio_LoE_025 && WindRatio <= 1;
     public bool WindRatio_G_1 => WindRatio > 1;
 
     public bool ColdEmission => (FResult >= 100 || (0 <= DeltaT && DeltaT <= 0.5)) && VmIResult > 0.5;
@@ -59,4 +67,12 @@ public class SingleSourceReportModel
     public bool F_GoE_100_DeltaT_Between_0_05 => (0 <= DeltaT && DeltaT < 0.5) || F_GoE_100;
     public bool Fe_Less_f_Less100 => Fe < F && F < 100;
     public bool Fe_Less_100 => Fe < 100;
+
+    public double DistanceRatio => X / Xm;
+    public bool S1_Case1 => DistanceRatio <= 1;
+    public bool S1_Case2 => 1 < DistanceRatio && DistanceRatio <= 8;
+    public bool S1_Case3 => 8 < DistanceRatio && DistanceRatio <= 100 && FCoef <= 1.5;
+    public bool S1_Case4 => 8 < DistanceRatio && DistanceRatio <= 100 && FCoef > 1.5;
+    public bool S1_Case5 => DistanceRatio > 100 && FCoef <= 1.5;
+    public bool S1_Case6 => DistanceRatio > 100 && FCoef > 1.5;
 }

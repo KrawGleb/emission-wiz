@@ -52,5 +52,10 @@ public class SingleSourceInputModel
     /// </summary>
     public double U { get; set; }
 
+    /// <summary>
+    /// Расстояние
+    /// </summary>
+    public double X { get; set; }
+
     public double DeltaT => EmissionTemperature - AirTemperature;
 }

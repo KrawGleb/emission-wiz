@@ -2,8 +2,10 @@
 
 public class SingleSourceEmissionCalculationResult
 {
-    public double MaxConcentration { get; set; }
-    public double MaxUntowardConcentrationDistance { get; set; }
-    public double DangerousWindSpeed { get; set; }
-    public double DangerousDistance { get; set; }
+    public double C { get; set; }
+    public double Cm { get; set; }
+    public double Cmu { get; set; }
+    public double Um { get; set; }
+    public double Xm { get; set; }
+    public double Xmu { get;set; }
 }

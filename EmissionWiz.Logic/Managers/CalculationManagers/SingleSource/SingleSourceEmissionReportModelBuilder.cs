@@ -19,6 +19,7 @@ public class SingleSourceEmissionReportModelBuilder : ISingleSourceEmissionRepor
         _model.M = model.M;
         _model.A = model.A;
         _model.U = model.U;
+        _model.X = model.X;
 
         return this;
     }
@@ -104,7 +105,33 @@ public class SingleSourceEmissionReportModelBuilder : ISingleSourceEmissionRepor
         return this;
     }
 
+    public ISingleSourceEmissionReportModelBuilder SetPCoefValue(double p)
+    {
+        _model.PCoef = p;
 
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetXmuValue(double xmu)
+    {
+        _model.XmuResult = xmu;
+
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetS1Value(double s1)
+    {
+        _model.S1Coef = s1;
+
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetCValue(double c)
+    {
+        _model.CResult = c;
+
+        return this;
+    }
 
     public SingleSourceReportModel Build() => _model; 
 }

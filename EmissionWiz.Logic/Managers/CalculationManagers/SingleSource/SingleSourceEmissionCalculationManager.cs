@@ -33,12 +33,20 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
         var intermediateResults = new SingleSourceEmissionCalculationResult()
         {
-            MaxConcentration = CalculateMaxConcentration(model, sourceProperties),
-            DangerousDistance = CalculateDangerousDistance(model, sourceProperties),
-            DangerousWindSpeed = CalculateDangerousWindSpeed(model, sourceProperties)
+            Cm = CalculateCm(model, sourceProperties),
+            Xm = CalculateXm(model, sourceProperties),
+            Um = CalculateUm(model, sourceProperties)
         };
 
-        intermediateResults.MaxUntowardConcentrationDistance = CalculateMaxUntowardConcentrationDistance(model, sourceProperties, intermediateResults);
+        var r = GetRCoef(model, intermediateResults);
+        var p = GetPCoef(model, intermediateResults);
+        
+        sourceProperties.RCoef = r;
+        sourceProperties.PCoef = p;
+
+        intermediateResults.Cmu = CalculateCmu(sourceProperties, intermediateResults);
+        intermediateResults.Xmu = CalculateXmu(sourceProperties, intermediateResults);
+        intermediateResults.C = CalculateC(model, intermediateResults);
 
         using var testFile = File.Open($"C:\\Users\\krawc\\Desktop\\Test\\{reportName}", FileMode.Truncate);
 
@@ -50,7 +58,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
     //TODO: Do we have only 3 cases? hot, cold, low wind? 
 
-    private double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double CalculateCm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         IMaxConcentrationCalculationSubManager? subManager;
 
@@ -71,7 +79,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         return cm;
     }
     
-    private double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double CalculateUm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         IDangerousWindSpeedCalculationManager? subManager;
         if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
@@ -91,7 +99,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         return um;
     }
     
-    private double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double CalculateXm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
         IDangerousDistanceCalculationManager? subManager;
         if (sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5))
@@ -107,20 +115,71 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         return subManager.CalculateDangerousDistance(model, sourceProperties);
     }
 
-    public double CalculateMaxUntowardConcentrationDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties, SingleSourceEmissionCalculationResult intermediateResults)
+    public double CalculateCmu(EmissionSourceProperties sourceProperties, SingleSourceEmissionCalculationResult intermediateResults)
     {
-        var r = GetRCoef(model, intermediateResults);
-
-        var result = intermediateResults.MaxConcentration * r;
+        var result = intermediateResults.Cm * sourceProperties.RCoef;
 
         _reportModelBuilder.SetCmuValue(result);
 
         return result;
     }
 
+    public double CalculateXmu(EmissionSourceProperties sourceProperties, SingleSourceEmissionCalculationResult intermediateResults)
+    {
+        var result = sourceProperties.PCoef * intermediateResults.Xm;
+
+        _reportModelBuilder.SetXmuValue(result);
+
+        return result;
+    }
+
+    public double CalculateC(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
+    {
+        var s1 = GetS1Coef(model, intermediateResults);
+        var result = s1 * intermediateResults.Cm;
+
+        _reportModelBuilder.SetCValue(result);
+
+        return result;
+    }
+
+    private double GetS1Coef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResult)
+    {
+        double result;
+        var ratio = model.X / intermediateResult.Xm;
+        if (ratio <= 1)
+        {
+            result = 3 * Math.Pow(ratio, 4d) * Math.Pow(ratio, 3d) + 6 * Math.Pow(ratio, 2d);
+        }
+        else if(1 < ratio && ratio <= 8)
+        {
+            result = 1.13 / (0.13 * Math.Pow(ratio, 2d) + 1);
+        }
+        else if(8 < ratio && ratio <= 100 && model.FCoef <= 1.5)
+        {
+            result = ratio / (3.556 * Math.Pow(ratio, 2d) - 35.2 * ratio + 120);
+        }
+        else if(8 < ratio && ratio <= 100 && model.FCoef > 1.5)
+        {
+            result = 1 / (0.1 * Math.Pow(ratio, 2d) + 2.456 * ratio - 17.8);
+        }
+        else if (ratio > 100 && model.FCoef <= 1.5)
+        {
+            result = 144.3 * Math.Cbrt(Math.Pow(ratio, -7d));
+        }
+        else
+        {
+            result = 37.76 * Math.Cbrt(Math.Pow(ratio, -7d));
+        }
+
+        _reportModelBuilder.SetS1Value(result);
+
+        return result;
+    }
+
     private double GetRCoef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
     {
-        var ratio = model.U / intermediateResults.DangerousWindSpeed;
+        var ratio = model.U / intermediateResults.Um;
         
         double result;
         if (ratio <= 1)
@@ -133,6 +192,29 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         }
 
         _reportModelBuilder.SetRCoefValue(result);
+
+        return result;
+    }
+
+    private double GetPCoef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateReults)
+    {
+        var ratio = model.U / intermediateReults.Um;
+
+        double result;
+        if (ratio <= 0.25)
+        {
+            result = 3;
+        }
+        else if (ratio <= 1)
+        {
+            result = 8.43 * Math.Pow(1 - ratio, 5) + 1;
+        }
+        else
+        {
+            result = 0.32 * ratio + 0.68;
+        }
+
+        _reportModelBuilder.SetPCoefValue(result);
 
         return result;
     }

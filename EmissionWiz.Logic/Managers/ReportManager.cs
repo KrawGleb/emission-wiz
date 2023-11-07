@@ -15,6 +15,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.Dynamic;
 using System.Xml.Linq;
 using Typography.TextBreak;
+using System.Xml.XPath;
 
 namespace EmissionWiz.Logic.Managers;
 
@@ -76,6 +77,7 @@ public class ReportManager : IReportManager
         await LoadDocReferences(initialXml, dirPath ?? "");
         var xmlWithReferences = initialXml.ToString();
         var xmlWithValues = HbsTemplateManager.Format(xmlWithReferences, flatModel);
+
         var textReader = new StringReader(xmlWithValues);
         var xmlDoc = XDocument.Load(textReader);
 
@@ -173,8 +175,29 @@ public class ReportManager : IReportManager
 
     private void RenderText(XElement element, Section pdf)
     {
-        var text = pdf.AddParagraph(element.Value.Trim());
-        text.Format.SpaceAfter = Unit.FromCentimeter(0.35);
+        var paragraph = pdf.AddParagraph();
+
+        foreach (var node in element.Nodes())
+        {
+            var nodeAsDoc = XDocument.Parse($"<root>{node}</root>");
+
+            var small = nodeAsDoc.Root?.Element("small");
+            if (small != null)
+            {
+                paragraph.AddFormattedText(small.Value.Trim(), Constants.Pdf.CustomStyleNames.SmallText);
+            }
+            else
+            {
+                var fixMathChars = node.ToString()
+                    .Replace("&lt;", "<")
+                    .Replace("&gt;", ">")
+                    .Trim();
+
+                paragraph.AddText(fixMathChars);
+            }
+        }
+
+        paragraph.Format.SpaceAfter = Unit.FromCentimeter(0.35);
     }
 
     private void RenderFormula(XElement element, Section pdf)
@@ -183,7 +206,10 @@ public class ReportManager : IReportManager
             ImageSource.ImageSourceImpl = new ImageSharpImageSource<Rgba32>();
 
         var latex = element.Value.Trim();
-        var comment = element.Attribute("comment")?.Value;
+        var commentValue = element.Attribute("comment")?.Value;
+        var comment = commentValue?.ToString()
+                    .Replace("&lt;", "<")
+                    .Replace("&gt;", ">");
 
         var painter = new MathPainter()
         {
@@ -218,7 +244,7 @@ public class ReportManager : IReportManager
             imageCell.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
 
             var commentCell = row.Cells[1];
-            commentCell.AddParagraph(comment.Trim());
+            commentCell.AddParagraph(comment);
         }
 
         pdf.AddParagraph();

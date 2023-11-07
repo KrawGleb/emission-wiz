@@ -21,6 +21,10 @@ public class PdfManager : IPdfManager
         style.Font.Name = "Times New Roman";
         style.Font.Size = 6;
 
+        style = document.Styles.AddStyle(Constants.Pdf.CustomStyleNames.SmallText, StyleNames.Normal);
+        style.Font.Name = "Times New Roman";
+        style.Font.Size = 10;
+
         // Create a new style called Title based on style Normal
         style = document.Styles.AddStyle(Constants.Pdf.CustomStyleNames.Title, StyleNames.Normal);
         style.Font.Name = "Times New Roman";

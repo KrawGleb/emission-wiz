@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<text>
+		При опасной скорости ветра x{{math Lower|m}} приземная концентрация ЗВ с в атмосферном воздухе на оси факела от точечного источника, определяемой как геометрическое место точек в пространстве, которые на каждом заданном расстоянии от источника соответствуют максимальному значению концентрации ЗВ, а также как их проекция на подстилающую поверхность (то есть на взаимодействующую с атмосферой поверхности земли, в том числе, почву, поверхность воды,снежный и растительный покров), на различных х от источника выброса вычисляется по формуле:
+	</text>
+	<formula>
+		c = s_{1} \cdot c_{m} = {{trimByPrecision S1Coef}} \cdot {{trimByPrecision CmResult}} = {{trimByPrecision CResult}}
+	</formula>
+
+	{{#if S1_Case1}}
+	<formula comment=", при x/x{{math Lower|m}} {{math LoE}} 1">
+		s_{1} = 3 \cdot (x/x_{m})^{4} \cdot (x/x_{m})^{3} + 6 \cdot (x/x_{m})^{2}  \\\\
+		\\quad \\quad = 3 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{4} \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{3} + 6 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{2} = {{trimByPrecision S1Coef}} \\quad \\quad .
+	</formula>
+	{{/if}}
+
+	{{#if S1_Case2}}
+	<formula comment=", при 1 {{math L}} x/x{{math Lower|m}} {{math LoE}} 8">
+		s_{1} = \frac{1.13}{0.13 \cdot (x/x_{m})^2 + 1} = \frac{1.13}{0.13 \cdot ( {{trimByPrecision X}} /{{trimByPrecision Xm}})^2 + 1} = {{trimByPrecision S1Coef}}
+	</formula>
+	{{/if}}
+
+	{{#if S1_Case3}}
+	<formula comment=", при 8 {{math L}} x/x{{math Lower|m}} {{math LoE}} 100 и F {{math LoE}} 1.5">
+		s_{1}=\frac{x/x_{m}}{3.556 \cdot (x/x_{m})^2-35.2\cdot(x/x_{m})+120} \\\\
+		\\quad \\quad =\frac{ {{trimByPrecision X}} / {{trimByPrecision Xm}} }{3.556 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^2-35.2\cdot( {{trimByPrecision X}} / {{trimByPrecision Xm}} )+120} = {{trimByPrecision S1Coef}} \\quad \\quad .
+	</formula>
+	{{/if}}
+
+	{{#if S1_Case4}}
+	<formula comment=", при 8 {{math L}} x/x{{math Lower|m}} {{math LoE}} 100 и F {{math G}} 1.5">
+		s_{1}=\frac{1}{0.1 \cdot (x/x_{m})^2 + 2.456 \cdot (x/x_{m}) - 17.8} \\\\
+		\\quad \\quad =\frac{1}{0.1 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^2 + 2.456 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} ) - 17.8} = {{trimByPrecision S1Coef}} \\quad \\quad .
+	</formula>
+	{{/if}}
+
+	{{#if S1_Case5}}
+	<formula comment=", при x/x{{math Lower|m}} > 100 и F {{math LoE}} 1.5">
+		s_{1} = 144.3 \cdot (x/x_{m})^{-7/3} = 144.3 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^{-7/3} = {{trimByPrecision S1Coef}}
+	</formula>
+	{{/if}}
+
+	{{#if S1_Case6}}
+	<formula comment=", при x/x{{math Lower|m}} > 100 и F {{math G}} 1.5">
+		s_{1} = 37.76 \cdot (x/x_{m})^{-7/3} = 37.76 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^{-7/3} = {{trimByPrecision S1Coef}}
+	</formula>
+	{{/if}}
+</block>

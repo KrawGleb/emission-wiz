@@ -5,6 +5,8 @@ namespace EmissionWiz.Models.Interfaces.Managers;
 
 public interface ISingleSourceEmissionReportModelBuilder
 {
+    SingleSourceReportModel Build();
+
     ISingleSourceEmissionReportModelBuilder UseInputModel(SingleSourceInputModel model);
     ISingleSourceEmissionReportModelBuilder UseSourceProperties(EmissionSourceProperties sourceProperties);
     ISingleSourceEmissionReportModelBuilder SetMCoefValue(double m);
@@ -17,6 +19,8 @@ public interface ISingleSourceEmissionReportModelBuilder
     ISingleSourceEmissionReportModelBuilder SetUmValue(double vm);
     ISingleSourceEmissionReportModelBuilder SetCmuValue(double cmu);
     ISingleSourceEmissionReportModelBuilder SetRCoefValue(double r);
-
-    SingleSourceReportModel Build();
+    ISingleSourceEmissionReportModelBuilder SetPCoefValue(double p);
+    ISingleSourceEmissionReportModelBuilder SetXmuValue(double xmu);
+    ISingleSourceEmissionReportModelBuilder SetS1Value(double s1);
+    ISingleSourceEmissionReportModelBuilder SetCValue(double c);
 }

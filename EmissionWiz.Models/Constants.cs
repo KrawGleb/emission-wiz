@@ -10,6 +10,8 @@ public static class Constants
         {
             public const string Table = "Table";
             public const string Title = "Title";
+
+            public const string SmallText = "SmallText";
         }
     }
 
@@ -31,7 +33,7 @@ public static class Constants
         public const char GoE = '≥';
         public const char LoE = '≤';
         public const string G = "&gt;";
-        public const string L = "&lt;";
+        public const string L = "&#60;";
 
         public const char Delta = 'Δ';
         public const char f = 'ƒ';

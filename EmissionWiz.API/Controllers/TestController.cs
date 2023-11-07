@@ -29,7 +29,8 @@ namespace EmissionWiz.API.Controllers
                 D = 1,
                 Eta = 1,
                 W = 3.06,
-                U = 4
+                U = 4,
+                X = 4
             };
 
             return Ok(await _maxConcentrationManager.Calculate(hot, "HotEmission.pdf"));
@@ -49,7 +50,8 @@ namespace EmissionWiz.API.Controllers
                 D = 1,
                 Eta = 1,
                 W = 30.06,
-                U = 4
+                U = 4,
+                X = 4
             };
 
             return Ok(await _maxConcentrationManager.Calculate(cold, "ColdEmission.pdf"));
@@ -69,7 +71,8 @@ namespace EmissionWiz.API.Controllers
                 D = 0.5,
                 Eta = 1,
                 W = 8.06,
-                U = 4
+                U = 4,
+                X = 4
             };
 
             return Ok(await _maxConcentrationManager.Calculate(lowWind, "LowWindEmission.pdf"));

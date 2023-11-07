@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<text>
+		Расстояние от источника выброса x<small>m.u.</small>, на котором при скорости ветра при неблагоприятных метеорологических условиях достигается максимальная приземная концентрация ЗВ с<small>m.u.</small> определяется по формуле: 
+	</text>
+	<formula>
+		x_{m.u} = p \cdot x_{m} = {{trimByPrecision PCoef}} \cdot {{trimByPrecision XmResult}} = {{trimByPrecision XmuResult}}
+	</formula>
+	
+	{{#if WindRatio_LoE_025}}  <!-- u/um <= 0.25 -->
+	<formula comment=", при u/u{{math Lower|m}} {{math LoE}} 0.25">
+		p = 3
+	</formula>
+	{{else}}
+		{{#if WindRatio_LoE_1}} <!-- 0.25 < u/um <= 1 -->
+		<formula comment=", при 0.25 {{math L}} u/u{{math Lower|m}} {{math LoE}} 1">
+			p = 8.43 \cdot (1 - \frac{u}{u_{m}})^5 + 1 = \\\\
+			\\quad \\quad  8.43 \cdot (1 - \frac{ {{trimByPrecision U}} }{ {{trimByPrecision Um}} })^5 + 1 = {{trimByPrecision PCoef}} \\quad \\quad .
+		</formula>
+		{{else}}
+		<formula comment=", при u/u{{math Lower|m}} > 1">
+			p = 0.32 \cdot \frac{u}{u_{m} } + 0.68 \\\\
+			\\quad \\quad  =  0.32 \cdot \frac{ {{trimByPrecision U}} }{ {{trimByPrecision Um}} } + 0.68 = {{trimByPrecision PCoef}} \\quad \\quad .
+		</formula>
+		{{/if}}
+	{{/if}}
+</block>
