@@ -1,0 +1,215 @@
+@import "../variables";
+@import "../mixins";
+
+.content {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  min-height: calc(100vh - 30px);
+  margin-bottom: 10px;
+  background: #fff;
+
+  &-subtitle {
+    font-weight: 600;
+    padding-top: 16px;
+    margin: 0;
+  }
+
+  &-roster {
+    background: transparent;
+
+    .filters-list {
+      padding-top: 10px;
+    }
+  }
+
+  .clearzindex {
+    z-index: auto !important;
+  }
+
+  &-body {
+    padding: 10px;
+    & .change-log-grid{
+      height: calc( 100vh - 153px );
+      &>*{
+        height: 100%;
+      }
+      & .dx-freespace-row{
+        display: none;
+      }
+    }
+    & .vacation-request-grid{
+      height: 80vh;
+      &>*{
+        height: 100%;
+      }
+    }
+  }
+
+  &-historized {
+    background-color: transparent;
+    &:before {
+      position: absolute;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      background: rgba(#bbd6f3, 0.6);
+      content: '';
+      top: 0;
+    }
+  }
+
+  &-change-log {
+    &:before {
+      position: absolute;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      background: rgba(#e1c699, 0.6);
+      content: '';
+      top: 0;
+    }
+  }
+
+  &-flex {
+    display: flex;
+    flex-direction: column;
+
+    .content-body {
+      height: 0;
+      display: flex;
+      flex-direction: column;
+      flex: 1 0 0;
+    }
+
+    .content-grid-node {
+      flex: 1 0 0;
+      height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  }
+
+}
+
+.card {
+
+  &-badge {
+    vertical-align: top;
+    line-height: 18px;
+    padding: 1px 10px 3px;
+    font-weight: 400;
+    margin: 1px 0 0 auto;
+    white-space: nowrap;
+
+  }
+}
+
+.select-field {
+  position: relative;
+
+  input.form-control {
+    position: absolute;
+    width: calc(100% - 20px);
+    top: 0;
+    border: solid 1px transparent;
+    z-index: 10;
+
+    &:focus {
+      border-color: transparent !important;
+      @include box-shadow(none);
+
+      & ~ select {
+        border-color: #80bdff !important;
+        @include box-shadow(0 0 0 0.2rem rgba(0, 123, 255, 0.25));
+      }
+    }
+  }
+
+  select.form-control {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    cursor: pointer;
+  }
+}
+
+.label {
+
+  &-title {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 16px;
+    padding: 4px 0 2px;
+    margin: 0;
+    display: block;
+    min-height: 22px;
+  }
+
+  &-small {
+    font-weight: 600;
+    font-size: 12px;
+    padding: 3px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 20px;
+    line-height: 14px;
+    content: '';
+    margin: 0;
+
+    .invalid-feedback {
+      display: block;
+      margin: 2px 0 0;
+      font-size: 12px;
+    }
+
+    &.valid {
+      color: green;
+    }
+  }
+}
+
+label.label-small {
+  display: block;
+}
+
+.form-group {
+  margin-bottom: 10px;
+
+  .help-block {
+    display: none;
+    margin: 0 0 -16.8px 0;
+    font-size: small;
+  }
+}
+
+.has-danger,
+.has-error,
+.text-danger {
+  color: $brandRed;
+
+  .control-label {
+    color: $brandRed;
+  }
+
+  .help-block {
+    display: block;
+  }
+}
+
+.text-danger,
+.is-invalid {
+  select.form-control:not([size]):not([multiple]),
+  &.form-control,
+  .form-control {
+    background-image: none !important;
+    border-color: $brandRed;
+    @include box-shadow(0 0 0 0.2rem rgba(226, 52, 42, .25));
+
+    &:focus {
+      border-color: #007aff !important;
+      @include box-shadow(0 0 0 0.125rem rgba(102, 175, 233, .6));
+    }
+  }
+}

@@ -1,0 +1,14 @@
+$desktopMinimum: 768;
+$desktop: "(min-width: #{$desktopMinimum}px)";
+$mobile: "(max-width: #{$desktopMinimum - 1}px)";
+$white: #fff;
+$brandGreen: #80ad16;
+$brandRed: #fa0300;
+$errorRed: #dc3545;
+$warningYellow: #EED202;
+$successGreen: #28a745;
+
+$color1: #8ED0FF;
+$color2: #9EA6FF;
+$color3: #87FFAD;
+

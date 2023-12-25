@@ -4,6 +4,7 @@ import { defineConfig } from 'vite';
 import plugin from '@vitejs/plugin-react';
 import fs from 'fs';
 import path from 'path';
+import react from '@vitejs/plugin-react'
 import child_process from 'child_process';
 
 const baseFolder =
@@ -38,7 +39,17 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    plugins: [plugin()],
+    plugins: [react({
+        babel: {
+            parserOpts: {
+                plugins: ['decorators'],
+            },
+            plugins: [["@babel/plugin-proposal-decorators",
+                {
+                    "version": "2023-05"
+                }]]
+        },
+    })],
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -46,7 +57,7 @@ export default defineConfig({
     },
     server: {
         proxy: {
-            '^/weatherforecast': {
+            '^/api': {
                 target: 'https://localhost:7179/',
                 secure: false
             }
@@ -55,6 +66,11 @@ export default defineConfig({
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
+        }
+    },
+    optimizeDeps: {
+        esbuildOptions: {
+            tsconfig: 'tsconfig.json'
         }
     }
 })

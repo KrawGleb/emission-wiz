@@ -1,0 +1,146 @@
+@import "mixins";
+
+@media print {
+
+  @page {
+    size: landscape
+  }
+
+  .table td,
+  .table th {
+    background: inherit !important;
+    word-break: break-word;
+
+    &.cellBgWhite {
+      background: #fff !important;
+    }
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+
+    .person-grid {
+
+      &-headline,
+      &-headline div,
+      &-statistical,
+      &-person,
+      &-date,
+      &-duty {
+        @include box-shadow(inset -1px -1px #000 !important);
+      }
+
+      &-person,
+      &-line {
+        page-break-inside: avoid;
+      }
+
+      &-person-list {
+        border-color: transparent;
+      }
+
+      &-headline {
+        border-top: solid 1px #000;
+      }
+
+      &-date-month {
+        border-top: solid 1px #000;
+        border-right: solid 1px #000;
+      }
+
+      &-headline,
+      &-person {
+        border-left: solid 1px #000;
+      }
+    }
+
+    .main-nav {
+      display: none;
+    }
+
+    .content {
+      position: static;
+      padding-left: 15px;
+      padding-right: 15px;
+
+      &.report-content,
+      .person-grid-report {
+        height: auto !important;
+        border: none !important;
+      }
+
+      .person-grid:before,
+      .person-grid:after {
+        display: none !important;
+      }
+    }
+
+    .react-app .content-wrapper {
+      position: static;
+      overflow: visible;
+      padding: 10px;
+
+      &>.container-fluid {
+        padding: 0;
+      }
+    }
+
+    .content-body {
+      padding: 0 0 10px;
+    }
+
+    .content-body h2 {
+      font-size: 18px;
+      line-height: 24px;
+      margin: 0;
+    }
+
+    .filters-list {
+      display: none;
+    }
+
+    .person-grid-report {
+      margin: 0
+    }
+
+    .dx-custom-grid {
+      .card-header {
+        display: none !important;
+      }
+
+      .table-responsive {
+        overflow-x: inherit;
+        width: auto;
+        border: none
+      }
+
+      .table {
+        table-layout: fixed;
+        border: 1px solid #ddd;
+
+        thead {
+          tr:not(:first-child) {
+            display: none;
+          }
+        }
+
+        .text-nowrap {
+          white-space: normal !important;
+        }
+
+        .phone,
+        .skype {
+          display: none;
+        }
+      }
+
+      .card-footer {
+        display: none;
+      }
+    }
+  }
+}
