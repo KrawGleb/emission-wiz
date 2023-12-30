@@ -3,7 +3,7 @@ import { BaseFormModel } from "../../Models/BaseFromModel";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
-import { Button, Input, Space, Tooltip } from 'antd';
+import { Button, Input, Space, Tooltip, TooltipProps } from 'antd';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
 import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
@@ -11,8 +11,8 @@ import { FormInput } from "../../Components/FormControls";
 import { isNumber } from "../../Services/Validation";
 
 class FormModel extends BaseFormModel {
-    @observable
     @isNumber()
+    @observable
     public accessor a: number | undefined;
 
     @observable
@@ -65,10 +65,10 @@ export default class SingleSource extends React.Component<{}, {}> {
                         style={{ width: '80px' }}
                         value={this._form.a}
                         tooltip={{
-                            trigger: ['focus'],
+                            trigger: 'focus',
                             title: "Коэффициент, зависящий от температурной стратификации атмосферы, определяющий условия горизонтального и вертикального рассеивания ЗВ в атмосферном воздухе",
                             placement: 'topLeft'
-                        }} 
+                        } as TooltipProps} 
                         changeHandler={() => this._onAnyFieldChange()}/>
 
                     <Tooltip trigger={['focus']} title="Масса ЗВ, выбрасываемого в атмосферный воздух в единицу времени (мощность выброса), г/с" placement="topLeft">

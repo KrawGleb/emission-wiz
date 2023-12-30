@@ -1,4 +1,4 @@
-import { Form, Input, InputProps, TooltipProps } from "antd";
+import { Form, Input, InputProps, Tooltip, TooltipProps } from "antd";
 import { BaseFormModel } from "../Models/BaseFromModel";
 import React from "react";
 import { observer } from "mobx-react";
@@ -26,20 +26,21 @@ export class FormInput<T extends BaseFormModel> extends React.Component<IFormInp
 
         return (
             <Form>
-                <Form.Item 
-                    tooltip={tooltip}>
-                    <Input
-                        style={style}
-                        className={className}
-                        value={fieldValue as string}
-                        autoComplete="off"
-                        status={isInvalid ? 'error' : ''}
-                        onChange={(ev) => {
-                            const value = transformValueHandler ? transformValueHandler(ev.target.value) : ev.target.value;
-                            formModel.setValue(name, value);
-                            changeHandler?.(ev);
-                        }}
-                        {...rest} />
+                <Form.Item >
+                    <Tooltip {...tooltip}>
+                        <Input
+                            style={style}
+                            className={className}
+                            value={fieldValue as string}
+                            autoComplete="off"
+                            status={isInvalid ? 'error' : ''}
+                            onChange={(ev) => {
+                                const value = transformValueHandler ? transformValueHandler(ev.target.value) : ev.target.value;
+                                formModel.setValue(name, value);
+                                changeHandler?.(ev);
+                            }}
+                            {...rest} />
+                    </Tooltip>
                 </Form.Item>
                 {formModel.invalidFields.includes(name as string) && (
                     <Form.ErrorList className={smallValidationError ? 'label-small' : ''} errors={formModel.errorFor(name).map((error: string) =>
