@@ -23,7 +23,7 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         _reportManager = reportManager;
     }
 
-    public async Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceInputModel model, string reportName)
+    public async Task<(SingleSourceEmissionCalculationResult, Stream)> Calculate(SingleSourceInputModel model, string reportName)
     {
         var sourceProperties = GetEmissionSourceProperties(model);
 
@@ -48,15 +48,12 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
         intermediateResults.Xmu = CalculateXmu(sourceProperties, intermediateResults);
         intermediateResults.C = CalculateC(model, intermediateResults);
 
-        using var testFile = File.Open($"C:\\Users\\krawc\\Desktop\\Test\\{reportName}", FileMode.Truncate);
-
         var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
-        await _reportManager.FromTemplate(testFile, path, _reportModelBuilder.Build());
+        var ms = new MemoryStream();
+        await _reportManager.FromTemplate(ms, path, _reportModelBuilder.Build());
 
-        return intermediateResults;
+        return (intermediateResults, ms);
     }
-
-    //TODO: Do we have only 3 cases? hot, cold, low wind? 
 
     private double CalculateCm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {

@@ -3,7 +3,7 @@ using EmissionWiz.Models.Calculations.SingleSource;
 
 public interface ISingleSourceEmissionCalculationManager
 {
-    Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceInputModel model, string reportName);
+    Task<(SingleSourceEmissionCalculationResult, Stream)> Calculate(SingleSourceInputModel model, string reportName);
 }
 
 

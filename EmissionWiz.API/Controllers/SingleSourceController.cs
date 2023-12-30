@@ -1,5 +1,6 @@
 ﻿using EmissionWiz.Models.Calculations.SingleSource;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
 namespace EmissionWiz.API.Controllers
 {
@@ -17,7 +18,15 @@ namespace EmissionWiz.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Calculate([FromBody] SingleSourceInputModel model)
         {
-            return Ok(await _maxConcentrationManager.Calculate(model, "report.pdf"));
+            var (result, _) = await _maxConcentrationManager.Calculate(model, "report.pdf");
+            return Ok(result);
+        }
+
+        [HttpPost("report")]
+        public async Task<IActionResult> GetReport([FromBody] SingleSourceInputModel model)
+        {
+            var (_, stream) = await _maxConcentrationManager.Calculate(model, "report.pdf");
+            return File(stream, "application/octet-stream", "report.pdf");
         }
 
         [HttpGet("hot")]

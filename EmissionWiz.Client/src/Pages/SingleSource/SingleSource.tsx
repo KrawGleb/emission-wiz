@@ -9,6 +9,7 @@ import { ApiUrls } from "../../AppConstants/ApiUrls";
 import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
 import { FormInput } from "../../Components/FormControls";
 import { displayName, isNumber } from "../../Services/Validation";
+import { downloadService } from "../../Services/DownloadService";
 
 class FormModel extends BaseFormModel {
     @isNumber()
@@ -228,6 +229,7 @@ export default class SingleSource extends React.Component<{}, {}> {
 
                     <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()}>Рассчитать</Button>
                 </div>
+                <Button type="primary" onClick={() => this._fillWithTestData()}>Заполнить тестовыми данными</Button>
                 {this._renderResult()}
             </Report>
         )
@@ -244,6 +246,7 @@ export default class SingleSource extends React.Component<{}, {}> {
                         <span>Максимальная приземная концентрация ЗВ: {this._calculationResult.cmu.toFixed(4)}</span><br />
                         <span>Расстояние от источника выброса, на котором при скорости ветра при неблагоприятных метеорологических условиях достигается максимальная приземная концентрация ЗВ: {this._calculationResult.xmu.toFixed(4)}</span><br />
                         <span>Приземная концентрация ЗВ: {this._calculationResult.c.toFixed(4)}</span><br />
+                        <Button type="link" onClick={() => this._downloadReport()}>Ход вычислений</Button>
                     </div>)
             }
         </>
@@ -252,6 +255,21 @@ export default class SingleSource extends React.Component<{}, {}> {
     @action
     private _onAnyFieldChange() {
         this._form.validate();
+    }
+
+    @action
+    private _fillWithTestData() {
+        this._form.a = 32;
+        this._form.m = 12;
+        this._form.h = 40;
+        this._form.d = 10;
+        this._form.airTemperature = 17;
+        this._form.emissionTemperature = 25;
+        this._form.eta = 2;
+        this._form.f = 2;
+        this._form.x = 200;
+        this._form.u = 20;
+        this._form.w = 20;
     }
 
     @action.bound
@@ -271,5 +289,23 @@ export default class SingleSource extends React.Component<{}, {}> {
         }
         const { data } = await ApiService.postTypedData<SingleSourceEmissionCalculationResult>(ApiUrls.SingleSource, model);
         this._calculationResult = data;
+    }
+
+    @action.bound
+    private async _downloadReport() {
+        const model: SingleSourceInputModel = {
+            a: this._form.a!,
+            m: this._form.m!,
+            fCoef: this._form.f!,
+            h: this._form.h!,
+            d: this._form.d!,
+            w: this._form.w!,
+            eta: this._form.eta!,
+            airTemperature: this._form.airTemperature!,
+            emissionTemperature: this._form.emissionTemperature!,
+            u: this._form.u!,
+            x: this._form.x!,
+        }
+        downloadService.downloadFile(ApiUrls.SingleSourceReport, model);
     }
 }
