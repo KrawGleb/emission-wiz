@@ -25,7 +25,7 @@ export class FormInput<T extends BaseFormModel> extends React.Component<IFormInp
         const isInvalid: boolean | undefined = invalid || (formModel.validated ? !formModel.isValid(name) : formModel.validated);
 
         return (
-            <Form>
+            <Form style={style}>
                 <Form.Item >
                     <Tooltip {...tooltip}>
                         <Input

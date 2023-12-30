@@ -1,5 +1,12 @@
 import { computed } from "mobx";
 
+export function displayName(displayName: string) {
+    return <any>function (target: any, name: string) {
+        const __displayName = camelCase('____displayName_', name);
+        target[__displayName] = displayName;
+    };
+}
+
 export function isNumber(msg?: string) {
     return <any>function (_: any, context: ClassAccessorDecoratorContext) {
         const name = String(context.name);
@@ -8,7 +15,7 @@ export function isNumber(msg?: string) {
             fieldName: name,
             validateFunction: (obj: any) => {
                 let isValid = !obj[name] || !isNaN(Number(obj[name]));
-                let errorMEssage = `Field "${getDisplayName(obj, name)}" is not a number`;
+                let errorMEssage = `Поле "${getDisplayName(obj, name)}" должно быть числом`;
                 return isValid ? undefined : msg || errorMEssage;
             }
         };
