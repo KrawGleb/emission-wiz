@@ -1,10 +1,8 @@
-﻿using CSharpMath;
-using CSharpMath.Rendering.Text;
+﻿using CSharpMath.Rendering.Text;
 using CSharpMath.SkiaSharp;
-using CSharpMath.Display;
-using EmissionWiz.Common;
 using EmissionWiz.Common.Helpers;
 using EmissionWiz.Common.Templates;
+using EmissionWiz.Models;
 using EmissionWiz.Models.Interfaces.Managers;
 using Microsoft.Extensions.Logging;
 using MigraDocCore.DocumentObjectModel;
@@ -12,14 +10,12 @@ using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using MigraDocCore.Rendering;
 using PdfSharpCore.Utils;
 using SixLabors.ImageSharp.PixelFormats;
-using System.Dynamic;
 using System.Xml.Linq;
 using Typography.TextBreak;
-using System.Xml.XPath;
 
 namespace EmissionWiz.Logic.Managers;
 
-public class ReportManager : IReportManager
+public class ReportManager : BaseManager, IReportManager
 {
     private readonly IPdfManager _pdfManager;
     private readonly ILogger<ReportManager> _logger;

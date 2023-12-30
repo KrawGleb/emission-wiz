@@ -2,7 +2,7 @@
 
 namespace EmissionWiz.Models.Interfaces.Managers;
 
-public interface IPdfManager
+public interface IPdfManager : IBaseManager
 {
     void DefinePdfStyles(Document document);
 }

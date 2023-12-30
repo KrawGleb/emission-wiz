@@ -3,7 +3,7 @@ using EmissionWiz.Models.Templates;
 
 namespace EmissionWiz.Models.Interfaces.Managers;
 
-public interface ISingleSourceEmissionReportModelBuilder
+public interface ISingleSourceEmissionReportModelBuilder : IBaseManager
 {
     SingleSourceReportModel Build();
 

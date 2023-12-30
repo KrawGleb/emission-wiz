@@ -3,7 +3,7 @@ import { BaseFormModel } from "../../Models/BaseFromModel";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
-import { Button, Input, Space, Tooltip, TooltipProps } from 'antd';
+import { Button, TooltipProps } from 'antd';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
 import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
@@ -61,7 +61,7 @@ class FormModel extends BaseFormModel {
 }
 
 @observer
-export default class SingleSource extends React.Component<{}, {}> {
+export default class SingleSource extends React.Component {
     @observable
     private accessor _calculationResult: SingleSourceEmissionCalculationResult | undefined;
 

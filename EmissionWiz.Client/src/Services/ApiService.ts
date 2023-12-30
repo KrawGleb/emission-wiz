@@ -1,13 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { emitter } from './EventEmitter';
 import Axios, { AxiosInstance, AxiosPromise, AxiosRequestConfig, ResponseType, AxiosResponse, AxiosError, CancelToken, CancelTokenSource } from 'axios';
-import { appStore } from '../Stores/AppStore';
 import { globalAjaxLoaderStore } from '../Stores/GlobalAjaxLoaderStore';
 
-import { DateTime } from '../AppConstants/DateTime';
-
 import DateTimeService from '../Services/DateTimeService';
-import UrlService from './UrlService';
 import { PromiseCompletion } from '../Classes/PromiseCompletion';
 
 export type ApiHeaders = {
@@ -361,7 +357,7 @@ export default class ApiService {
 class ErrorHandleService {
     private _lastError: { message: string; time: number };
 
-    showError(url: string, error: any) {
+    showError(_: string, error: any) {
         let errorMessage = '';
         const currentTime = new Date().getTime();
         console.log('--error AJAX: ', error);

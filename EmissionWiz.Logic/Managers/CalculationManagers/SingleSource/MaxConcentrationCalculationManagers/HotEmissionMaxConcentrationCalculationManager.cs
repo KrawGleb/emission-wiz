@@ -3,7 +3,7 @@ using EmissionWiz.Models.Interfaces.Managers;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.MaxConcentrationCalculationManagers;
 
-public class HotEmissionMaxConcentrationCalculationManager : BaseMaxConcentrationCalculationManager, IHotEmissionMaxConcentrationCalculationSubManager
+public class HotEmissionMaxConcentrationCalculationManager : BaseMaxConcentrationCalculationManager, IHotEmissionMaxConcentrationCalculationManager
 {
 
     public HotEmissionMaxConcentrationCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder

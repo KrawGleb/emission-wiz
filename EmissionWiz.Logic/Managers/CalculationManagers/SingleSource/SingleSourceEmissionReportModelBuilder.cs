@@ -4,7 +4,7 @@ using EmissionWiz.Models.Templates;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource;
 
-public class SingleSourceEmissionReportModelBuilder : ISingleSourceEmissionReportModelBuilder
+public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSourceEmissionReportModelBuilder
 {
     private SingleSourceReportModel _model = new();
 

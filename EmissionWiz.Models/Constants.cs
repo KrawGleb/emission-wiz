@@ -1,6 +1,6 @@
 ﻿using EmissionWiz.Common.Helpers;
 
-namespace EmissionWiz.Common;
+namespace EmissionWiz.Models;
 
 public static class Constants
 {
@@ -40,17 +40,17 @@ public static class Constants
     }
 
     public static IDictionary<string, object?>? MathCharsObj = ExpandoObjectBuilder.FromObject(new MathChars(), true)
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
+
+
+
+
+
+
+
+
+
+
      ;
 }
 

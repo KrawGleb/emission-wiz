@@ -1,8 +1,9 @@
 ﻿using EmissionWiz.Models.Calculations.SingleSource;
+using EmissionWiz.Models.Interfaces.Managers;
 
-namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerouesWindSpeedCalculationManagers;
+namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousWindSpeedCalculationManagers;
 
-public class LowWindDangerousWindSpeedCalculationManager : ILowWindDangerousWindSpeedCalculationManager
+public class LowWindDangerousWindSpeedCalculationManager : BaseManager, ILowWindDangerousWindSpeedCalculationManager
 {
     public double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {

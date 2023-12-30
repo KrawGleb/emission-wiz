@@ -1,10 +1,12 @@
-﻿using EmissionWiz.Common;
+﻿using EmissionWiz.Models;
+using EmissionWiz.Models.Attributes;
 using EmissionWiz.Models.Interfaces.Managers;
 using MigraDocCore.DocumentObjectModel;
 
 namespace EmissionWiz.Logic.Managers;
 
-public class PdfManager : IPdfManager
+[TransientDependency]
+public class PdfManager : BaseManager, IPdfManager
 {
     public void DefinePdfStyles(Document document)
     {

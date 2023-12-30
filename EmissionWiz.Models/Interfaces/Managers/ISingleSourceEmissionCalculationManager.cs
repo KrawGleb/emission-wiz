@@ -1,22 +1,22 @@
-﻿
-using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Calculations.SingleSource;
 
-public interface ISingleSourceEmissionCalculationManager
+namespace EmissionWiz.Models.Interfaces.Managers;
+
+public interface ISingleSourceEmissionCalculationManager : IBaseManager
 {
     Task<(SingleSourceEmissionCalculationResult, Stream)> Calculate(SingleSourceInputModel model, string reportName);
 }
 
-
-public interface IMaxConcentrationCalculationSubManager
+public interface IMaxConcentrationCalculationManager : IBaseManager
 {
     double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
 }
 
-public interface IColdEmissionMaxConcentrationCalculationSubManager : IMaxConcentrationCalculationSubManager { }
-public interface IHotEmissionMaxConcentrationCalculationSubManager : IMaxConcentrationCalculationSubManager { }
-public interface ILowWindMaxConcentrationCalculationSubManager : IMaxConcentrationCalculationSubManager { }
+public interface IColdEmissionMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
+public interface IHotEmissionMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
+public interface ILowWindMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
 
-public interface IDangerousDistanceCalculationManager
+public interface IDangerousDistanceCalculationManager : IBaseManager
 {
     double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
 }
@@ -29,6 +29,7 @@ public interface IDangerousWindSpeedCalculationManager
 {
     double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
 }
+
 public interface IColdEmissionDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }
 public interface IHotEmissionDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }
 public interface ILowWindDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }

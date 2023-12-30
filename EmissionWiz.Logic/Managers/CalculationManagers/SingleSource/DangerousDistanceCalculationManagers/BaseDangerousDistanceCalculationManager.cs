@@ -3,7 +3,7 @@ using EmissionWiz.Models.Interfaces.Managers;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousDistanceCalculationManagers;
 
-public class BaseDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager
+public class BaseDangerousDistanceCalculationManager : BaseManager, IDangerousDistanceCalculationManager
 {
     protected readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
 

@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleSource;
 
 // Метод расчета максимальных разовых концентраций от выбросов одиночного точечного источника
-public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalculationManager
+public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSourceEmissionCalculationManager
 {
     private readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -57,14 +57,14 @@ public class SingleSourceEmissionCalculationManager : ISingleSourceEmissionCalcu
 
     private double CalculateCm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
     {
-        IMaxConcentrationCalculationSubManager? subManager;
+        IMaxConcentrationCalculationManager? subManager;
 
         if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IColdEmissionMaxConcentrationCalculationSubManager>();
+            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IColdEmissionMaxConcentrationCalculationManager>();
         else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindMaxConcentrationCalculationSubManager>();
+            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindMaxConcentrationCalculationManager>();
         else
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionMaxConcentrationCalculationSubManager>();
+            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionMaxConcentrationCalculationManager>();
 
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
