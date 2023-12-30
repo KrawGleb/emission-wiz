@@ -5,13 +5,19 @@ namespace EmissionWiz.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TestController : ControllerBase
+    public class SingleSourceController : ControllerBase
     {
         private readonly ISingleSourceEmissionCalculationManager _maxConcentrationManager;
 
-        public TestController(ISingleSourceEmissionCalculationManager maxConcentrationManager)
+        public SingleSourceController(ISingleSourceEmissionCalculationManager maxConcentrationManager)
         {
             _maxConcentrationManager = maxConcentrationManager;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Calculate([FromBody] SingleSourceInputModel model)
+        {
+            return Ok(await _maxConcentrationManager.Calculate(model, "report.pdf"));
         }
 
         [HttpGet("hot")]
