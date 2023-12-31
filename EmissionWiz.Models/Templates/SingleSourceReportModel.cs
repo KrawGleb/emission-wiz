@@ -1,4 +1,6 @@
-﻿namespace EmissionWiz.Models.Templates;
+﻿using System.Transactions;
+
+namespace EmissionWiz.Models.Templates;
 
 public class SingleSourceReportModel
 {
@@ -12,6 +14,7 @@ public class SingleSourceReportModel
     public double U { get; set; }
     public double DeltaT { get; set; }
     public double X { get; set; }
+    public double Y { get; set; }
 
     public double VmResult { get; set; }
     public double VmIResult { get; set; }
@@ -24,6 +27,7 @@ public class SingleSourceReportModel
     public double XmuResult { get; set; }
     public double UmResult { get; set; }
     public double CResult { get; set; }
+    public double CyResult { get; set; }
 
     public double MICoef { get; set; }
     public double MCoef { get; set; }
@@ -34,6 +38,9 @@ public class SingleSourceReportModel
     public double PCoef { get; set; }
     public double S1Coef { get; set; }
     public double S1HCoef { get; set; }
+    public double S2Coef { get; set; }
+
+    public double Ty { get; set; }
 
     public double V1 => V1Result;
     public double Vm => VmResult;
@@ -77,4 +84,7 @@ public class SingleSourceReportModel
     public bool S1_Case5 => DistanceRatio > 100 && FCoef <= 1.5;
     public bool S1_Case6 => DistanceRatio > 100 && FCoef > 1.5;
     public bool S1_Case7 => DistanceRatio < 1 && H < 10;
+
+    public bool Ty_Case1 => U <= 5;
+    public bool Ty_Case2 => U > 5;
 }

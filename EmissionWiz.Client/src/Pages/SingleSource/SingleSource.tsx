@@ -3,7 +3,7 @@ import { BaseFormModel } from "../../Models/BaseFromModel";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
-import { Button, Divider, Flex, TooltipProps } from 'antd';
+import { Button, Divider, TooltipProps } from 'antd';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
 import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
@@ -60,6 +60,10 @@ class FormModel extends BaseFormModel {
     @isNumber()
     @observable
     public accessor x: number | undefined;
+
+    @isNumber()
+    @observable
+    public accessor y: number | undefined;
 }
 
 @observer
@@ -234,16 +238,31 @@ export default class SingleSource extends React.Component {
                                 changeHandler={() => this._onAnyFieldChange()}
                             />
 
-                            <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()}>Рассчитать</Button>
+                            <FormInput
+                                formModel={this._form}
+                                name="y"
+                                placeholder="Y"
+                                style={{ width: '80px' }}
+                                value={this._form.y}
+                                tooltip={{
+                                    trigger: 'focus',
+                                    title: 'Расстояние по нормали к оси факела выброса, м',
+                                    placement: 'topLeft'
+                                } as TooltipProps}
+                                changeHandler={() => this._onAnyFieldChange()}
+                            />
                         </div>
-                        <Button type="primary" onClick={() => this._fillWithTestData()}>Заполнить тестовыми данными</Button>
+                        <div className="d-flex flex-row" style={{ gap: '20px' }}>
+                            <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()}>Рассчитать</Button>
+                            <Button type="primary" style={{ width: '280px' }} onClick={() => this._fillWithTestData()}>Заполнить тестовыми данными</Button>
+                        </div>
                         {this._renderResult()}
                     </div>
                     {!!this._pdfData && <>
                         <div style={{ width: '66%' }} className="d-flex flex-column">
                             <Divider orientation="left"><h4>Ход вычислений:</h4></Divider>
                             <div className="d-flex flex-row" style={{ justifyContent: 'flex-end' }} >
-                                <Button className="bg-success" type="primary"  icon={<DownloadOutlined />} size='middle' onClick={() => this._downloadReport()}  />
+                                <Button className="bg-success" type="primary" icon={<DownloadOutlined />} size='middle' onClick={() => this._downloadReport()} />
                             </div>
                             <PdfViewer pdfData={this._pdfData} />
                         </div>
@@ -265,6 +284,7 @@ export default class SingleSource extends React.Component {
                         <span>Максимальная приземная концентрация ЗВ: <strong>{this._calculationResult.cmu.toFixed(4)}</strong></span><br />
                         <span>Расстояние от источника выброса, на котором при скорости ветра при неблагоприятных метеорологических условиях достигается максимальная приземная концентрация ЗВ: <strong>{this._calculationResult.xmu.toFixed(4)}</strong></span><br />
                         <span>Приземная концентрация ЗВ: <strong>{this._calculationResult.c.toFixed(4)}</strong></span><br />
+                        <span>Приземная концентрация ЗВ на расстоянии y по нормали к оси факела выброса: <strong>{this._calculationResult.cy.toFixed(4)}</strong></span><br />
                     </div>)
             }
         </>
@@ -288,23 +308,12 @@ export default class SingleSource extends React.Component {
         this._form.x = 200;
         this._form.u = 20;
         this._form.w = 20;
+        this._form.y = 2;
     }
 
     @action.bound
     private async _calculate() {
-        const model: SingleSourceInputModel = {
-            a: this._form.a!,
-            m: this._form.m!,
-            fCoef: this._form.f!,
-            h: this._form.h!,
-            d: this._form.d!,
-            w: this._form.w!,
-            eta: this._form.eta!,
-            airTemperature: this._form.airTemperature!,
-            emissionTemperature: this._form.emissionTemperature!,
-            u: this._form.u!,
-            x: this._form.x!,
-        }
+        const model = this._getModel();
         const { data } = await ApiService.postTypedData<SingleSourceEmissionCalculationResult>(ApiUrls.SingleSource, model);
         this._calculationResult = data;
         await this._loadPdf();
@@ -312,41 +321,33 @@ export default class SingleSource extends React.Component {
 
     @action.bound
     private async _downloadReport() {
-        const model: SingleSourceInputModel = {
-            a: this._form.a!,
-            m: this._form.m!,
-            fCoef: this._form.f!,
-            h: this._form.h!,
-            d: this._form.d!,
-            w: this._form.w!,
-            eta: this._form.eta!,
-            airTemperature: this._form.airTemperature!,
-            emissionTemperature: this._form.emissionTemperature!,
-            u: this._form.u!,
-            x: this._form.x!,
-        }
+        const model = this._getModel();
         downloadService.downloadFile(ApiUrls.SingleSourceReport, model);
     }
 
     private async _loadPdf() {
-        const model: SingleSourceInputModel = {
-            a: this._form.a!,
-            m: this._form.m!,
-            fCoef: this._form.f!,
-            h: this._form.h!,
-            d: this._form.d!,
-            w: this._form.w!,
-            eta: this._form.eta!,
-            airTemperature: this._form.airTemperature!,
-            emissionTemperature: this._form.emissionTemperature!,
-            u: this._form.u!,
-            x: this._form.x!,
-        }
-
+        const model = this._getModel();
         this._pdfData = null;
         const { data } = await ApiService.postTypedData<Blob>(ApiUrls.SingleSourceReport, model, {
             responseType: 'blob',
         });
         this._pdfData = data;
+    }
+
+    private _getModel() {
+        return {
+            a: this._form.a!,
+            m: this._form.m!,
+            fCoef: this._form.f!,
+            h: this._form.h!,
+            d: this._form.d!,
+            w: this._form.w!,
+            eta: this._form.eta!,
+            airTemperature: this._form.airTemperature!,
+            emissionTemperature: this._form.emissionTemperature!,
+            u: this._form.u!,
+            x: this._form.x!,
+            y: this._form.y!
+        }
     }
 }

@@ -57,5 +57,10 @@ public class SingleSourceInputModel
     /// </summary>
     public double X { get; set; }
 
+    /// <summary>
+    /// Расстояние по нормали к оси факела выброса
+    /// </summary>
+    public double Y { get; set; }
+
     public double DeltaT => EmissionTemperature - AirTemperature;
 }

@@ -24,4 +24,7 @@ public interface ISingleSourceEmissionReportModelBuilder : IBaseManager
     ISingleSourceEmissionReportModelBuilder SetS1Value(double s1);
     ISingleSourceEmissionReportModelBuilder SetCValue(double c);
     ISingleSourceEmissionReportModelBuilder SetS1HValue(double s1h);
+    ISingleSourceEmissionReportModelBuilder SetS2Value(double s2);
+    ISingleSourceEmissionReportModelBuilder SetTyValue(double ty);
+    ISingleSourceEmissionReportModelBuilder SetCyValue(double cy);
 }

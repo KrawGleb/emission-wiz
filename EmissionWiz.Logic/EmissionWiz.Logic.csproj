@@ -24,6 +24,9 @@
 		<None Update="ReportTemplates\SingleSource\Blocks\cmu_formulas.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="ReportTemplates\SingleSource\Blocks\cy_formulas.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="ReportTemplates\SingleSource\Blocks\c_formulas.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

@@ -9,6 +9,7 @@ export class BaseApiModelClass< T > {
 
 export interface ISingleSourceEmissionCalculationResult {
     c: number;
+    cy: number;
     cm: number;
     cmu: number;
     um: number;
@@ -17,6 +18,7 @@ export interface ISingleSourceEmissionCalculationResult {
 }
 export class SingleSourceEmissionCalculationResult extends BaseApiModelClass< ISingleSourceEmissionCalculationResult > implements ISingleSourceEmissionCalculationResult {
     c: number;
+    cy: number;
     cm: number;
     cmu: number;
     um: number;
@@ -36,6 +38,7 @@ export interface ISingleSourceInputModel {
     emissionTemperature: number;
     u?: number;
     x?: number;
+    y?: number;
 }
 export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInputModel > implements ISingleSourceInputModel {
     a: number;
@@ -47,6 +50,7 @@ export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInpu
     eta: number;
     airTemperature: number;
     emissionTemperature: number;
-    u?: number | undefined;
-    x?: number | undefined;
+    u?: number;
+    x?: number;
+    y?: number;
 } 

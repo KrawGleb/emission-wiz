@@ -20,6 +20,7 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.A = model.A;
         _model.U = model.U;
         _model.X = model.X;
+        _model.Y = model.Y;
 
         return this;
     }
@@ -126,6 +127,13 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         return this;
     }
 
+    public ISingleSourceEmissionReportModelBuilder SetS2Value(double s2)
+    {
+        _model.S2Coef = s2;
+
+        return this;
+    }
+
     public ISingleSourceEmissionReportModelBuilder SetCValue(double c)
     {
         _model.CResult = c;
@@ -136,6 +144,20 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
     public ISingleSourceEmissionReportModelBuilder SetS1HValue(double s1h)
     {
         _model.S1HCoef = s1h;
+
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetTyValue(double ty)
+    {
+        _model.Ty = ty;
+
+        return this;
+    }
+
+    public ISingleSourceEmissionReportModelBuilder SetCyValue(double cy)
+    {
+        _model.CyResult = cy;
 
         return this;
     }

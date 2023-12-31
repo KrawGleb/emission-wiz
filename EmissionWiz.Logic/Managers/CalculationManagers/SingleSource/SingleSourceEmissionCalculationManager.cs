@@ -47,6 +47,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         intermediateResults.Cmu = CalculateCmu(sourceProperties, intermediateResults);
         intermediateResults.Xmu = CalculateXmu(sourceProperties, intermediateResults);
         intermediateResults.C = CalculateC(model, intermediateResults);
+        intermediateResults.Cy = CalculateCy(model, intermediateResults);
 
         var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
         var ms = new MemoryStream();
@@ -74,6 +75,28 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         _reportModelBuilder.SetCmResultValue(cm);
 
         return cm;
+    }
+
+    public double CalculateCy(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
+    {
+        double ty;
+        if (model.U <= 5)
+        {
+            ty = model.U * Math.Pow(model.Y, 2.0d) / Math.Pow(model.X, 2.0d);
+        }
+        else
+        {
+            ty = 5 * Math.Pow(model.Y, 2.0d) / Math.Pow(model.X, 2.0d);
+        }
+
+        var s2 = GetS2Coef(ty);
+        var cy = s2 * intermediateResults.C;
+
+        _reportModelBuilder
+            .SetTyValue(ty)
+            .SetCyValue(cy);
+
+        return cy;
     }
 
     private double CalculateUm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
@@ -181,6 +204,15 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         }
 
         _reportModelBuilder.SetS1Value(result);
+
+        return result;
+    }
+
+    private double GetS2Coef(double ty)
+    {
+        var result = 1.0d / Math.Pow((1 + 5d * ty + 12.8d * Math.Pow(ty, 2.0d) + 17 * Math.Pow(ty, 3.0d) + 45.1d * Math.Pow(ty, 4)), 2.0d);
+
+        _reportModelBuilder.SetS2Value(result);
 
         return result;
     }

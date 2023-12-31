@@ -3,7 +3,7 @@ import { observer } from "mobx-react";
 import { action, computed, observable } from "mobx";
 import { pdfjs, Document, Page } from 'react-pdf';
 import Extensions from "../Helpers/Extensions";
-import { Typography } from 'antd';
+import { Divider, Typography } from 'antd';
 import { DocumentCallback } from "react-pdf/dist/cjs/shared/types";
 
 const { Text } = Typography;
@@ -80,14 +80,17 @@ export default class PdfViewer extends React.Component<PdfViewerProps> {
 
     renderPage = (index: number) => {
         return (
-            <Page
-                key={`page_${index + 1}`}
-                pageNumber={index + 1}
-                width={this._pageWidth || 400}
-                renderMode="canvas"
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-            />
+            <>
+                <Page
+                    key={`page_${index + 1}`}
+                    pageNumber={index + 1}
+                    width={this._pageWidth || 400}
+                    renderMode="canvas"
+                    renderTextLayer={false}
+                    renderAnnotationLayer={false}
+                />
+                <Divider />
+            </>
         );
     };
 

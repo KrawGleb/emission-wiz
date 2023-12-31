@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<text>
+		Приземная концентрация ЗВ в атмосферном воздухе cy на расстоянии y по нормали к оси факела выброса определяется по формуле:
+	</text>
+
+	{{#if Ty_Case1}}
+	<formula comment=", при u {{math LoE}} 5 м/c">
+		t_{y} = \frac{u \cdot y^2}{x^2} = \frac{ {{trimByPrecision U}} \cdot {{trimByPrecision Y}}^2}{ {{trimByPrecision X}}^2} = {{trimByPrecision Ty}}
+	</formula>
+	{{else}}
+	<formula comment=", при u > 5 м/c">
+		t_{y} = \frac{5 \cdot y^2}{x^2} = \frac{ 5 \cdot {{trimByPrecision Y}}^2}{ {{trimByPrecision X}}^2} = {{trimByPrecision Ty}}
+	</formula>
+	{{/if}}
+
+	<formula>
+		s_2 = \frac{1}{(1 + 5 \cdot t_y + 12.8 \cdot t_y^2 + 17 \cdot t_y^3 + 45.1 \cdot t_y^4)^2} \\\\
+		\\quad = \frac{1}{(1 + 5 \cdot {{trimByPrecision Ty}} + 12.8 \cdot {{trimByPrecision Ty}}^2 + 17 \cdot {{trimByPrecision Ty}}^3 + 45.1 \cdot {{trimByPrecision Ty}}^4)^2} = {{trimByPrecision S2Coef}} \\quad .
+	</formula>
+
+	<formula>
+		c_y = s_2 \cdot c = {{trimByPrecision S2Coef}} \cdot {{trimByPrecision CResult}} = {{trimByPrecision CyResult}}
+	</formula>
+</block>
