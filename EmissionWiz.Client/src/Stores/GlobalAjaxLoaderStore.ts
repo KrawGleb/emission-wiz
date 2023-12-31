@@ -1,4 +1,4 @@
-import {action} from 'mobx';
+import { action } from 'mobx';
 
 class GlobalAjaxLoaderStore {
     private _actionElement: HTMLInputElement | HTMLButtonElement | null = null;

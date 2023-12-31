@@ -214,3 +214,15 @@ label.label-small {
     }
   }
 }
+
+.pdf-container {
+  width: calc(100% - (var(--scrollbar-width)));
+  height: calc(100vh - 200px);
+  padding: 0 3px;
+  overflow-y: auto;
+
+  &-print {
+      height: 100%;
+      width: 100%;
+  }
+}
