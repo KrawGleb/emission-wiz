@@ -1,6 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react";
-import { action, computed, observable } from "mobx";
+import { action, observable } from "mobx";
 import { pdfjs, Document, Page } from 'react-pdf';
 import Extensions from "../Helpers/Extensions";
 import { Divider, Typography } from 'antd';

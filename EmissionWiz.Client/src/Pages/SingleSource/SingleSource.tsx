@@ -6,7 +6,7 @@ import { Report } from "../../Components/Report";
 import { Button, Divider, TooltipProps } from 'antd';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
-import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
+import { SingleSourceEmissionCalculationResult } from "../../Models/WebApiModels";
 import { FormInput } from "../../Components/FormControls";
 import { displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
