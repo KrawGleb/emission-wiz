@@ -157,7 +157,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         var ratio = model.X / intermediateResult.Xm;
         if (ratio <= 1)
         {
-            result = 3 * Math.Pow(ratio, 4d) * Math.Pow(ratio, 3d) + 6 * Math.Pow(ratio, 2d);
+            result = 3 * Math.Pow(ratio, 4d) - 8 * Math.Pow(ratio, 3d) + 6 * Math.Pow(ratio, 2d);
         }
         else if (1 < ratio && ratio <= 8)
         {

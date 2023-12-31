@@ -16,8 +16,8 @@
 
 	{{#if S1_Case1}}
 		<formula comment=", при x/x{{math Lower|m}} {{math LoE}} 1">
-			s_{1} = 3 \cdot (x/x_{m})^{4} \cdot (x/x_{m})^{3} + 6 \cdot (x/x_{m})^{2}  \\\\
-			\\quad \\quad = 3 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{4} \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{3} + 6 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{2} = {{trimByPrecision S1Coef}} \\quad \\quad .
+			s_{1} = 3 \cdot (x/x_{m})^{4} - 8 \cdot (x/x_{m})^{3} + 6 \cdot (x/x_{m})^{2}  \\\\
+			\\quad \\quad = 3 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{4} - 8 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{3} + 6 \cdot ( {{trimByPrecision X}} / {{trimByPrecision XmResult}} )^{2} = {{trimByPrecision S1Coef}} \\quad \\quad .
 		</formula>
 		
 		{{#if S1_Case7}}
