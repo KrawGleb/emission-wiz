@@ -18,7 +18,7 @@ export class BaseFormModel {
     }
 
     @action isValid<T extends BaseFormModel>(name: keyof T): boolean {
-        return !this.validationErrorsName(name).length;
+        return this.validationErrorsName(name).length === 0;
     }
 
     getValue<T extends BaseFormModel>(name: keyof T): T[keyof T] {
@@ -36,7 +36,7 @@ export class BaseFormModel {
         const sName = name as string;
         const key = '__validateError_' + sName[0].toUpperCase() + sName.substr(1);
         const errors = (this as unknown as {[key: string]: string[]})[key] as string[];
-        return errors ? errors : [];
+        return errors;
     }
 
     @computed

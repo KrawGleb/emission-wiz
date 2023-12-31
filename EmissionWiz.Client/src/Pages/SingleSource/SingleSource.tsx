@@ -8,59 +8,70 @@ import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
 import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
 import { FormInput } from "../../Components/FormControls";
-import { displayName, isNumber } from "../../Services/Validation";
+import { displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
 import PdfViewer from "../../Components/PdfViewer";
 import { DownloadOutlined } from "@ant-design/icons";
 
 class FormModel extends BaseFormModel {
+    @isRequired()
     @isNumber()
     @observable
     public accessor a: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor h: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor f: number | undefined;
 
     @displayName("Тв")
+    @isRequired()
     @isNumber()
     @observable
     public accessor airTemperature: number | undefined;
 
     @displayName("Тг")
+    @isRequired()
     @isNumber()
     @observable
     public accessor emissionTemperature: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor m: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor d: number | undefined;
 
-    @displayName(" η")
+    @isRequired()
     @isNumber()
     @observable
     public accessor eta: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor w: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor u: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor x: number | undefined;
 
+    @isRequired()
     @isNumber()
     @observable
     public accessor y: number | undefined;
@@ -253,7 +264,7 @@ export default class SingleSource extends React.Component {
                             />
                         </div>
                         <div className="d-flex flex-row" style={{ gap: '20px' }}>
-                            <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()}>Рассчитать</Button>
+                            <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()} disabled={!this._form.isFormValid}>Рассчитать</Button>
                             <Button type="primary" style={{ width: '280px' }} onClick={() => this._fillWithTestData()}>Заполнить тестовыми данными</Button>
                         </div>
                         {this._renderResult()}
@@ -292,7 +303,6 @@ export default class SingleSource extends React.Component {
 
     @action
     private _onAnyFieldChange() {
-        this._form.validate();
     }
 
     @action

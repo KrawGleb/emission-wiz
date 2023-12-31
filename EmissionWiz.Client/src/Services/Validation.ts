@@ -7,6 +7,21 @@ export function displayName(displayName: string) {
     };
 }
 
+export function isRequired(msg?: string) {
+    return <any>function (_: any, context: ClassAccessorDecoratorContext) {
+        const name = String(context.name);
+
+        const validation = {
+            fieldName: name,
+            validateFunction: (obj: any) => {
+                return obj[name] ? null : msg || `Поле "${getDisplayName(obj, name)}" не может быть пустым`;
+            }
+        };
+
+        addValidation(context, name, validation);
+    };
+}
+
 export function isNumber(msg?: string) {
     return <any>function (_: any, context: ClassAccessorDecoratorContext) {
         const name = String(context.name);
