@@ -6,12 +6,13 @@ import { Report } from "../../Components/Report";
 import { Button, Divider, TooltipProps } from 'antd';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
-import { SingleSourceEmissionCalculationResult } from "../../Models/WebApiModels";
+import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
 import { FormInput } from "../../Components/FormControls";
 import { displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
 import PdfViewer from "../../Components/PdfViewer";
 import { DownloadOutlined } from "@ant-design/icons";
+import MapContainer from "../../Components/MapContainer";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -75,6 +76,16 @@ class FormModel extends BaseFormModel {
     @isNumber()
     @observable
     public accessor y: number | undefined;
+
+    @isRequired()
+    @isNumber()
+    @observable
+    public accessor lat: number | undefined;
+
+    @isRequired()
+    @isNumber()
+    @observable
+    public accessor lon: number | undefined;
 }
 
 @observer
@@ -263,10 +274,14 @@ export default class SingleSource extends React.Component {
                                 changeHandler={() => this._onAnyFieldChange()}
                             />
                         </div>
-                        <div className="d-flex flex-row" style={{ gap: '20px' }}>
+                        <div className="d-flex flex-row mb-2" style={{ gap: '20px' }}>
                             <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()} disabled={!this._form.isFormValid}>Рассчитать</Button>
                             <Button type="primary" style={{ width: '280px' }} onClick={() => this._fillWithTestData()}>Заполнить тестовыми данными</Button>
                         </div>
+                        <MapContainer onClick={(lon:number, lat: number) => { 
+                            this._form.lon = lon;
+                            this._form.lat = lat;
+                        }} />
                         {this._renderResult()}
                     </div>
                     {!!this._pdfData && <>
@@ -357,7 +372,9 @@ export default class SingleSource extends React.Component {
             emissionTemperature: this._form.emissionTemperature!,
             u: this._form.u!,
             x: this._form.x!,
-            y: this._form.y!
-        }
+            y: this._form.y!,
+            lat: this._form.lat,
+            lon: this._form.lon
+        } as SingleSourceInputModel
     }
 }

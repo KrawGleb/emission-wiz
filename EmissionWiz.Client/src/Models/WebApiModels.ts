@@ -39,6 +39,8 @@ export interface ISingleSourceInputModel {
     u?: number;
     x?: number;
     y?: number;
+    lat?: number;
+    lon?: number;
 }
 export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInputModel > implements ISingleSourceInputModel {
     a: number;
@@ -53,4 +55,6 @@ export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInpu
     u?: number;
     x?: number;
     y?: number;
-} 
+    lat?: number;
+    lon?: number;
+}   

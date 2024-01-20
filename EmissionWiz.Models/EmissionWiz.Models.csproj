@@ -10,8 +10,4 @@
     <PackageReference Include="MigraDocCore.DocumentObjectModel" Version="1.3.62" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EmissionWiz.Common\EmissionWiz.Common.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -62,5 +62,8 @@ public class SingleSourceInputModel
     /// </summary>
     public double Y { get; set; }
 
+    public double Lat { get; set; }
+    public double Lon { get; set; }
+
     public double DeltaT => EmissionTemperature - AirTemperature;
 }

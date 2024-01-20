@@ -1,9 +1,12 @@
 ﻿using CSharpMath.Rendering.Text;
 using CSharpMath.SkiaSharp;
-using EmissionWiz.Common.Helpers;
 using EmissionWiz.Common.Templates;
 using EmissionWiz.Models;
+using EmissionWiz.Models.Exceptions;
+using EmissionWiz.Models.Helpers;
 using EmissionWiz.Models.Interfaces.Managers;
+using EmissionWiz.Models.Templates;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MigraDocCore.DocumentObjectModel;
 using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
@@ -18,17 +21,20 @@ namespace EmissionWiz.Logic.Managers;
 public class ReportManager : BaseManager, IReportManager
 {
     private readonly IPdfManager _pdfManager;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
     private readonly ILogger<ReportManager> _logger;
 
     public ReportManager(
-        IPdfManager pdfManager, 
-        ILogger<ReportManager> logger)
+        IPdfManager pdfManager,
+        ILogger<ReportManager> logger,
+        IServiceScopeFactory serviceScopeFactory)
     {
         _pdfManager = pdfManager;
         _logger = logger;
+        _serviceScopeFactory = serviceScopeFactory;
     }
 
-    public async Task FromTemplate(Stream destination, string templatePath, object model)
+    public async Task FromTemplate(Stream destination, string templatePath, ReportModelBase model)
     {
         var xmlDoc = await LoadEnrichedXml(templatePath, model);
         var pdfDoc = new Document();
@@ -49,7 +55,7 @@ public class ReportManager : BaseManager, IReportManager
 
         section.PageSetup.FooterDistance = "0 cm";
 
-        ParseXmlToPdf(xmlDoc, section);
+        await ParseXmlToPdf(xmlDoc, section, model);
 
         var renderer = new PdfDocumentRenderer(true)
         {
@@ -60,7 +66,7 @@ public class ReportManager : BaseManager, IReportManager
         renderer.PdfDocument.Save(destination);
     }
 
-    private async Task<XDocument> LoadEnrichedXml(string path, object model)
+    private async Task<XDocument> LoadEnrichedXml(string path, ReportModelBase model)
     {
         var fullPath = Path.GetFullPath(path);
         var dirPath = Path.GetDirectoryName(fullPath);
@@ -125,21 +131,21 @@ public class ReportManager : BaseManager, IReportManager
         return element;
     }
 
-    private void ParseXmlToPdf(XDocument xml, Section pdf)
+    private async Task ParseXmlToPdf(XDocument xml, Section pdf, ReportModelBase model)
     {
         foreach (var element in xml.Elements())
         {
-            RenderElement(element, pdf);
+            await RenderElement(element, pdf, model);
         }
     }
    
-    private void RenderElement(XElement element, Section pdf)
+    private async Task RenderElement(XElement element, Section pdf, ReportModelBase model)
     {
         var elementName = element.Name.LocalName;
         switch (elementName)
         {
             case "block":
-                RenderBlock(element, pdf);
+                await RenderBlock(element, pdf, model);
                 break;
             case "title":
                 RenderTitle(element, pdf);
@@ -150,16 +156,19 @@ public class ReportManager : BaseManager, IReportManager
             case "formula":
                 RenderFormula(element, pdf);
                 break;
+            case "map":
+                await RenderMap(element, pdf, model);
+                break;
             default:
                 _logger.LogInformation("Unknown element name: {0}", elementName);
                 break;
         }
     }
 
-    private void RenderBlock(XElement xml, Section pdf)
+    private async Task RenderBlock(XElement xml, Section pdf, ReportModelBase model)
     {
         foreach (var element in xml.Elements())
-            RenderElement(element, pdf);
+            await RenderElement(element, pdf, model);
     }
 
     private void RenderTitle(XElement element, Section pdf)
@@ -243,6 +252,24 @@ public class ReportManager : BaseManager, IReportManager
             commentCell.AddParagraph(comment);
         }
 
+        pdf.AddParagraph();
+    }
+
+    private async Task RenderMap(XElement element, Section pdf, ReportModelBase model)
+    {
+        using var scope = _serviceScopeFactory.CreateScope();
+        var mapManager = scope.ServiceProvider.GetService<IMapManager>()
+            ?? throw new AppException("Failed to resolve IMapManager for ReportManager");
+
+        var keys = element.Attribute("keys")?.Value.Split(',').ToList() ?? [];
+        var shapes = model.MapShapes.Where(x => keys.Contains(x.Key) || keys.Contains("*")).Select(x => x.Value());
+
+        foreach (var shape in shapes)
+            mapManager.DrawShape(shape);
+
+        var image = await mapManager.PrintAsync();
+        
+        pdf.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
         pdf.AddParagraph();
     }
 }

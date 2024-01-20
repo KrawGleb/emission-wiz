@@ -1,4 +1,4 @@
-﻿using EmissionWiz.Common.Helpers;
+﻿using EmissionWiz.Models.Helpers;
 
 namespace EmissionWiz.Models;
 
@@ -39,19 +39,26 @@ public static class Constants
         public const char f = 'ƒ';
     }
 
-    public static IDictionary<string, object?>? MathCharsObj = ExpandoObjectBuilder.FromObject(new MathChars(), true)
+    public static IDictionary<string, object?>? MathCharsObj = ExpandoObjectBuilder.FromObject(new MathChars(), true);
 
+    public static class MapKeys
+    {
+        public static class SingleSource
+        {
+            public const string XmDistance = nameof(XmDistance);
+            public const string DangerousDistance = nameof(DangerousDistance);
+        }
+    }
 
+    public static class HttpClientName
+    {
+        public const string GeoApi = nameof(GeoApi);
+    }
 
-
-
-
-
-
-
-
-
-     ;
+    public static class Math
+    {
+        public const double EarthRadius = 6_371 * 1_000;
+    }
 }
 
 

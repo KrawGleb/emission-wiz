@@ -1,8 +1,6 @@
-﻿using System.Transactions;
+﻿namespace EmissionWiz.Models.Templates;
 
-namespace EmissionWiz.Models.Templates;
-
-public class SingleSourceReportModel
+public class SingleSourceReportModel : ReportModelBase
 {
     public double A { get; set; }
     public double M { get; set; }
@@ -15,6 +13,8 @@ public class SingleSourceReportModel
     public double DeltaT { get; set; }
     public double X { get; set; }
     public double Y { get; set; }
+    public double Lat { get; set; }
+    public double Lon { get; set; }
 
     public double VmResult { get; set; }
     public double VmIResult { get; set; }

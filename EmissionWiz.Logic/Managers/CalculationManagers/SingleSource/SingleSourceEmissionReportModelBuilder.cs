@@ -1,5 +1,8 @@
-﻿using EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models;
+using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
+using EmissionWiz.Models.Map;
+using EmissionWiz.Models.Map.Shapes;
 using EmissionWiz.Models.Templates;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource;
@@ -21,6 +24,8 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.U = model.U;
         _model.X = model.X;
         _model.Y = model.Y;
+        _model.Lat = model.Lat;
+        _model.Lon = model.Lon;
 
         return this;
     }
@@ -81,6 +86,15 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
     public ISingleSourceEmissionReportModelBuilder SetXmValue(double xm)
     {
         _model.XmResult = xm;
+        _model.MapShapes.Add(Constants.MapKeys.SingleSource.XmDistance, () => new Circle
+        {
+            Center = new Coordinates
+            {
+                Lat = _model.Lat,
+                Lon = _model.Lon
+            },
+            Radius = xm
+        });
 
         return this;
     }

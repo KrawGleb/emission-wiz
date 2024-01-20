@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
+using EmissionWiz.Models.Attributes;
 
-namespace EmissionWiz.Common.Helpers;
+namespace EmissionWiz.Models.Helpers;
 
 public static class ExpandoObjectBuilder
 {
@@ -33,7 +34,7 @@ public static class ExpandoObjectBuilder
             }
         }
 
-        foreach (var prop in obj.GetType().GetProperties())
+        foreach (var prop in obj.GetType().GetProperties().Where(x => x.GetCustomAttribute<ExpandoIgnoreAttribute>() == null))
         {
             var propType = prop.PropertyType;
             if (propType.IsPrimitive || propType == typeof(decimal) || propType == typeof(string))
@@ -51,7 +52,7 @@ public static class ExpandoObjectBuilder
             }
         }
 
-        foreach (var nestedType in obj.GetType().GetNestedTypes())
+        foreach (var nestedType in obj.GetType().GetNestedTypes().Where(x => !x.ContainsGenericParameters))
         {
             Load(Activator.CreateInstance(nestedType), result, nestedType.Name, flags, includeLevel);
         }
