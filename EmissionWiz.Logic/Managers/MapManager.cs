@@ -6,15 +6,18 @@ using Microsoft.Extensions.Options;
 using System.Text;
 using EmissionWiz.Models;
 using CoordinateSharp;
+using HandlebarsDotNet;
 
 namespace EmissionWiz.Logic.Managers;
 
 [TransientDependency]
 internal class MapManager : BaseManager, IMapManager
 {
-    private StringBuilder _geometry = new();
     private readonly GeoApiConfiguration _geoApiConfiguration;
     private readonly HttpClient _geoApiClient;
+
+    private readonly List<Marker> _markers = new();
+    private readonly List<Circle> _circles = new();
 
     public MapManager(
         IOptions<GeoApiConfiguration> geoApiConfiguration,
@@ -28,7 +31,12 @@ internal class MapManager : BaseManager, IMapManager
     {
         var uriBuilder = new UriBuilder(_geoApiConfiguration.BaseUrl);
         var query = new Dictionary<string, string>();
-        query["geometry"] = _geometry.ToString().Trim('|');
+
+        var markers = string.Join("|", _markers.Select(MarkerForQuery));
+        var circles = string.Join("|", _circles.Select(CircleForQuery));
+
+        query["geometry"] = circles;
+        query["marker"] = markers;
         query["apiKey"] = _geoApiConfiguration.ApiKey;
         query["width"] = "600";
         query["height"] = "600";
@@ -41,24 +49,42 @@ internal class MapManager : BaseManager, IMapManager
         return response.Content.ReadAsStream();
     }
 
+    public void AddMarker(Marker marker)
+    {
+        _markers.Add(marker);
+    }
+
     public void DrawShape(Models.Map.Shapes.Shape shape)
     {
         if (shape.GetType() == typeof(Circle))
-            DrawCircle((Circle)shape);
+        {
+            var circle = (Circle)shape;
+            _circles.Add(circle);
+            _markers.Add(new Marker()
+            {
+                Coordinates = circle.Center
+            });
+        }
     }
 
-    private void DrawCircle(Circle circle)
+
+    private string CircleForQuery(Circle circle)
     {
         var points = CircleToPolygon(circle);
         var polyline = string.Join(",", points.Select(x => $"{x.Item2},{x.Item1}"));
-        _geometry.Append($"|polyline:{polyline};linewidth:3");
+        return $"polyline:{polyline};linewidth:3";
+    }
+
+    private string MarkerForQuery(Marker marker)
+    {
+        return $"lonlat:{marker.Coordinates.Lon},{marker.Coordinates.Lat};type:material;color:red;size:small;iconsize:small;textsize:small;shadow:no";
     }
 
     private List<(double, double)> CircleToPolygon(Circle circle)
     {
 
         var points = new List<(double, double)>();
-        for (int i = 0; i <= 360; i+=4)
+        for (int i = 0; i <= 360; i+=9)
         {
             var center = new Coordinate(circle.Center.Lat, circle.Center.Lon);
             center.Move(circle.Radius, i, CoordinateSharp.Shape.Sphere);
