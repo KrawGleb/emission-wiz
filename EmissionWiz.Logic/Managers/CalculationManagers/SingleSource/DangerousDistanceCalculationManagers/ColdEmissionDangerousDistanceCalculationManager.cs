@@ -8,7 +8,7 @@ public class ColdEmissionDangerousDistanceCalculationManager : BaseDangerousDist
     public ColdEmissionDangerousDistanceCalculationManager(ISingleSourceEmissionReportModelBuilder reportModelBuilder) : base(reportModelBuilder)
     { }
 
-    protected override double CalculateDCoef(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    protected override double CalculateDCoef(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         double result;
 

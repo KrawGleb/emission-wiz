@@ -7,7 +7,7 @@ public interface ISingleSourceEmissionReportModelBuilder : IBaseManager
 {
     SingleSourceReportModel Build();
 
-    ISingleSourceEmissionReportModelBuilder UseInputModel(SingleSourceInputModel model);
+    ISingleSourceEmissionReportModelBuilder UseInputModel(SingleSourceCalculationData model);
     ISingleSourceEmissionReportModelBuilder UseSourceProperties(EmissionSourceProperties sourceProperties);
     ISingleSourceEmissionReportModelBuilder SetMCoefValue(double m);
     ISingleSourceEmissionReportModelBuilder SetNCoefValue(double n);

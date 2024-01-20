@@ -5,7 +5,7 @@ namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource.DangerousW
 
 public class ColdEmissionDangerousWindSpeedCalculationManager : BaseManager, IColdEmissionDangerousWindSpeedCalculationManager
 {
-    public double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    public double CalculateDangerousWindSpeed(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         double result;
 

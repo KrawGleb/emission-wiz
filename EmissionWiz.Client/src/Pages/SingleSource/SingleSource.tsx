@@ -3,16 +3,18 @@ import { BaseFormModel } from "../../Models/BaseFromModel";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
-import { Button, Divider, TooltipProps } from 'antd';
+import { Button, Collapse, CollapseProps, Divider, TooltipProps } from 'antd';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
-import { SingleSourceEmissionCalculationResult, SingleSourceInputModel } from "../../Models/WebApiModels";
+import { SingleSourceEmissionCalculationResult, SingleSourceEmissionInputModel, SingleSourceInputModel } from "../../Models/WebApiModels";
 import { FormInput } from "../../Components/FormControls";
 import { displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
 import PdfViewer from "../../Components/PdfViewer";
 import { DownloadOutlined } from "@ant-design/icons";
 import MapContainer from "../../Components/MapContainer";
+import DataGrid from "../../Components/DataGrid/DataGrid";
+import { AgGridReact } from "ag-grid-react";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -104,6 +106,12 @@ export default class SingleSource extends React.Component {
                 <div className="d-flex flex-row">
                     <div style={{ width: '33%' }}>
                         <Divider orientation="left"><h4>Вводные данные:</h4></Divider>
+                        <div className="mb-4">
+                            <MapContainer onClick={(lon: number, lat: number) => {
+                                this._form.lon = lon;
+                                this._form.lat = lat;
+                            }} />
+                        </div>
                         <div className="d-flex flex-row" style={{ gap: '20px' }}>
                             <FormInput
                                 formModel={this._form}
@@ -274,29 +282,62 @@ export default class SingleSource extends React.Component {
                                 changeHandler={() => this._onAnyFieldChange()}
                             />
                         </div>
+                        <div>
+                            <DataGrid<SingleSourceEmissionInputModel> columns={[
+                                {
+                                    field: 'name',
+                                    editable: true,
+                                    newRowValue: (rowIndex) => `Вещество ${rowIndex}`,
+                                    headerName: 'Наименование'
+                                },
+                                {
+                                    field: 'm',
+                                    editable: true,
+                                    headerName: 'M (г/c)'
+                                },
+                            ]} height={200} addEmptyRow />
+                        </div>
+
                         <div className="d-flex flex-row mb-2" style={{ gap: '20px' }}>
                             <Button type="primary" style={{ width: '80px', padding: '0px' }} onClick={() => this._calculate()} disabled={!this._form.isFormValid}>Рассчитать</Button>
                             <Button type="primary" style={{ width: '280px' }} onClick={() => this._fillWithTestData()}>Заполнить тестовыми данными</Button>
                         </div>
-                        <MapContainer onClick={(lon:number, lat: number) => { 
-                            this._form.lon = lon;
-                            this._form.lat = lat;
-                        }} />
-                        {this._renderResult()}
+
+
                     </div>
                     {!!this._pdfData && <>
                         <div style={{ width: '66%' }} className="d-flex flex-column">
-                            <Divider orientation="left"><h4>Ход вычислений:</h4></Divider>
-                            <div className="d-flex flex-row" style={{ justifyContent: 'flex-end' }} >
-                                <Button className="bg-success" type="primary" icon={<DownloadOutlined />} size='middle' onClick={() => this._downloadReport()} />
+                            <Divider orientation="left"><h4>Результаты:</h4></Divider>
+                            <div className="p-2">
+                                {this._renderSolutions()}
+                                {this._renderResult()}
                             </div>
-                            <PdfViewer pdfData={this._pdfData} />
                         </div>
                     </>}
 
                 </div>
             </Report>
         )
+    }
+
+    private _renderSolutions() {
+        const items: CollapseProps['items'] = [
+            {
+                key: '1',
+                label: 'Ход решения',
+                children: <>
+                    <PdfViewer pdfData={this._pdfData} />
+                </>,
+                extra: <>
+                    <DownloadOutlined onClick={(event) => {
+                        event.stopPropagation();
+                        this._downloadReport()
+                    }} />
+                </>
+            }
+        ]
+
+        return <Collapse items={items} />
     }
 
     private _renderResult() {

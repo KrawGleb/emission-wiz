@@ -23,40 +23,64 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         _reportManager = reportManager;
     }
 
-    public async Task<(SingleSourceEmissionCalculationResult, Stream)> Calculate(SingleSourceInputModel model, string reportName)
+    public async Task<Dictionary<string, SingleSourceEmissionCalculationResult>> Calculate(SingleSourceInputModel model)
     {
-        var sourceProperties = GetEmissionSourceProperties(model);
-
-        _reportModelBuilder
-            .UseInputModel(model)
-            .UseSourceProperties(sourceProperties);
-
-        var intermediateResults = new SingleSourceEmissionCalculationResult()
+        var results = new Dictionary<string, SingleSourceEmissionCalculationResult>();
+        foreach (var substance in model.Substances)
         {
-            Cm = CalculateCm(model, sourceProperties),
-            Xm = CalculateXm(model, sourceProperties),
-            Um = CalculateUm(model, sourceProperties)
-        };
+            var calculationData = new SingleSourceCalculationData
+            {
+                A = model.A,
+                AirTemperature = model.AirTemperature,
+                D = model.D,
+                EmissionTemperature = model.EmissionTemperature,
+                Eta = model.Eta,
+                FCoef = model.FCoef,
+                H = model.H,
+                Lat = model.Lat,
+                Lon = model.Lon,
+                M = substance.M,
+                U = model.U,
+                W = model.W,
+                X = model.X,
+                Y = model.Y
+            };
 
-        var r = GetRCoef(model, intermediateResults);
-        var p = GetPCoef(model, intermediateResults);
+            var sourceProperties = GetEmissionSourceProperties(calculationData);
 
-        sourceProperties.RCoef = r;
-        sourceProperties.PCoef = p;
+            _reportModelBuilder
+                .UseInputModel(calculationData)
+                .UseSourceProperties(sourceProperties);
 
-        intermediateResults.Cmu = CalculateCmu(sourceProperties, intermediateResults);
-        intermediateResults.Xmu = CalculateXmu(sourceProperties, intermediateResults);
-        intermediateResults.C = CalculateC(model, intermediateResults);
-        intermediateResults.Cy = CalculateCy(model, intermediateResults);
+            var intermediateResults = new SingleSourceEmissionCalculationResult()
+            {
+                Cm = CalculateCm(calculationData, sourceProperties),
+                Xm = CalculateXm(calculationData, sourceProperties),
+                Um = CalculateUm(calculationData, sourceProperties)
+            };
 
-        var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
-        var ms = new MemoryStream();
-        await _reportManager.FromTemplate(ms, path, _reportModelBuilder.Build());
+            var r = GetRCoef(calculationData, intermediateResults);
+            var p = GetPCoef(calculationData, intermediateResults);
 
-        return (intermediateResults, ms);
+            sourceProperties.RCoef = r;
+            sourceProperties.PCoef = p;
+
+            intermediateResults.Cmu = CalculateCmu(sourceProperties, intermediateResults);
+            intermediateResults.Xmu = CalculateXmu(sourceProperties, intermediateResults);
+            intermediateResults.C = CalculateC(calculationData, intermediateResults);
+            intermediateResults.Cy = CalculateCy(calculationData, intermediateResults);
+
+            var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
+            var ms = new MemoryStream();
+            await _reportManager.FromTemplate(ms, path, _reportModelBuilder.Build());
+
+            results.Add(substance.Name, intermediateResults);
+        }
+
+        return results;
     }
 
-    private double CalculateCm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double CalculateCm(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         IMaxConcentrationCalculationManager? subManager;
 
@@ -77,7 +101,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return cm;
     }
 
-    public double CalculateCy(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
+    public double CalculateCy(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
     {
         double ty;
         if (model.U <= 5)
@@ -99,7 +123,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return cy;
     }
 
-    private double CalculateUm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double CalculateUm(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         IDangerousWindSpeedCalculationManager? subManager;
         if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
@@ -119,7 +143,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return um;
     }
 
-    private double CalculateXm(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double CalculateXm(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         IDangerousDistanceCalculationManager? subManager;
         if (sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5))
@@ -153,7 +177,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    public double CalculateC(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
+    public double CalculateC(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
     {
         var s1 = GetS1Coef(model, intermediateResults);
 
@@ -174,7 +198,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    private double GetS1Coef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResult)
+    private double GetS1Coef(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResult)
     {
         double result;
         var ratio = model.X / intermediateResult.Xm;
@@ -217,7 +241,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    private double GetRCoef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateResults)
+    private double GetRCoef(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
     {
         var ratio = model.U / intermediateResults.Um;
 
@@ -236,7 +260,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    private double GetPCoef(SingleSourceInputModel model, SingleSourceEmissionCalculationResult intermediateReults)
+    private double GetPCoef(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateReults)
     {
         var ratio = model.U / intermediateReults.Um;
 
@@ -259,14 +283,14 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    private double GetV1(SingleSourceInputModel model)
+    private double GetV1(SingleSourceCalculationData model)
     {
         var result = Math.PI * Math.Pow(model.D, 2d) / 4 * model.W;
 
         return result;
     }
 
-    private EmissionSourceProperties GetEmissionSourceProperties(SingleSourceInputModel model)
+    private EmissionSourceProperties GetEmissionSourceProperties(SingleSourceCalculationData model)
     {
         var v = GetV1(model);
 

@@ -9,7 +9,7 @@ public class HotEmissionDangerousDistanceCalculationManager : BaseDangerousDista
     {
     }
 
-    protected override double CalculateDCoef(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    protected override double CalculateDCoef(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var result = 5.7d * model.H;
 

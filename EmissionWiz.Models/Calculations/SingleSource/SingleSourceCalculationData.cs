@@ -1,11 +1,16 @@
 ﻿namespace EmissionWiz.Models.Calculations.SingleSource;
 
-public class SingleSourceInputModel
+public class SingleSourceCalculationData
 {
     /// <summary>
     /// Коэффициент, зависящий от температурной стратификации атмосферы, определяющий условия горизонтального и вертикального рассеивания ЗВ в атмосферном воздухе 
     /// </summary>
     public double A { get; set; }
+
+    /// <summary>
+    /// Масса ЗВ, выбрасываемого в атмосферный воздух в единицу времени (мощность выброса), г/с
+    /// </summary>
+    public double M { get; set; }
 
     /// <summary>
     /// Безразмерный коэффициент, учитывающий скорость оседания ЗВ (газообразных и аэрозолей, включая твердые частицы) в атмосферном воздухе
@@ -61,6 +66,4 @@ public class SingleSourceInputModel
     public double Lon { get; set; }
 
     public double DeltaT => EmissionTemperature - AirTemperature;
-
-    public List<SingleSourceEmissionSubstance> Substances { get; set; } = new();
 }

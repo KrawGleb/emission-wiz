@@ -52,8 +52,6 @@ const renderCallback = () => {
 
 const rootEl = document.getElementById('react-app')!;
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <App />,
   rootEl,
   renderCallback)

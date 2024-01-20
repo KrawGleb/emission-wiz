@@ -9,7 +9,7 @@ public class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationCal
     {
     }
 
-    public double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    public double CalculateMaxConcentration(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var numerator = GetNumeratort(model, sourceProperties);
         var denominator = GetDenomerator(model);
@@ -19,14 +19,14 @@ public class LowWindMaxConcentrationCalculationManager : BaseMaxConcentrationCal
         return result;
     }
 
-    private double GetNumeratort(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetNumeratort(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var mi = GetMICoefficient(sourceProperties);
 
         return model.A * model.M * model.FCoef * mi * model.Eta;
     }
 
-    private double GetDenomerator(SingleSourceInputModel model)
+    private double GetDenomerator(SingleSourceCalculationData model)
     {
         return Math.Pow(Math.Cbrt(model.H), 7d);
     }

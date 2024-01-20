@@ -9,7 +9,7 @@ public class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentrati
     {
     }
 
-    public double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    public double CalculateMaxConcentration(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var numerator = GetNumerator(model, sourceProperties);
         var denumerator = GetDenominator(model);
@@ -19,7 +19,7 @@ public class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentrati
         return result;
     }
 
-    private double GetNumerator(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetNumerator(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var k = GetK(model, sourceProperties);
         var n = GetNCoefficient(sourceProperties.VmI);
@@ -27,12 +27,12 @@ public class ColdEmissionMaxConcentrationCalculationManager : BaseMaxConcentrati
         return model.A * model.M * model.FCoef * n * model.Eta * k;
     }
 
-    private double GetDenominator(SingleSourceInputModel model)
+    private double GetDenominator(SingleSourceCalculationData model)
     {
         return Math.Pow(Math.Cbrt(model.H), 4d);
     }
 
-    private double GetK(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    private double GetK(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var result = model.D / (8d * sourceProperties.V1);
 

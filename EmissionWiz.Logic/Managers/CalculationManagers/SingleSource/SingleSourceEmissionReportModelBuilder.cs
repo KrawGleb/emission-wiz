@@ -11,7 +11,7 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
 {
     private SingleSourceReportModel _model = new();
 
-    public ISingleSourceEmissionReportModelBuilder UseInputModel(SingleSourceInputModel model)
+    public ISingleSourceEmissionReportModelBuilder UseInputModel(SingleSourceCalculationData model)
     {
         _model.D = model.D;
         _model.DeltaT = model.DeltaT;

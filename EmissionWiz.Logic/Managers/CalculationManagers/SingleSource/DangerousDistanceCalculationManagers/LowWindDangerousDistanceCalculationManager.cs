@@ -9,7 +9,7 @@ public class LowWindDangerousDistanceCalculationManager : BaseDangerousDistanceC
     {
     }
 
-    protected override double CalculateDCoef(SingleSourceInputModel model, EmissionSourceProperties sourceProperties)
+    protected override double CalculateDCoef(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         double result;
         if (sourceProperties.Vm <= 0.5)

@@ -4,12 +4,12 @@ namespace EmissionWiz.Models.Interfaces.Managers;
 
 public interface ISingleSourceEmissionCalculationManager : IBaseManager
 {
-    Task<(SingleSourceEmissionCalculationResult, Stream)> Calculate(SingleSourceInputModel model, string reportName);
+    Task<Dictionary<string, SingleSourceEmissionCalculationResult>> Calculate(SingleSourceInputModel model);
 }
 
 public interface IMaxConcentrationCalculationManager : IBaseManager
 {
-    double CalculateMaxConcentration(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
+    double CalculateMaxConcentration(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
 }
 
 public interface IColdEmissionMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
@@ -18,7 +18,7 @@ public interface ILowWindMaxConcentrationCalculationManager : IMaxConcentrationC
 
 public interface IDangerousDistanceCalculationManager : IBaseManager
 {
-    double CalculateDangerousDistance(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
+    double CalculateDangerousDistance(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
 }
 
 public interface IColdEmissionDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager { }
@@ -27,7 +27,7 @@ public interface ILowWindDangerousDistanceCalculationManager : IDangerousDistanc
 
 public interface IDangerousWindSpeedCalculationManager
 {
-    double CalculateDangerousWindSpeed(SingleSourceInputModel model, EmissionSourceProperties sourceProperties);
+    double CalculateDangerousWindSpeed(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
 }
 
 public interface IColdEmissionDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }
