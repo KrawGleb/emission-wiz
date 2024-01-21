@@ -1,14 +1,15 @@
-import { CellEditingStoppedEvent } from 'ag-grid-community';
+import { CellEditingStoppedEvent, CellKeyDownEvent, FullWidthCellKeyDownEvent } from 'ag-grid-community';
 import { AgGridReact } from "ag-grid-react";
 import { observer } from "mobx-react";
 import React from "react";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import { computed, observable } from 'mobx';
+import { action, computed, observable } from 'mobx';
 import { DataGridColumn } from './DataGridColumn';
 
 export type DataGridProps<T extends {}> = {
+    editable?: boolean;
     columns?: DataGridColumn<T>[];
     rowData?: T[];
     height: number | string;
@@ -19,17 +20,17 @@ export type DataGridProps<T extends {}> = {
 @observer
 export default class DataGrid<T extends {}> extends React.Component<DataGridProps<T>> {
     @observable
-    private accessor _rowData: T[];
+    private accessor _initialRows: T[] | undefined;
 
     @observable
     private accessor _gridRef = React.createRef<AgGridReact>();
 
     constructor(props: DataGridProps<T>) {
         super(props);
-        this._rowData = props.rowData ?? [];
+        this._initialRows = props.rowData ?? [];
 
-        if (this.props.addEmptyRow)
-            this._addEmptyRow();
+        if (this.props.addEmptyRow) 
+            this._initialRows.push({ } as T);
     }
 
     render() {
@@ -43,35 +44,54 @@ export default class DataGrid<T extends {}> extends React.Component<DataGridProp
                     suppressNoRowsOverlay={this.props.suppressNoRowsOverlay}
                     columnDefs={this.props.columns}
                     onCellEditingStopped={(event) => this._onCellEditingStoped(event)}
-                    rowData={this._rowData}
+                    rowData={this._initialRows}
                     autoSizeStrategy={{
                         type: 'fitGridWidth',
-                    }} />
+                    }} 
+                    onCellKeyDown={(event) => this._onCellKeyDown(event)}
+                    rowSelection={'multiple'}
+                    />
             </div>
         );
     }
 
     @computed
     public get rows() {
-        return this._rowData;
+        const rowData: T[] = [];
+        this._gridRef.current!.api.forEachNode(node => rowData.push(node.data))
+
+        return rowData;
     }
 
+    @action
     private _onCellEditingStoped(event: CellEditingStoppedEvent) {
-        if (event.valueChanged && event.rowIndex == this._rowData.length - 1 && !event.oldValue)
+        if (event.valueChanged && !event.oldValue)
             this._addEmptyRow();
     }
 
+    @action
     private _addEmptyRow() {
-        this._rowData.push(this._getNewRow(this._rowData.length + 1));
-        this._gridRef.current?.api.setGridOption('rowData', this._rowData);
+        this._gridRef.current!.api.applyTransaction({
+            add: [{}]
+        })
     }
 
-    private _getNewRow(rowIndex: number) {
-        let obj = {} as T
-        this.props.columns?.forEach((value) => {
-            obj[value.field!.toString() as keyof T] = value.newRowValue ? value.newRowValue(rowIndex) as any : undefined;
-        })
+    @action
+    private _onCellKeyDown(event: CellKeyDownEvent | FullWidthCellKeyDownEvent) {
+        if (!this.props.editable) return;
 
-        return obj;
+        const keyboardEvent = event.event as KeyboardEvent;
+        const key = keyboardEvent.key;
+
+        if (key === 'Delete') {
+            const selectedRows = this._gridRef.current!.api.getSelectedRows();
+            this._gridRef.current!.api.applyTransaction({
+                remove: selectedRows
+            });
+
+            if (this.rows.length == 0 && this.props.addEmptyRow) {
+                this._addEmptyRow();
+            }
+        }
     }
 }

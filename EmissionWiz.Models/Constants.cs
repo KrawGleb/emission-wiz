@@ -20,7 +20,7 @@ public static class Constants
         public const int StandartPrecision = 3;
     }
 
-    public class MathChars
+    public class SpecialChars
     {
         public class Lower
         {
@@ -37,16 +37,18 @@ public static class Constants
 
         public const char Delta = 'Δ';
         public const char f = 'ƒ';
+
+        public const char Square = '█';
     }
 
-    public static IDictionary<string, object?>? MathCharsObj = ExpandoObjectBuilder.FromObject(new MathChars(), true);
+    public static IDictionary<string, object?>? SpecialCharsObj = ExpandoObjectBuilder.FromObject(new SpecialChars(), true);
 
     public static class MapKeys
     {
         public static class SingleSource
         {
             public const string XmDistance = nameof(XmDistance);
-            public const string DangerousDistance = nameof(DangerousDistance);
+            public const string XmuDistance = nameof(XmuDistance);
         }
     }
 

@@ -15,6 +15,7 @@ public class SingleSourceReportModel : ReportModelBase
     public double Y { get; set; }
     public double Lat { get; set; }
     public double Lon { get; set; }
+    public string? EmissionName { get; set; }
 
     public double VmResult { get; set; }
     public double VmIResult { get; set; }

@@ -26,6 +26,7 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.Y = model.Y;
         _model.Lat = model.Lat;
         _model.Lon = model.Lon;
+        _model.EmissionName = model.EmissionName;
 
         return this;
     }
@@ -93,7 +94,8 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
                 Lat = _model.Lat,
                 Lon = _model.Lon
             },
-            Radius = xm
+            Radius = xm,
+            Label = $"{_model.EmissionName} - Xm"
         });
 
         return this;
@@ -130,6 +132,16 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
     public ISingleSourceEmissionReportModelBuilder SetXmuValue(double xmu)
     {
         _model.XmuResult = xmu;
+        _model.MapShapes.Add(Constants.MapKeys.SingleSource.XmuDistance, () => new Circle
+        {
+            Center = new Coordinates
+            {
+                Lat = _model.Lat,
+                Lon = _model.Lon
+            },
+            Radius = xmu,
+            Label = $"{_model.EmissionName} - Xmu"
+        });
 
         return this;
     }

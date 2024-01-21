@@ -2,4 +2,5 @@
 
 public abstract class Shape
 {
+    public string? Label { get; set; }
 }

@@ -244,20 +244,29 @@ export default class SingleSource extends React.Component {
                                 } as TooltipProps} />
                         </div>
                         <div>
-                            <DataGrid<SingleSourceEmissionInputModel> ref={this._gridRef} columns={[
-                                {
-                                    field: 'name',
-                                    editable: true,
-                                    newRowValue: (rowIndex) => `Вещество ${rowIndex}`,
-                                    headerName: 'Наименование'
-                                },
-                                {
-                                    field: 'm',
-                                    editable: true,
-                                    headerName: 'M (г/c)',
-                                    headerTooltip: 'Масса ЗВ, выбрасываемого в атмосферный воздух в единицу времени (мощность выброса), г/с'
-                                },
-                            ]} height={200} addEmptyRow />
+                            <DataGrid<SingleSourceEmissionInputModel>
+                                editable
+                                ref={this._gridRef} columns={[
+                                    {
+                                        field: 'name',
+                                        editable: true,
+                                        headerName: 'Наименование'
+                                    },
+                                    {
+                                        field: 'm',
+                                        editable: true,
+                                        headerName: 'M (г/c)',
+                                        headerTooltip: 'Масса ЗВ, выбрасываемого в атмосферный воздух в единицу времени (мощность выброса), г/с',
+                                        onCellValueChanged: (event) => {
+                                            if (!event.data.name) {
+                                                event.data.name = `Вещество ${(event.node?.rowIndex ?? 0) + 1}`;
+                                                event.api.applyTransaction({
+                                                    update: [event.data]
+                                                });
+                                            }
+                                        }
+                                    },
+                                ]} height={200} addEmptyRow />
                         </div>
 
                         <div className="d-flex flex-row mb-2" style={{ gap: '20px' }}>

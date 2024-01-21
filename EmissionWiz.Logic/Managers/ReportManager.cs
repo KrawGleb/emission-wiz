@@ -267,9 +267,19 @@ public class ReportManager : BaseManager, IReportManager
         foreach (var shape in shapes)
             mapManager.DrawShape(shape);
 
-        var image = await mapManager.PrintAsync();
+        var (image, legend) = await mapManager.PrintAsync();
         
         pdf.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
+        pdf.AddParagraph();
+
+        var defaultFont = new Font();
+        foreach (var item in legend)
+        {
+
+            var paragraph = pdf.AddParagraph($"{Constants.SpecialChars.Square} {item.Key}");
+            paragraph.Format.Font.Color = Color.FromRgbColor(255, Color.Parse(item.Value.Replace("#", "0x")));
+        }
+        
         pdf.AddParagraph();
     }
 }

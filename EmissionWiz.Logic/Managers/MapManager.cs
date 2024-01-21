@@ -8,6 +8,7 @@ using EmissionWiz.Models;
 using CoordinateSharp;
 using HandlebarsDotNet;
 using System.Globalization;
+using System.Web;
 
 namespace EmissionWiz.Logic.Managers;
 
@@ -16,6 +17,7 @@ internal class MapManager : BaseManager, IMapManager
 {
     private readonly GeoApiConfiguration _geoApiConfiguration;
     private readonly HttpClient _geoApiClient;
+    private readonly Random _random = new();
 
     private readonly List<Marker> _markers = new();
     private readonly List<Circle> _circles = new();
@@ -28,17 +30,28 @@ internal class MapManager : BaseManager, IMapManager
         _geoApiClient = httpClientFactory.CreateClient(Constants.HttpClientName.GeoApi);
     }
 
-    public async Task<Stream?> PrintAsync()
+    public async Task<(Stream?, Dictionary<string, string>)> PrintAsync()
     {
         Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
+        var legend = new Dictionary<string, string>();
 
         var uriBuilder = new UriBuilder(_geoApiConfiguration.BaseUrl);
         var query = new Dictionary<string, string>();
 
         var markers = string.Join("|", _markers.Select(MarkerForQuery));
-        var circles = string.Join("|", _circles.Select(CircleForQuery));
+        var circlesForQuery = new List<string>();
 
-        query["geometry"] = circles;
+        foreach (var circle in _circles)
+        {
+            var preparedCircle = CircleForQuery(circle);
+            circlesForQuery.Add(preparedCircle.Item1);
+
+            if (circle.Label != null)
+                legend.Add(circle.Label, preparedCircle.Item2);
+        }
+
+        query["geometry"] = string.Join("|", circlesForQuery);
         query["marker"] = markers;
         query["apiKey"] = _geoApiConfiguration.ApiKey;
         query["width"] = "600";
@@ -48,8 +61,9 @@ internal class MapManager : BaseManager, IMapManager
 
         var response = await _geoApiClient.GetAsync(uri);
 
+            
         response.EnsureSuccessStatusCode();
-        return response.Content.ReadAsStream();
+        return (response.Content.ReadAsStream(), legend);
     }
 
     public void AddMarker(Marker marker)
@@ -71,11 +85,12 @@ internal class MapManager : BaseManager, IMapManager
     }
 
 
-    private string CircleForQuery(Circle circle)
+    private (string, string) CircleForQuery(Circle circle)
     {
         var points = CircleToPolygon(circle);
+        var color = GetRandomColor();
         var polyline = string.Join(",", points.Select(x => $"{x.Item2},{x.Item1}"));
-        return $"polyline:{polyline};linewidth:3";
+        return ($"polyline:{polyline};linewidth:3;linecolor:{HttpUtility.UrlEncode(color).ToLower()}", color);
     }
 
     private string MarkerForQuery(Marker marker)
@@ -96,5 +111,11 @@ internal class MapManager : BaseManager, IMapManager
         }
 
         return points;
+    }
+
+    private string GetRandomColor()
+    {
+        var color = string.Format("#{0:X6}", _random.Next(0x1000000));
+        return color;
     }
 }

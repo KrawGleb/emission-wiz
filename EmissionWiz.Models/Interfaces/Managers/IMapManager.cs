@@ -6,5 +6,5 @@ public interface IMapManager : IBaseManager
 {
     void AddMarker(Marker marker);
     void DrawShape(Shape shape);
-    Task<Stream?> PrintAsync();
+    Task<(Stream?, Dictionary<string, string>)> PrintAsync();
 }

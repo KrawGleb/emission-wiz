@@ -33,9 +33,9 @@ public static class HbsTemplateManager
         Handlebars.RegisterHelper("math", (output, context, data) =>
         {
             var name = data[0].ToString();
-            if (name != null && Constants.MathCharsObj != null && Constants.MathCharsObj.ContainsKey(name))
+            if (name != null && Constants.SpecialCharsObj != null && Constants.SpecialCharsObj.ContainsKey(name))
             {
-                output.WriteSafeString(Constants.MathCharsObj[name]);
+                output.WriteSafeString(Constants.SpecialCharsObj[name]);
             }
             else
             {
