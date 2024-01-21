@@ -23,6 +23,8 @@
     "component-emitter": "^2.0.0",
     "history": "^5.3.0",
     "maplibre-gl": "^3.6.2",
+    "mathjax-full": "^3.2.2",
+    "mathjax-react": "^2.0.1",
     "mobx": "^6.12.0",
     "mobx-react": "^9.1.0",
     "react": "^18.2.0",

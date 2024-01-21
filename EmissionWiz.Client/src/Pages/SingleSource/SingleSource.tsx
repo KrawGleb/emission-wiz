@@ -16,6 +16,7 @@ import { DownloadOutlined } from "@ant-design/icons";
 import MapContainer from "../../Components/MapContainer";
 import DataGrid from "../../Components/DataGrid/DataGrid";
 import { DataGridColumn } from "../../Components/DataGrid/DataGridColumn";
+import { MathComponent } from "mathjax-react";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -44,11 +45,6 @@ class FormModel extends BaseFormModel {
     @isNumber()
     @observable
     public accessor emissionTemperature: number | undefined;
-
-    @isRequired()
-    @isNumber()
-    @observable
-    public accessor m: number | undefined;
 
     @isRequired()
     @isNumber()
@@ -114,7 +110,7 @@ export default class SingleSource extends React.Component {
                                 this._form.lat = lat;
                             }} />
                         </div>
-                        <div className="d-flex flex-row" style={{ gap: '20px' }}>
+                        <div className="d-flex flex-row" style={{ gap: '20px', flexWrap: 'wrap' }}>
                             <FormInput
                                 formModel={this._form}
                                 name="a"
@@ -125,22 +121,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: "Коэффициент, зависящий от температурной стратификации атмосферы, определяющий условия горизонтального и вертикального рассеивания ЗВ в атмосферном воздухе",
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()} />
-
-                            <FormInput
-                                formModel={this._form}
-                                name="m"
-                                placeholder="M"
-                                style={{ width: '80px' }}
-                                value={this._form.m}
-                                tooltip={{
-                                    trigger: 'focus',
-                                    title: 'Масса ЗВ, выбрасываемого в атмосферный воздух в единицу времени (мощность выброса), г/с',
-                                    placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -152,9 +133,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Безразмерный коэффициент, учитывающий скорость оседания ЗВ (газообразных и аэрозолей, включая твердые частицы) в атмосферном воздухе',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -166,11 +145,8 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Безразмерный коэффициент, учитывающий влияние рельефа местности',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
-                        </div>
-                        <div className="d-flex flex-row mt-3" style={{ gap: '20px' }}>
+                                } as TooltipProps} />
+
                             <FormInput
                                 formModel={this._form}
                                 name="h"
@@ -181,9 +157,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Высота источника выброса, м',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -195,9 +169,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Диаметр устья источника выброса, м',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -209,9 +181,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Температура выбрасываемой ГВС, °C',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -223,11 +193,8 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Температурой атмосферного воздуха, °C',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
-                        </div>
-                        <div className="d-flex flex-row mt-3 mb-3" style={{ gap: '20px' }}>
+                                } as TooltipProps} />
+
                             <FormInput
                                 formModel={this._form}
                                 name="w"
@@ -238,9 +205,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Средняя скорость выхода ГВС из устья источника выброса, м/с',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -252,9 +217,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Скорость ветра, м/с',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -266,9 +229,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Расстояние, м',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
 
                             <FormInput
                                 formModel={this._form}
@@ -280,9 +241,7 @@ export default class SingleSource extends React.Component {
                                     trigger: 'focus',
                                     title: 'Расстояние по нормали к оси факела выброса, м',
                                     placement: 'topLeft'
-                                } as TooltipProps}
-                                changeHandler={() => this._onAnyFieldChange()}
-                            />
+                                } as TooltipProps} />
                         </div>
                         <div>
                             <DataGrid<SingleSourceEmissionInputModel> ref={this._gridRef} columns={[
@@ -295,7 +254,8 @@ export default class SingleSource extends React.Component {
                                 {
                                     field: 'm',
                                     editable: true,
-                                    headerName: 'M (г/c)'
+                                    headerName: 'M (г/c)',
+                                    headerTooltip: 'Масса ЗВ, выбрасываемого в атмосферный воздух в единицу времени (мощность выброса), г/с'
                                 },
                             ]} height={200} addEmptyRow />
                         </div>
@@ -343,7 +303,7 @@ export default class SingleSource extends React.Component {
 
     private _renderResults() {
         const numberCellRenderer = (value: ICellRendererParams<SingleSourceEmissionCalculationResult>) => {
-            return (value.getValue?.() as number).toFixed(4); 
+            return (value.getValue?.() as number).toFixed(4);
         }
 
         const columns: DataGridColumn<SingleSourceEmissionCalculationResult>[] = [
@@ -354,35 +314,42 @@ export default class SingleSource extends React.Component {
             },
             {
                 field: 'c',
+                headerComponent: () => <MathComponent tex="c, \frac{mg}{m^3}" />,
                 headerTooltip: 'Приземная концентрация ЗВ',
                 cellRenderer: numberCellRenderer
             },
             {
                 field: 'cm',
+                headerComponent: () => <MathComponent tex="c_{m}, \frac{mg}{m^3}" />,
                 headerTooltip: 'Максимальная приземная разовая концентрация ЗВ',
                 cellRenderer: numberCellRenderer
             },
             {
                 field: 'cmu',
+                headerComponent: () => <MathComponent tex="c_{mu}, \frac{mg}{m^3}" />,
                 headerTooltip: 'Максимальная приземная концентрация ЗВ',
                 cellRenderer: numberCellRenderer
             },
             {
                 field: 'cy',
+                headerComponent: () => <MathComponent tex="c_{y}, \frac{mg}{m^3}" />,
                 headerTooltip: 'Приземная концентрация ЗВ на расстоянии y по нормали к оси факела выброса',
                 cellRenderer: numberCellRenderer
             },
             {
                 field: 'um',
+                headerComponent: () => <MathComponent tex="u_{m}, \frac{m}{s}" />,
                 headerTooltip: 'Опасная скорость ветра',
                 cellRenderer: numberCellRenderer
             },
             {
                 field: 'xm',
+                headerComponent: () => <MathComponent tex="x_{m}, m" />,
                 cellRenderer: numberCellRenderer
             },
             {
                 field: 'xmu',
+                headerComponent: () => <MathComponent tex="x_{mu}, m" />,
                 headerTooltip: 'Расстояние от источника выброса, на котором при скорости ветра при неблагоприятных метеорологических условиях достигается максимальная приземная концентрация ЗВ',
                 cellRenderer: numberCellRenderer
             }
@@ -398,13 +365,8 @@ export default class SingleSource extends React.Component {
     }
 
     @action
-    private _onAnyFieldChange() {
-    }
-
-    @action
     private _fillWithTestData() {
         this._form.a = 32;
-        this._form.m = 12;
         this._form.h = 40;
         this._form.d = 10;
         this._form.airTemperature = 17;
