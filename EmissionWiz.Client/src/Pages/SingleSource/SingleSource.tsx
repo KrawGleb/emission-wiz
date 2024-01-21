@@ -4,6 +4,7 @@ import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
 import { Button, Collapse, CollapseProps, Divider, TooltipProps } from 'antd';
+import { ICellRendererParams } from 'ag-grid-community';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
 import { SingleSourceEmissionCalculationResult, SingleSourceEmissionInputModel, SingleSourceInputModel } from "../../Models/WebApiModels";
@@ -14,7 +15,7 @@ import PdfViewer from "../../Components/PdfViewer";
 import { DownloadOutlined } from "@ant-design/icons";
 import MapContainer from "../../Components/MapContainer";
 import DataGrid from "../../Components/DataGrid/DataGrid";
-import { AgGridReact } from "ag-grid-react";
+import { DataGridColumn } from "../../Components/DataGrid/DataGridColumn";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -93,12 +94,13 @@ class FormModel extends BaseFormModel {
 @observer
 export default class SingleSource extends React.Component {
     @observable
-    private accessor _calculationResult: SingleSourceEmissionCalculationResult | undefined;
+    private accessor _calculationResults: SingleSourceEmissionCalculationResult[];
 
     @observable
-    private accessor _pdfData: Blob | null;
+    private accessor _reports: Map<string, Blob | null> = new Map<string, Blob | null>();
 
     private _form: FormModel = new FormModel();
+    private _gridRef = React.createRef<DataGrid<SingleSourceEmissionInputModel>>();
 
     render() {
         return (
@@ -283,7 +285,7 @@ export default class SingleSource extends React.Component {
                             />
                         </div>
                         <div>
-                            <DataGrid<SingleSourceEmissionInputModel> columns={[
+                            <DataGrid<SingleSourceEmissionInputModel> ref={this._gridRef} columns={[
                                 {
                                     field: 'name',
                                     editable: true,
@@ -305,12 +307,12 @@ export default class SingleSource extends React.Component {
 
 
                     </div>
-                    {!!this._pdfData && <>
+                    {!!this._calculationResults && <>
                         <div style={{ width: '66%' }} className="d-flex flex-column">
                             <Divider orientation="left"><h4>Результаты:</h4></Divider>
                             <div className="p-2">
                                 {this._renderSolutions()}
-                                {this._renderResult()}
+                                {this._renderResults()}
                             </div>
                         </div>
                     </>}
@@ -321,40 +323,78 @@ export default class SingleSource extends React.Component {
     }
 
     private _renderSolutions() {
-        const items: CollapseProps['items'] = [
-            {
-                key: '1',
-                label: 'Ход решения',
-                children: <>
-                    <PdfViewer pdfData={this._pdfData} />
-                </>,
-                extra: <>
-                    <DownloadOutlined onClick={(event) => {
-                        event.stopPropagation();
-                        this._downloadReport()
-                    }} />
-                </>
+        const items: CollapseProps['items'] = this._calculationResults.map((results, index) => {
+            const pdf = this._reports.get(results.reportId) ?? null;
+
+            return {
+                key: index,
+                label: `Вычисления (${results.name})`,
+                children: <PdfViewer key={`pdf${index}`} pdfData={pdf} />,
+                extra: <DownloadOutlined onClick={(event) => {
+                    event.stopPropagation();
+                    this._downloadReport(results.reportId);
+                }} />
+
             }
-        ]
+        })
 
         return <Collapse items={items} />
     }
 
-    private _renderResult() {
-        return <>
+    private _renderResults() {
+        const numberCellRenderer = (value: ICellRendererParams<SingleSourceEmissionCalculationResult>) => {
+            return (value.getValue?.() as number).toFixed(4); 
+        }
+
+        const columns: DataGridColumn<SingleSourceEmissionCalculationResult>[] = [
             {
-                this._calculationResult && (
-                    <div className="mt-2">
-                        <h4>Результаты вычислений:</h4>
-                        <span>Максимальная приземная разовая концентрация ЗВ: <strong>{this._calculationResult.cm.toFixed(4)}</strong></span><br />
-                        <span>Опасная скорость ветра: <strong>{this._calculationResult.um.toFixed(4)}</strong></span><br />
-                        <span>Максимальная приземная концентрация ЗВ: <strong>{this._calculationResult.cmu.toFixed(4)}</strong></span><br />
-                        <span>Расстояние от источника выброса, на котором при скорости ветра при неблагоприятных метеорологических условиях достигается максимальная приземная концентрация ЗВ: <strong>{this._calculationResult.xmu.toFixed(4)}</strong></span><br />
-                        <span>Приземная концентрация ЗВ: <strong>{this._calculationResult.c.toFixed(4)}</strong></span><br />
-                        <span>Приземная концентрация ЗВ на расстоянии y по нормали к оси факела выброса: <strong>{this._calculationResult.cy.toFixed(4)}</strong></span><br />
-                    </div>)
+                field: 'name',
+                headerName: '',
+                pinned: 'left'
+            },
+            {
+                field: 'c',
+                headerTooltip: 'Приземная концентрация ЗВ',
+                cellRenderer: numberCellRenderer
+            },
+            {
+                field: 'cm',
+                headerTooltip: 'Максимальная приземная разовая концентрация ЗВ',
+                cellRenderer: numberCellRenderer
+            },
+            {
+                field: 'cmu',
+                headerTooltip: 'Максимальная приземная концентрация ЗВ',
+                cellRenderer: numberCellRenderer
+            },
+            {
+                field: 'cy',
+                headerTooltip: 'Приземная концентрация ЗВ на расстоянии y по нормали к оси факела выброса',
+                cellRenderer: numberCellRenderer
+            },
+            {
+                field: 'um',
+                headerTooltip: 'Опасная скорость ветра',
+                cellRenderer: numberCellRenderer
+            },
+            {
+                field: 'xm',
+                cellRenderer: numberCellRenderer
+            },
+            {
+                field: 'xmu',
+                headerTooltip: 'Расстояние от источника выброса, на котором при скорости ветра при неблагоприятных метеорологических условиях достигается максимальная приземная концентрация ЗВ',
+                cellRenderer: numberCellRenderer
             }
-        </>
+        ];
+
+        return <div className="mt-2">
+            <DataGrid<SingleSourceEmissionCalculationResult>
+                suppressNoRowsOverlay
+                columns={columns}
+                rowData={this._calculationResults}
+                height={this._calculationResults.length * 100 % 500} />
+        </div>
     }
 
     @action
@@ -380,30 +420,33 @@ export default class SingleSource extends React.Component {
     @action.bound
     private async _calculate() {
         const model = this._getModel();
-        const { data } = await ApiService.postTypedData<SingleSourceEmissionCalculationResult>(ApiUrls.SingleSource, model);
-        this._calculationResult = data;
-        await this._loadPdf();
+        const { data } = await ApiService.postTypedData<SingleSourceEmissionCalculationResult[]>(ApiUrls.SingleSource, model);
+        this._calculationResults = data;
+
+        this._calculationResults.forEach(async (value) => {
+            const data = await this._loadPdf(value.reportId);
+            this._reports.set(value.reportId, data);
+        })
     }
 
     @action.bound
-    private async _downloadReport() {
-        const model = this._getModel();
-        downloadService.downloadFile(ApiUrls.SingleSourceReport, model);
+    private async _downloadReport(reportId: string) {
+        downloadService.downloadFile(`${ApiUrls.SingleSourceReport}?reportId=${reportId}`);
     }
 
-    private async _loadPdf() {
-        const model = this._getModel();
-        this._pdfData = null;
-        const { data } = await ApiService.postTypedData<Blob>(ApiUrls.SingleSourceReport, model, {
+    private async _loadPdf(reportId: string) {
+        const { data } = await ApiService.getTypedData<Blob>(`${ApiUrls.SingleSourceReport}?reportId=${reportId}`, null, {
             responseType: 'blob',
         });
-        this._pdfData = data;
+
+        return data;
     }
 
     private _getModel() {
+        const rows = this._gridRef?.current?.rows;
+
         return {
             a: this._form.a!,
-            m: this._form.m!,
             fCoef: this._form.f!,
             h: this._form.h!,
             d: this._form.d!,
@@ -415,7 +458,11 @@ export default class SingleSource extends React.Component {
             x: this._form.x!,
             y: this._form.y!,
             lat: this._form.lat,
-            lon: this._form.lon
+            lon: this._form.lon,
+            substances: rows?.filter(v => v.m).map((v) => ({
+                name: v.name,
+                m: v.m
+            }))
         } as SingleSourceInputModel
     }
 }

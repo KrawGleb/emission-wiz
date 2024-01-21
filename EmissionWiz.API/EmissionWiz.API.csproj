@@ -4,13 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
+    <InvariantGlobalization>false</InvariantGlobalization>
     <SpaRoot>..\emissionwiz.client</SpaRoot>
     <SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
     <SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="8.0.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.SpaProxy">
       <Version>8.*-*</Version>
     </PackageReference>
@@ -21,6 +23,7 @@
     <ProjectReference Include="..\EmissionWiz.Client\EmissionWiz.Client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\EmissionWiz.DataProvider\EmissionWiz.DataProvider.csproj" />
     <ProjectReference Include="..\EmissionWiz.Logic\EmissionWiz.Logic.csproj" />
     <ProjectReference Include="..\EmissionWiz.Models\EmissionWiz.Models.csproj" />
   </ItemGroup>

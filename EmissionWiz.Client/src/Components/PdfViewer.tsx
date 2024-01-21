@@ -14,6 +14,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 type PdfViewerProps = {
+    key?: string;
     pdfData: Blob | null;
     onLoadError?: () => void;
     onRenderPages?: (index: number, renderCallback: (index: number) => JSX.Element) => void;
@@ -82,7 +83,7 @@ export default class PdfViewer extends React.Component<PdfViewerProps> {
         return (
             <>
                 <Page
-                    key={`page_${index + 1}`}
+                    key={`${this.props.key}_page_${index + 1}`}
                     pageNumber={index + 1}
                     width={this._pageWidth || 400}
                     renderMode="canvas"

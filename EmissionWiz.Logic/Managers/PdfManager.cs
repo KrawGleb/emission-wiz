@@ -5,7 +5,7 @@ using MigraDocCore.DocumentObjectModel;
 
 namespace EmissionWiz.Logic.Managers;
 
-[TransientDependency]
+[InstancePerDependency]
 public class PdfManager : BaseManager, IPdfManager
 {
     public void DefinePdfStyles(Document document)

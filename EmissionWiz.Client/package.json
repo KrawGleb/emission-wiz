@@ -15,6 +15,7 @@
     "@babel/preset-react": "^7.23.3",
     "@types/history": "^4.7.2",
     "@types/react-document-title": "^2.0.9",
+    "ag-grid-community": "^31.0.2",
     "ag-grid-react": "^31.0.2",
     "antd": "^5.12.5",
     "axios": "^1.6.2",

@@ -4,7 +4,7 @@ namespace EmissionWiz.Models.Interfaces.Managers;
 
 public interface ISingleSourceEmissionCalculationManager : IBaseManager
 {
-    Task<Dictionary<string, SingleSourceEmissionCalculationResult>> Calculate(SingleSourceInputModel model);
+    Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceCalculationData calculationData);
 }
 
 public interface IMaxConcentrationCalculationManager : IBaseManager

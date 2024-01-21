@@ -8,6 +8,9 @@ export class BaseApiModelClass< T > {
 }
 
 export interface ISingleSourceEmissionCalculationResult {
+    name: string;
+    reportId: string;
+
     c: number;
     cy: number;
     cm: number;
@@ -17,6 +20,9 @@ export interface ISingleSourceEmissionCalculationResult {
     xmu: number;
 }
 export class SingleSourceEmissionCalculationResult extends BaseApiModelClass< ISingleSourceEmissionCalculationResult > implements ISingleSourceEmissionCalculationResult {
+    name: string;
+    reportId: string;
+
     c: number;
     cy: number;
     cm: number;
@@ -26,9 +32,17 @@ export class SingleSourceEmissionCalculationResult extends BaseApiModelClass< IS
     xmu: number;
 }
 
+export interface ISingleSourceEmissionSubstance {
+    name: string;
+    m: number;
+}
+export class SingleSourceEmissionSubstance extends BaseApiModelClass< ISingleSourceEmissionSubstance > implements ISingleSourceEmissionSubstance {
+    name: string;
+    m: number;
+}
+
 export interface ISingleSourceInputModel {
     a: number;
-    m: number;
     fCoef: number;
     h: number;
     d: number;
@@ -41,10 +55,10 @@ export interface ISingleSourceInputModel {
     y?: number;
     lat?: number;
     lon?: number;
+    substances?: ISingleSourceEmissionSubstance[];
 }
 export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInputModel > implements ISingleSourceInputModel {
     a: number;
-    m: number;
     fCoef: number;
     h: number;
     d: number;
@@ -57,6 +71,7 @@ export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInpu
     y?: number;
     lat?: number;
     lon?: number;
+    substances?: SingleSourceEmissionSubstance[];
 }   
 
 export interface ISingleSourceEmissionInputModel {

@@ -2,8 +2,7 @@ import ApiService, { IAjaxOptions } from './ApiService';
 
 export class DownloadService {
     public async downloadFile<T>(url: string, params?: T, sourceFileName?: string, options?: IAjaxOptions) {
-        // TODO: Replace with get again
-        const { data, headers } = await ApiService.postTypedData<Buffer>(url, params, { responseType: 'blob', ...options });
+        const { data, headers } = await ApiService.getTypedData<Buffer>(url, params, { responseType: 'blob', ...options });
 
         let fileName = sourceFileName;
         if (!fileName) {

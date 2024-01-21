@@ -1,14 +1,19 @@
-﻿using EmissionWiz.Logic.Managers;
+﻿using Autofac;
+using EmissionWiz.Logic.Managers;
+using EmissionWiz.Logic.Providers;
 using EmissionWiz.Models;
 using EmissionWiz.Models.Attributes;
-using Microsoft.Extensions.DependencyInjection;
+using EmissionWiz.Models.Interfaces.Providers;
 
 namespace EmissionWiz.Logic
 {
-    public static class LogicModule
+    public class LogicModule : Module
     {
-        public static IServiceCollection AddLogic(this IServiceCollection services)
+        protected override void Load(ContainerBuilder builder)
         {
+            builder.RegisterType<CurrentTimeProvider>().As<ICurrentTimeProvider>().SingleInstance();
+            builder.RegisterType<DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
+
             var logicAssembly = typeof(LogicModule).Assembly;
             var modelAssembly = typeof(Constants).Assembly;
 
@@ -19,16 +24,13 @@ namespace EmissionWiz.Logic
                 var interfaceType = modelAssembly.GetType(interfaceName);
                 if (interfaceType != null)
                 {
-                    var transientAttribute = type.GetCustomAttributes(typeof(TransientDependencyAttribute), true).Any();
+                    var instancePerDependency = type.GetCustomAttributes(typeof(InstancePerDependencyAttribute), true).Any();
+                    var builderObj = builder.RegisterType(type).As(interfaceType).PropertiesAutowired();
 
-                    if (transientAttribute)
-                        services.AddTransient(interfaceType, type);
-                    else
-                        services.AddScoped(interfaceType, type);
+                    if (!instancePerDependency)
+                        builderObj.InstancePerLifetimeScope();
                 }
             }
-
-            return services;
         }
     }
 }

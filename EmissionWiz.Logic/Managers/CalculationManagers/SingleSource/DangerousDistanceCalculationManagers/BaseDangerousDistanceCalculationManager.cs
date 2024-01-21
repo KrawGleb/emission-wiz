@@ -12,7 +12,7 @@ public class BaseDangerousDistanceCalculationManager : BaseManager, IDangerousDi
         _reportModelBuilder = reportModelBuilder;
     }
 
-    public virtual double CalculateDangerousDistance(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
+    public double CalculateDangerousDistance(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties)
     {
         var d = CalculateDCoef(model, sourceProperties);
         var result = ((5 - model.FCoef) / 4d) * d * model.H;

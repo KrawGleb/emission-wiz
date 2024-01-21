@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.Logic", "Emissi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.Models", "EmissionWiz.Models\EmissionWiz.Models.csproj", "{467569AD-2F53-42F2-8737-8DE12F04D7EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.DataProvider", "EmissionWiz.DataProvider\EmissionWiz.DataProvider.csproj", "{8A20C12B-7FFA-4239-B196-986674AB6A49}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{467569AD-2F53-42F2-8737-8DE12F04D7EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{467569AD-2F53-42F2-8737-8DE12F04D7EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{467569AD-2F53-42F2-8737-8DE12F04D7EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A20C12B-7FFA-4239-B196-986674AB6A49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A20C12B-7FFA-4239-B196-986674AB6A49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A20C12B-7FFA-4239-B196-986674AB6A49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A20C12B-7FFA-4239-B196-986674AB6A49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,19 @@
+CREATE TABLE [dbo].[CalculationResult] (
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+	[Results] NVARCHAR(MAX) NOT NULL,
+	[Timestamp] DATETIME NOT NULL
+)
+GO
+
+CREATE TABLE [dbo].[Report] (
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+	[OperationId] UNIQUEIDENTIFIER NOT NULL,
+	[FileName] NVARCHAR(1024) NOT NULL, 
+	[Timestamp] DATETIME NOT NULL,
+	[ContentType] VARCHAR(255) NOT NULL,
+	[Data] VARBINARY(MAX) NULL,
+	[Label] VARCHAR(512) NULL,
+
+	CONSTRAINT [FK_Report_CalculationResult] FOREIGN KEY ([OperationId]) REFERENCES [CalculationResult]([Id])
+)
+GO

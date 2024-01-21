@@ -66,4 +66,6 @@ public class SingleSourceCalculationData
     public double Lon { get; set; }
 
     public double DeltaT => EmissionTemperature - AirTemperature;
+
+    public string? EmissionName { get; set; }
 }

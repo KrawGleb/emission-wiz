@@ -5,14 +5,15 @@ import React from "react";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-quartz.css";
-import { observable } from 'mobx';
+import { computed, observable } from 'mobx';
 import { DataGridColumn } from './DataGridColumn';
 
 export type DataGridProps<T extends {}> = {
     columns?: DataGridColumn<T>[];
     rowData?: T[];
-    height: number;
+    height: number | string;
     addEmptyRow?: boolean;
+    suppressNoRowsOverlay?: boolean;
 }
 
 @observer
@@ -39,6 +40,7 @@ export default class DataGrid<T extends {}> extends React.Component<DataGridProp
                 <AgGridReact
                     ref={this._gridRef}
                     suppressLoadingOverlay
+                    suppressNoRowsOverlay={this.props.suppressNoRowsOverlay}
                     columnDefs={this.props.columns}
                     onCellEditingStopped={(event) => this._onCellEditingStoped(event)}
                     rowData={this._rowData}
@@ -47,6 +49,11 @@ export default class DataGrid<T extends {}> extends React.Component<DataGridProp
                     }} />
             </div>
         );
+    }
+
+    @computed
+    public get rows() {
+        return this._rowData;
     }
 
     private _onCellEditingStoped(event: CellEditingStoppedEvent) {

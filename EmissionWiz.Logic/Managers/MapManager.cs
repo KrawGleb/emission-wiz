@@ -7,10 +7,11 @@ using System.Text;
 using EmissionWiz.Models;
 using CoordinateSharp;
 using HandlebarsDotNet;
+using System.Globalization;
 
 namespace EmissionWiz.Logic.Managers;
 
-[TransientDependency]
+[InstancePerDependency]
 internal class MapManager : BaseManager, IMapManager
 {
     private readonly GeoApiConfiguration _geoApiConfiguration;
@@ -29,6 +30,8 @@ internal class MapManager : BaseManager, IMapManager
 
     public async Task<Stream?> PrintAsync()
     {
+        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+
         var uriBuilder = new UriBuilder(_geoApiConfiguration.BaseUrl);
         var query = new Dictionary<string, string>();
 

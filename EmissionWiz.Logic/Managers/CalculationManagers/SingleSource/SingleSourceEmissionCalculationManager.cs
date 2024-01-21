@@ -1,8 +1,11 @@
-﻿using EmissionWiz.Models.Calculations.SingleSource;
+﻿using Autofac;
+using EmissionWiz.Models.Calculations.SingleSource;
+using EmissionWiz.Models.Database;
 using EmissionWiz.Models.Interfaces.Managers;
+using EmissionWiz.Models.Interfaces.Providers;
+using EmissionWiz.Models.Interfaces.Repositories;
 using EmissionWiz.Models.Templates;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleSource;
 
@@ -10,73 +13,79 @@ namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleS
 public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSourceEmissionCalculationManager
 {
     private readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IReportRepository _reportRepository;
+    private readonly ICalculationResultRepository _calculationResultRepository;
     private readonly IReportManager _reportManager;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
     public SingleSourceEmissionCalculationManager(
         ISingleSourceEmissionReportModelBuilder reportModelBuilder,
-        IHttpContextAccessor httpContextAccessor,
-        IReportManager reportManager)
+        IReportRepository reportRepository,
+        ICalculationResultRepository calculationResultRepository,
+        IReportManager reportManager,
+        IDateTimeProvider dateTimeProvider)
     {
         _reportModelBuilder = reportModelBuilder;
-        _httpContextAccessor = httpContextAccessor;
+        _reportRepository = reportRepository;
+        _calculationResultRepository = calculationResultRepository;
         _reportManager = reportManager;
+        _dateTimeProvider = dateTimeProvider;
     }
 
-    public async Task<Dictionary<string, SingleSourceEmissionCalculationResult>> Calculate(SingleSourceInputModel model)
+    public async Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceCalculationData calculationData)
     {
-        var results = new Dictionary<string, SingleSourceEmissionCalculationResult>();
-        foreach (var substance in model.Substances)
+        var sourceProperties = GetEmissionSourceProperties(calculationData);
+
+        _reportModelBuilder
+            .UseInputModel(calculationData)
+            .UseSourceProperties(sourceProperties);
+
+        var results = new SingleSourceEmissionCalculationResult()
         {
-            var calculationData = new SingleSourceCalculationData
-            {
-                A = model.A,
-                AirTemperature = model.AirTemperature,
-                D = model.D,
-                EmissionTemperature = model.EmissionTemperature,
-                Eta = model.Eta,
-                FCoef = model.FCoef,
-                H = model.H,
-                Lat = model.Lat,
-                Lon = model.Lon,
-                M = substance.M,
-                U = model.U,
-                W = model.W,
-                X = model.X,
-                Y = model.Y
-            };
+            Name = calculationData.EmissionName,
+            Cm = CalculateCm(calculationData, sourceProperties),
+            Xm = CalculateXm(calculationData, sourceProperties),
+            Um = CalculateUm(calculationData, sourceProperties)
+        };
 
-            var sourceProperties = GetEmissionSourceProperties(calculationData);
+        var r = GetRCoef(calculationData, results);
+        var p = GetPCoef(calculationData, results);
 
-            _reportModelBuilder
-                .UseInputModel(calculationData)
-                .UseSourceProperties(sourceProperties);
+        sourceProperties.RCoef = r;
+        sourceProperties.PCoef = p;
 
-            var intermediateResults = new SingleSourceEmissionCalculationResult()
-            {
-                Cm = CalculateCm(calculationData, sourceProperties),
-                Xm = CalculateXm(calculationData, sourceProperties),
-                Um = CalculateUm(calculationData, sourceProperties)
-            };
+        results.Cmu = CalculateCmu(sourceProperties, results);
+        results.Xmu = CalculateXmu(sourceProperties, results);
+        results.C = CalculateC(calculationData, results);
+        results.Cy = CalculateCy(calculationData, results);
 
-            var r = GetRCoef(calculationData, intermediateResults);
-            var p = GetPCoef(calculationData, intermediateResults);
+        var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
+        using var ms = new MemoryStream();
+        await _reportManager.FromTemplate(ms, path, _reportModelBuilder.Build());
+        var fileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}.pdf";
 
-            sourceProperties.RCoef = r;
-            sourceProperties.PCoef = p;
+        var calculationResult = new CalculationResult()
+        {
+            Id = Guid.NewGuid(),
+            Results = JsonSerializer.Serialize(results),
+            Timestamp = _dateTimeProvider.NowUtc
+        };
 
-            intermediateResults.Cmu = CalculateCmu(sourceProperties, intermediateResults);
-            intermediateResults.Xmu = CalculateXmu(sourceProperties, intermediateResults);
-            intermediateResults.C = CalculateC(calculationData, intermediateResults);
-            intermediateResults.Cy = CalculateCy(calculationData, intermediateResults);
+        var report = new Report()
+        {
+            Id = Guid.NewGuid(),
+            OperationId = calculationResult.Id,
+            ContentType = "application/pdf",
+            FileName = fileName,
+            Label = "SingleSource",
+            Timestamp = _dateTimeProvider.NowUtc,
+            Data = ms.ToArray()
+        };
 
-            var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
-            var ms = new MemoryStream();
-            await _reportManager.FromTemplate(ms, path, _reportModelBuilder.Build());
+        _calculationResultRepository.Add(calculationResult);
+        _reportRepository.Add(report);
 
-            results.Add(substance.Name, intermediateResults);
-        }
-
+        results.ReportId = report.Id;
         return results;
     }
 
@@ -85,11 +94,11 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         IMaxConcentrationCalculationManager? subManager;
 
         if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IColdEmissionMaxConcentrationCalculationManager>();
+            subManager = ComponentContext.Resolve<IColdEmissionMaxConcentrationCalculationManager>();
         else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindMaxConcentrationCalculationManager>();
+            subManager = ComponentContext.Resolve<ILowWindMaxConcentrationCalculationManager>();
         else
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionMaxConcentrationCalculationManager>();
+            subManager = ComponentContext.Resolve<IHotEmissionMaxConcentrationCalculationManager>();
 
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
@@ -127,11 +136,11 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
     {
         IDangerousWindSpeedCalculationManager? subManager;
         if ((sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5)) && sourceProperties.VmI >= 0.5)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IColdEmissionDangerousWindSpeedCalculationManager>();
+            subManager = ComponentContext.Resolve<IColdEmissionDangerousWindSpeedCalculationManager>();
         else if (sourceProperties.F < 100)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindDangerousWindSpeedCalculationManager>();
+            subManager = ComponentContext.Resolve<ILowWindDangerousWindSpeedCalculationManager>();
         else
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionDangerousWindSpeedCalculationManager>();
+            subManager = ComponentContext.Resolve<IHotEmissionDangerousWindSpeedCalculationManager>();
 
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
@@ -147,11 +156,11 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
     {
         IDangerousDistanceCalculationManager? subManager;
         if (sourceProperties.F >= 100 || (model.DeltaT >= 0 && model.DeltaT <= 0.5))
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IColdEmissionDangerousDistanceCalculationManager>();
+            subManager = ComponentContext.Resolve<IColdEmissionDangerousDistanceCalculationManager>();
         else if (sourceProperties.F < 100)
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<ILowWindDangerousDistanceCalculationManager>();
+            subManager = ComponentContext.Resolve<ILowWindDangerousDistanceCalculationManager>();
         else
-            subManager = _httpContextAccessor.HttpContext.RequestServices.GetService<IHotEmissionDangerousDistanceCalculationManager>();
+            subManager = ComponentContext.Resolve<IHotEmissionDangerousDistanceCalculationManager>();
 
         if (subManager == null)
             throw new InvalidOperationException("Failed to get required calculation manager");
