@@ -7,6 +7,8 @@ import { observable } from "mobx";
 export interface IFormInputProps<T extends BaseFormModel> extends Omit<InputProps, 'name'> {
     formModel: T;
     name: keyof T;
+    index?: number;
+    subName?: string;
     invalid?: boolean;
     smallValidationError?: boolean;
     placeholder?: string;
@@ -24,7 +26,7 @@ export class FormInput<T extends BaseFormModel> extends React.Component<IFormInp
     private accessor _wasChanged: boolean = false;
 
     public render() {
-        const { formModel, name, changeHandler, invalid, smallValidationError, transformValueHandler, style, className, tooltip, ...rest } = this.props;
+        const { formModel, name, subName, index, changeHandler, invalid, smallValidationError, transformValueHandler, style, className, tooltip, ...rest } = this.props;
         const fieldValue = formModel.getValue(name);
         const isInvalid: boolean | undefined = this._wasChanged && (invalid || !formModel.isValid(name));
 
@@ -41,7 +43,7 @@ export class FormInput<T extends BaseFormModel> extends React.Component<IFormInp
                             onChange={(ev) => {
                                 this._wasChanged = true;
                                 const value = transformValueHandler ? transformValueHandler(ev.target.value) : ev.target.value;
-                                formModel.setValue(name, value);
+                                formModel.setValue(name, value, index, subName);
                                 changeHandler?.(ev);
                             }}
                             {...rest} />

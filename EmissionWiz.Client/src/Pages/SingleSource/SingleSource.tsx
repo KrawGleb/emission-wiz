@@ -3,7 +3,7 @@ import { BaseFormModel } from "../../Models/BaseFromModel";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
-import { Button, Collapse, CollapseProps, Divider, TooltipProps } from 'antd';
+import { Button, Collapse, CollapseProps, Divider, Form, TooltipProps } from 'antd';
 import { ICellRendererParams } from 'ag-grid-community';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
@@ -12,11 +12,12 @@ import { FormInput } from "../../Components/FormControls";
 import { displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
 import PdfViewer from "../../Components/PdfViewer";
-import { DownloadOutlined } from "@ant-design/icons";
-import MapContainer from "../../Components/MapContainer";
+import { CloseOutlined, DownloadOutlined } from "@ant-design/icons";
+import MapContainer, { UniqueMarker } from "../../Components/MapContainer";
 import DataGrid from "../../Components/DataGrid/DataGrid";
 import { DataGridColumn } from "../../Components/DataGrid/DataGridColumn";
 import { MathComponent } from "mathjax-react";
+import { Coordinates } from "../../Classes/Coordinates";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -85,6 +86,9 @@ class FormModel extends BaseFormModel {
     @isNumber()
     @observable
     public accessor lon: number | undefined;
+
+    @observable
+    public accessor markers: UniqueMarker[] = [];
 }
 
 @observer
@@ -97,6 +101,7 @@ export default class SingleSource extends React.Component {
 
     private _form: FormModel = new FormModel();
     private _gridRef = React.createRef<DataGrid<SingleSourceEmissionInputModel>>();
+    private _mapRef = React.createRef<MapContainer<FormModel>>();
 
     render() {
         return (
@@ -104,11 +109,51 @@ export default class SingleSource extends React.Component {
                 <div className="d-flex flex-row">
                     <div style={{ width: '33%' }}>
                         <Divider orientation="left"><h4>Вводные данные:</h4></Divider>
-                        <div className="mb-4">
-                            <MapContainer onClick={(lon: number, lat: number) => {
-                                this._form.lon = lon;
-                                this._form.lat = lat;
-                            }} />
+                        <div>
+                            <MapContainer
+                                className="mb-2"
+                                formModel={this._form}
+                                name="markers"
+                                ref={this._mapRef}
+                                multiple />
+                            {this._form.markers && (
+                                <>{
+                                    this._form.markers.map((marker, index) => <div className="d-flex flex-row">
+                                        <div className="d-flex flex-row" style={{ gap: '20px' }}>
+                                            <FormInput
+                                                formModel={this._form}
+                                                name="markers"
+                                                index={index}
+                                                subName="_lngLat.lat"
+                                                placeholder="lat"
+                                                style={{ width: '80px' }}
+                                                value={marker._lngLat?.lat}
+                                                changeHandler={() => {
+                                                    this._mapRef.current?.updateMarkers();
+                                                }}
+                                            />
+
+                                            <FormInput
+                                                formModel={this._form}
+                                                name="markers"
+                                                index={index}
+                                                subName="_lngLat.lng"
+                                                placeholder="lon"
+                                                style={{ width: '80px' }}
+                                                value={marker._lngLat?.lng}
+                                                changeHandler={() => {
+                                                    this._mapRef.current?.updateMarkers();
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{marginLeft: '5px', cursor: 'pointer'}}>
+                                            <CloseOutlined style={{ fontSize: '12px', verticalAlign: 'super' }} />
+                                        </div>
+                                    </div>)
+                                }
+                                </>
+
+                            )}
                         </div>
                         <div className="d-flex flex-row" style={{ gap: '20px', flexWrap: 'wrap' }}>
                             <FormInput
