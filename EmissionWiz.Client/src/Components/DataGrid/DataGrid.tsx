@@ -15,6 +15,7 @@ export type DataGridProps<T extends {}> = {
     height: number | string;
     addEmptyRow?: boolean;
     suppressNoRowsOverlay?: boolean;
+    onChange?: () => void;
 }
 
 @observer
@@ -67,6 +68,8 @@ export default class DataGrid<T extends {}> extends React.Component<DataGridProp
     private _onCellEditingStoped(event: CellEditingStoppedEvent) {
         if (event.valueChanged && !event.oldValue)
             this._addEmptyRow();
+
+        this.props.onChange?.();
     }
 
     @action

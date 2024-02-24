@@ -85,11 +85,13 @@ export default class MapContainer<T extends BaseFormModel> extends React.Compone
 
         const markers = this.markers;
         this._mapMarkers = markers.map((value, index) => {
-            const marker = (new MapLibreGL.Marker()
-                .setLngLat(value._lngLat)
-                .addTo(this._map!)) as UniqueMarker;
+            const marker = new MapLibreGL.Marker() as UniqueMarker;
 
-            this._mapMarkers.push(marker);
+            try {
+                marker.setLngLat(value._lngLat);
+                marker.addTo(this._map!);
+            }
+            catch {}
 
             marker.key = `${index + 1}`;
 

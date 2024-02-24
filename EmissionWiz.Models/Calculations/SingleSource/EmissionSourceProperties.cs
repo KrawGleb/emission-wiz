@@ -2,7 +2,18 @@
 
 public class EmissionSourceProperties
 {
-    public double V1 { get; set; }
+    private double v1;
+
+    public double V1
+    {
+        get { return V1e != null ? V1e.Value : v1; }
+        set { 
+            v1 = value;
+        }
+    }
+
+    public double V1Source { get; set; }
+    public double? V1e { get; set; }
     public double Vm { get; set; }
     public double VmI { get; set; }
     public double F { get; set; }

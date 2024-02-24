@@ -65,6 +65,16 @@ public class SingleSourceCalculationData
     public double Lat { get; set; }
     public double Lon { get; set; }
 
+    /// <summary>
+    /// Ширина устья, м
+    /// </summary>
+    public double? B { get; set; }
+
+    /// <summary>
+    /// Длина устья
+    /// </summary>
+    public double? L { get; set; }
+
     public double DeltaT => EmissionTemperature - AirTemperature;
 
     public string? EmissionName { get; set; }

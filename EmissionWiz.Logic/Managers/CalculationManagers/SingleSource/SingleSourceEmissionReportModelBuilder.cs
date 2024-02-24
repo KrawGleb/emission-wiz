@@ -1,4 +1,5 @@
-﻿using EmissionWiz.Models;
+﻿using CoordinateSharp;
+using EmissionWiz.Models;
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Map;
@@ -27,12 +28,17 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.Lat = model.Lat;
         _model.Lon = model.Lon;
         _model.EmissionName = model.EmissionName;
+        _model.L = model.L;
+        _model.B = model.B;
 
         return this;
     }
 
     public ISingleSourceEmissionReportModelBuilder UseSourceProperties(EmissionSourceProperties sourceProperties)
     {
+        _model.V1Source = sourceProperties.V1Source;
+        _model.V1e = sourceProperties.V1e;
+
         _model.V1Result = sourceProperties.V1;
         _model.VmResult = sourceProperties.Vm;
         _model.VmIResult = sourceProperties.VmI;

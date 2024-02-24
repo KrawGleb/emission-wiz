@@ -3,21 +3,20 @@ import { BaseFormModel } from "../../Models/BaseFromModel";
 import { action, observable } from "mobx";
 import { observer } from "mobx-react";
 import { Report } from "../../Components/Report";
-import { Button, Collapse, CollapseProps, Divider, Form, TooltipProps } from 'antd';
+import { Button, Collapse, CollapseProps, Divider, Switch, Tooltip, TooltipProps } from 'antd';
 import { ICellRendererParams } from 'ag-grid-community';
 import ApiService from "../../Services/ApiService";
 import { ApiUrls } from "../../AppConstants/ApiUrls";
-import { SingleSourceEmissionCalculationResult, SingleSourceEmissionInputModel, SingleSourceInputModel } from "../../Models/WebApiModels";
+import { SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel } from "../../Models/WebApiModels";
 import { FormInput } from "../../Components/FormControls";
-import { displayName, isNumber, isRequired } from "../../Services/Validation";
+import { collections, displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
 import PdfViewer from "../../Components/PdfViewer";
-import { CloseOutlined, DownloadOutlined } from "@ant-design/icons";
+import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined } from "@ant-design/icons";
 import MapContainer, { UniqueMarker } from "../../Components/MapContainer";
 import DataGrid from "../../Components/DataGrid/DataGrid";
 import { DataGridColumn } from "../../Components/DataGrid/DataGridColumn";
 import { MathComponent } from "mathjax-react";
-import { Coordinates } from "../../Classes/Coordinates";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -77,18 +76,25 @@ class FormModel extends BaseFormModel {
     @observable
     public accessor y: number | undefined;
 
-    @isRequired()
     @isNumber()
-    @observable
-    public accessor lat: number | undefined;
+    public accessor b: number | undefined;
 
-    @isRequired()
     @isNumber()
-    @observable
-    public accessor lon: number | undefined;
+    public accessor l: number | undefined;
 
     @observable
+    public accessor isReactangle: boolean = false;
+
+    @observable
+    @collections.notEmpty()
+    @collections.numbers('_lngLat.lat')
+    @collections.numbers('_lngLat.lng')
     public accessor markers: UniqueMarker[] = [];
+
+    @observable
+    @collections.notEmpty()
+    @collections.numbers('m')
+    public accessor substances: SingleSourceEmissionSubstance[] = [];
 }
 
 @observer
@@ -100,7 +106,7 @@ export default class SingleSource extends React.Component {
     private accessor _reports: Map<string, Blob | null> = new Map<string, Blob | null>();
 
     private _form: FormModel = new FormModel();
-    private _gridRef = React.createRef<DataGrid<SingleSourceEmissionInputModel>>();
+    private _gridRef = React.createRef<DataGrid<SingleSourceEmissionSubstance>>();
     private _mapRef = React.createRef<MapContainer<FormModel>>();
 
     render() {
@@ -129,6 +135,7 @@ export default class SingleSource extends React.Component {
                                                 style={{ width: '80px' }}
                                                 value={marker._lngLat?.lat}
                                                 changeHandler={() => {
+                                                    this._form.validate();
                                                     this._mapRef.current?.updateMarkers();
                                                 }}
                                             />
@@ -142,18 +149,34 @@ export default class SingleSource extends React.Component {
                                                 style={{ width: '80px' }}
                                                 value={marker._lngLat?.lng}
                                                 changeHandler={() => {
+                                                    this._form.validate();
                                                     this._mapRef.current?.updateMarkers();
                                                 }}
                                             />
                                         </div>
-                                        <div style={{marginLeft: '5px', cursor: 'pointer'}}>
-                                            <CloseOutlined style={{ fontSize: '12px', verticalAlign: 'super' }} />
+                                        <div style={{ marginLeft: '5px', cursor: 'pointer' }}>
+                                            <CloseOutlined style={{ fontSize: '12px', verticalAlign: 'super' }} onClick={() => this._removeMarker(marker)} />
                                         </div>
                                     </div>)
                                 }
                                 </>
 
                             )}
+                        </div>
+                        <div className="mb-2">
+                            <Tooltip title="Форма устья">
+                                <Switch
+                                    checkedChildren={<BorderOutlined />}
+                                    unCheckedChildren={<EllipsisOutlined />}
+                                    defaultChecked={false}
+                                    onChange={(checked) => {
+                                        this._form.isReactangle = checked;
+                                        if (!checked) {
+                                            this._form.b = undefined;
+                                            this._form.l = undefined;
+                                        }
+                                    }} />
+                            </Tooltip>
                         </div>
                         <div className="d-flex flex-row" style={{ gap: '20px', flexWrap: 'wrap' }}>
                             <FormInput
@@ -287,9 +310,35 @@ export default class SingleSource extends React.Component {
                                     title: 'Расстояние по нормали к оси факела выброса, м',
                                     placement: 'topLeft'
                                 } as TooltipProps} />
+
+                            {this._form.isReactangle && <>
+                                <FormInput
+                                    formModel={this._form}
+                                    name="b"
+                                    placeholder="B"
+                                    style={{ width: '80px' }}
+                                    value={this._form.b}
+                                    tooltip={{
+                                        trigger: 'focus',
+                                        title: 'Ширина устья, м',
+                                        placement: 'topLeft'
+                                    } as TooltipProps} />
+
+                                <FormInput
+                                    formModel={this._form}
+                                    name="l"
+                                    placeholder="L"
+                                    style={{ width: '80px' }}
+                                    value={this._form.l}
+                                    tooltip={{
+                                        trigger: 'focus',
+                                        title: 'Длина устья, м',
+                                        placement: 'topLeft'
+                                    } as TooltipProps} />
+                            </>}
                         </div>
                         <div>
-                            <DataGrid<SingleSourceEmissionInputModel>
+                            <DataGrid<SingleSourceEmissionSubstance>
                                 editable
                                 ref={this._gridRef} columns={[
                                     {
@@ -311,7 +360,7 @@ export default class SingleSource extends React.Component {
                                             }
                                         }
                                     },
-                                ]} height={200} addEmptyRow />
+                                ]} height={200} addEmptyRow onChange={() => this._collectSubstances()} />
                         </div>
 
                         <div className="d-flex flex-row mb-2" style={{ gap: '20px' }}>
@@ -450,6 +499,12 @@ export default class SingleSource extends React.Component {
         downloadService.downloadFile(`${ApiUrls.SingleSourceReport}?reportId=${reportId}`);
     }
 
+    @action
+    private _removeMarker(marker: UniqueMarker) {
+        this._form.markers = this._form.markers.filter(x => x !== marker);
+        this._mapRef.current?.updateMarkers();
+    }
+
     private async _loadPdf(reportId: string) {
         const { data } = await ApiService.getTypedData<Blob>(`${ApiUrls.SingleSourceReport}?reportId=${reportId}`, null, {
             responseType: 'blob',
@@ -458,9 +513,15 @@ export default class SingleSource extends React.Component {
         return data;
     }
 
-    private _getModel() {
+    private _collectSubstances() {
         const rows = this._gridRef?.current?.rows;
+        this._form.substances = rows?.filter(v => v.m).map((v) => ({
+            name: v.name,
+            m: v.m
+        })) ?? [];
+    }
 
+    private _getModel() {
         return {
             a: this._form.a!,
             fCoef: this._form.f!,
@@ -473,12 +534,11 @@ export default class SingleSource extends React.Component {
             u: this._form.u!,
             x: this._form.x!,
             y: this._form.y!,
-            lat: this._form.lat,
-            lon: this._form.lon,
-            substances: rows?.filter(v => v.m).map((v) => ({
-                name: v.name,
-                m: v.m
-            }))
+            lat: this._form.markers[0]._lngLat.lat,
+            lon: this._form.markers[0]._lngLat.lng,
+            b: this._form.b,
+            l: this._form.l,
+            substances: this._form.substances
         } as SingleSourceInputModel
     }
 }

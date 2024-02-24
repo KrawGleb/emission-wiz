@@ -1,5 +1,58 @@
 import { computed } from "mobx";
 
+export class collections {
+    public static numbers(path?: string, msg?: string) {
+        return <any>function (_: any, context: ClassAccessorDecoratorContext) {
+            const name = String(context.name);
+
+            const validation = {
+                fieldName: name,
+                validateFunction: (obj: any) => {
+                    const pathParts = path?.split('.');
+                    const field = obj[name] as Array<any>;
+                    let isValid = true;
+                    
+                    field?.forEach(element => {
+                        if (pathParts?.length) {
+                            let subField = element;
+                            pathParts.forEach(part => subField = subField?.[part])
+
+                            const asNumber = Number(subField);
+                            isValid = isValid && (!subField || (!isNaN(asNumber) && isFinite(asNumber)));
+                        }
+                    })
+
+                    const errorMessage = `${getDisplayName(obj, name)} долнжо содержать только числа`;
+
+                    return isValid ? undefined : msg || errorMessage;
+                }
+            }
+
+            addValidation(context, name, validation);
+        }
+    }
+
+    public static notEmpty(msg?: string) {
+        return <any>function (_: any, context: ClassAccessorDecoratorContext) {
+            const name = String(context.name);
+
+            const validation = {
+                fieldName: name,
+                validateFunction: (obj: any) => {
+                    const field = obj[name] as Array<any>;
+                    const isValid = field && field.length > 0; 
+                    
+                    const errorMessage = `${getDisplayName(obj, name)} должно содержать значение`;
+
+                    return isValid ? undefined : msg || errorMessage;
+                }
+            }
+
+            addValidation(context, name, validation);
+        }
+    }
+}
+
 export function displayName(displayName: string) {
     return <any>function (target: any, name: string) {
         const __displayName = camelCase('____displayName_', name);
@@ -25,13 +78,13 @@ export function isRequired(msg?: string) {
 export function isNumber(msg?: string) {
     return <any>function (_: any, context: ClassAccessorDecoratorContext) {
         const name = String(context.name);
-        
+
         const validation = {
             fieldName: name,
             validateFunction: (obj: any) => {
                 let isValid = !obj[name] || !isNaN(Number(obj[name]));
-                let errorMEssage = `Поле "${getDisplayName(obj, name)}" должно быть числом`;
-                return isValid ? undefined : msg || errorMEssage;
+                let errorMessage = `Поле "${getDisplayName(obj, name)}" должно быть числом`;
+                return isValid ? undefined : msg || errorMessage;
             }
         };
 
@@ -46,7 +99,7 @@ function addValidation(context: ClassAccessorDecoratorContext, name: any, valida
     const __validateError = camelCase('__validateError_', name);
     const __errorFields = '__errorFields';
 
-    context.addInitializer(function() {
+    context.addInitializer(function () {
         const targetForm = this as any;
         if (!targetForm.hasOwnProperty(__validators)) {
             const prototypeValue = targetForm[__validators];
@@ -56,7 +109,7 @@ function addValidation(context: ClassAccessorDecoratorContext, name: any, valida
                 value: prototypeValue?.slice(0) ?? []
             });
         }
-    
+
         if (!targetForm.hasOwnProperty(__validationErrors)) {
             const descriptor = {
                 configurable: true,
@@ -75,7 +128,7 @@ function addValidation(context: ClassAccessorDecoratorContext, name: any, valida
             };
             defineComputedProperty(targetForm, __validationErrors, descriptor);
         }
-    
+
         if (!targetForm.hasOwnProperty(__isValidForm)) {
             const descriptor = {
                 configurable: true,
@@ -93,10 +146,10 @@ function addValidation(context: ClassAccessorDecoratorContext, name: any, valida
                     return isValid;
                 }
             };
-    
+
             defineComputedProperty(targetForm, __isValidForm, descriptor);
         }
-    
+
         if (!targetForm.hasOwnProperty(__validateError)) {
             const descriptor = {
                 configurable: true,
@@ -117,7 +170,7 @@ function addValidation(context: ClassAccessorDecoratorContext, name: any, valida
             };
             defineComputedProperty(targetForm, __validateError, descriptor);
         }
-    
+
         if (!targetForm.hasOwnProperty(__errorFields)) {
             const descriptor = {
                 configurable: true,
@@ -136,7 +189,7 @@ function addValidation(context: ClassAccessorDecoratorContext, name: any, valida
             };
             defineComputedProperty(targetForm, __errorFields, descriptor);
         }
-    
+
         targetForm[__validators].push(validationRule);
     })
 }

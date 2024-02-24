@@ -5,10 +5,36 @@
 			Расход ГВЗ:
 		</text>
 		<formula>
-			V_{1} = \frac{\pi \cdot D^{2}}{4}\cdot \omega_{0} = \frac{\pi \cdot {{trimByPrecision D}}^{2}}{4}\cdot {{trimByPrecision W}} = {{trimByPrecision V1Result}}
+			V_{1} = \frac{\pi \cdot D^{2}}{4}\cdot \omega_{0} = \frac{\pi \cdot {{trimByPrecision D}}^{2}}{4}\cdot {{trimByPrecision W}} = {{trimByPrecision V1Source}}
 		</formula>
 	</block>
 
+	{{#if UseRectangle}}
+	<block>
+		<text>
+			Рачеты рассеивания выбросов для источников выбросов с прямоугольными устьями (шахт) производятся при значениях D=D<small>э</small> и V<small>1</small>=V<small>1э</small> и принятии w<small>0</small> как средней скорости выхода ГВС в атмосферный воздух.
+		</text>
+		<text>
+			Средняя скорость w<small>0</small> выхода ГВС в атмосферный воздух определяется по формуле:
+		</text>
+		<formula>
+			w_0 = \frac{V_1}{L_{уст} \cdot  b} = \frac{ {{trimByPrecision V1Source}} }{ {{trimByPrecision L}} \cdot  {{trimByPrecision B}} } = {{trimByPrecision W}}
+		</formula>
+		<text>
+			Эффективный диаметр устья D<small>э</small>, м, определяется по формуле:
+		</text>
+		<formula>
+			D_э = \frac{ 2 \cdot L_{уст} \cdot b }{ L_{уст} + b } = \frac{ 2 \cdot {{trimByPrecision L}} \cdot {{trimByPrecision B}} }{ {{trimByPrecision L}} + {{trimByPrecision B}} } = {{trimByPrecision D}}
+		</formula>
+		<text>
+			Эффективный расход выходящей в атфосферный воздух в единицу времени ГВС V<small>1э</small> определяется по формуле:
+		</text>
+		<formula>
+			V_{1э} = \frac{ \Pi \cdot D_{э}^{2} }{ 4 } \cdot w_0 = \frac{ \Pi \cdot {{trimByPrecision D}}^{2} }{ 4 } \cdot {{trimByPrecision W}} = {{trimByPrecision V1e}}
+		</formula>
+	</block>
+	{{/if}}
+	
 	<block>
 		<text>
 			Коэффициенты m и n определяются в зависимости от характеризующих свойства источника выброса параметров v{{math Lower|m}}, v{{math Lower|m}}', {{math f}} и {{math f}}{{math Lower|e}}:

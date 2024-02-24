@@ -71,14 +71,7 @@ export class SingleSourceInputModel extends BaseApiModelClass< ISingleSourceInpu
     y?: number;
     lat?: number;
     lon?: number;
+    b?: number;
+    l?: number;
     substances?: SingleSourceEmissionSubstance[];
-}   
-
-export interface ISingleSourceEmissionInputModel {
-    name?: string;
-    m?: number;
-}
-export class SingleSourceEmissionInputModel extends BaseApiModelClass <ISingleSourceEmissionInputModel> implements SingleSourceEmissionInputModel {
-    name?: string;
-    m?: number;
 }

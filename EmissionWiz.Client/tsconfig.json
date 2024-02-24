@@ -12,6 +12,8 @@
     "skipDefaultLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strictPropertyInitialization": false,
+    "strictNullChecks": true,
+    "allowUnusedLabels": true,
 
     /* Bundler mode */
     "moduleResolution": "Node",

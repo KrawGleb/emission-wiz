@@ -16,6 +16,8 @@ public class SingleSourceReportModel : ReportModelBase
     public double Lat { get; set; }
     public double Lon { get; set; }
     public string? EmissionName { get; set; }
+    public double? B { get; set; }
+    public double? L { get; set; }
 
     public double VmResult { get; set; }
     public double VmIResult { get; set; }
@@ -43,6 +45,9 @@ public class SingleSourceReportModel : ReportModelBase
 
     public double Ty { get; set; }
 
+    public double V1Source { get; set; }
+    public double? V1e { get; set; }
+
     public double V1 => V1Result;
     public double Vm => VmResult;
     public double VmI => VmIResult;
@@ -50,6 +55,8 @@ public class SingleSourceReportModel : ReportModelBase
     public double Fe => FeResult;
     public double Um => UmResult;
     public double Xm => XmResult;
+
+    public bool UseRectangle => B != null && L != null;
 
     public double WindRatio => U / UmResult;
     public bool WindRatio_LoE_025 => WindRatio <= 0.25;

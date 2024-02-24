@@ -57,6 +57,21 @@ public class SingleSourceInputModel
     /// </summary>
     public double Y { get; set; }
 
+    /// <summary>
+    /// Использовать в расчетах формулы для источника с прямоугольным устьем
+    /// </summary>
+    public bool IsSquareSource { get; set; } = false;
+
+    /// <summary>
+    /// Длина устья (только для прямоугольного устья)
+    /// </summary>
+    public double? L { get; set; }
+
+    /// <summary>
+    /// Ширина устья (только для прямоугольного устья)
+    /// </summary>
+    public double? B { get; set; }
+
     public double Lat { get; set; }
     public double Lon { get; set; }
 

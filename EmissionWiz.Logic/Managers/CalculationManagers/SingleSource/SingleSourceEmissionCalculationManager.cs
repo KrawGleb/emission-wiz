@@ -308,8 +308,22 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         var f = 1000d * (Math.Pow(model.W, 2d) * model.D) / (Math.Pow(model.H, 2d) * model.DeltaT);
         var fe = 800d * Math.Pow(vmI, 3d);
 
+        // Для прямоугольных устьев
+        double? v1e = null;
+        if (model.B != null && model.L != null)
+        {
+            var w0 = v / (model.L * model.B);
+            var d = (2d * model.L * model.B) / (model.L + model.B);
+            v1e = ((Math.PI * Math.Pow(d!.Value, 2d)) / 4d) * w0;
+
+            model.W = w0!.Value;
+            model.D = d!.Value;
+        }
+
         return new EmissionSourceProperties
         {
+            V1Source = v,
+            V1e = v1e,
             V1 = v,
             Vm = vm,
             VmI = vmI,

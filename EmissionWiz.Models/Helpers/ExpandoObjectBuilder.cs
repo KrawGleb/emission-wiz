@@ -19,6 +19,9 @@ public static class ExpandoObjectBuilder
         foreach (var fields in obj.GetType().GetFields(flags))
         {
             var propType = fields.FieldType;
+            var underlyingType = Nullable.GetUnderlyingType(propType);
+            propType = underlyingType != null ? underlyingType : propType;
+
             if (propType.IsPrimitive || propType == typeof(decimal) || propType == typeof(string))
             {
                 var name = includeLevel
@@ -37,7 +40,10 @@ public static class ExpandoObjectBuilder
         foreach (var prop in obj.GetType().GetProperties().Where(x => x.GetCustomAttribute<ExpandoIgnoreAttribute>() == null))
         {
             var propType = prop.PropertyType;
-            if (propType.IsPrimitive || propType == typeof(decimal) || propType == typeof(string))
+            var underlyingType = Nullable.GetUnderlyingType(propType);
+            propType = underlyingType != null ? underlyingType : propType;
+
+            if (propType.IsPrimitive || propType == typeof(decimal) || propType == typeof(string) || propType == typeof(Nullable<decimal>))
             {
                 var name = includeLevel
                     ? $"{level}|{prop.Name}".Trim('|')
