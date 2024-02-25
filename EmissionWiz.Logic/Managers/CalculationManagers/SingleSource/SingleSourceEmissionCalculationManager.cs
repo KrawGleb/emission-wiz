@@ -56,20 +56,27 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
 
         results.Cmu = CalculateCmu(sourceProperties, results);
         results.Xmu = CalculateXmu(sourceProperties, results);
-        results.C = CalculateC(calculationData, results);
         results.Cy = CalculateCy(calculationData, results);
 
-        var path = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location) + @"\ReportTemplates\SingleSource\main.xml";
-        using var ms = new MemoryStream();
-        await _reportManager.FromTemplate(ms, path, _reportModelBuilder.Build());
-        var fileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}.pdf";
+        // TODO: Review all calculations - set result values right here
+        var c = CalculateC(calculationData, results);
+        _reportModelBuilder.SetCValues(c);
 
+        var reportModel = _reportModelBuilder.Build();
         var calculationResult = new CalculationResult()
         {
             Id = Guid.NewGuid(),
             Results = JsonSerializer.Serialize(results),
             Timestamp = _dateTimeProvider.NowUtc
         };
+
+        var basePath = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location);
+        var mainPath = basePath + @"\ReportTemplates\SingleSource\main.xml";
+        var cApplicationPath = basePath + @"\ReportTemplates\SingleSource\c_application.xml";
+
+        using var ms = new MemoryStream();
+        await _reportManager.FromTemplate(ms, mainPath, reportModel);
+        var fileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}.pdf";
 
         var report = new Report()
         {
@@ -82,10 +89,31 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             Data = ms.ToArray()
         };
 
+        // Reuse ms
+        ms.Position = 0; 
+        ms.SetLength(0);
+
+        await _reportManager.FromTemplate(ms, cApplicationPath, reportModel);
+        var applicationFileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}_application.pdf";
+
+        var application = new Report()
+        {
+            Id = Guid.NewGuid(),
+            OperationId = calculationResult.Id,
+            ContentType = "application/pdf",
+            FileName = applicationFileName,
+            Label = "SingleSource",
+            Timestamp = _dateTimeProvider.NowUtc,
+            Data = ms.ToArray()
+        };
+
         _calculationResultRepository.Add(calculationResult);
         _reportRepository.Add(report);
+        _reportRepository.Add(application);
 
         results.ReportId = report.Id;
+        results.ApplicationIds.Add(application.Id);
+
         return results;
     }
 
@@ -186,31 +214,45 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    public double CalculateC(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
+    public List<SingleSourceCCalculationModel> CalculateC(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
     {
-        var s1 = GetS1Coef(model, intermediateResults);
+        var minX = 1;
+        var maxX = 2 * intermediateResults.Xm;
+        var step = 1;
 
-        double result;
-        if (model.H < 10 && model.X / intermediateResults.Xm < 1)
+        var results = new List<SingleSourceCCalculationModel>();
+
+        for (var x = minX; x <= maxX; x += step)
         {
-            var s1h = 0.125 * (10 - model.H) + 0.125 * (model.H - 2) * s1;
-            _reportModelBuilder.SetS1HValue(s1h);
-            result = s1h * intermediateResults.Cm;
-        }
-        else
-        {
-            result = s1 * intermediateResults.Cm;
+            var s1 = GetS1Coef(x, intermediateResults.Xm, model.FCoef);
+
+            double result;
+            if (model.H < 10 && model.X / intermediateResults.Xm < 1)
+            {
+                var s1h = 0.125 * (10 - model.H) + 0.125 * (model.H - 2) * s1;
+                _reportModelBuilder.SetS1HValue(s1h);
+                result = s1h * intermediateResults.Cm;
+            }
+            else
+            {
+                result = s1 * intermediateResults.Cm;
+            }
+
+            results.Add(new()
+            {
+                Distance = x,
+                S1CoefValue = s1,
+                Value = result
+            });
         }
 
-        _reportModelBuilder.SetCValue(result);
-
-        return result;
+        return results;
     }
 
-    private double GetS1Coef(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResult)
+    private double GetS1Coef(double x, double xm, double fCoef)
     {
         double result;
-        var ratio = model.X / intermediateResult.Xm;
+        var ratio = x / xm;
         if (ratio <= 1)
         {
             result = 3 * Math.Pow(ratio, 4d) - 8 * Math.Pow(ratio, 3d) + 6 * Math.Pow(ratio, 2d);
@@ -219,15 +261,15 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         {
             result = 1.13 / (0.13 * Math.Pow(ratio, 2d) + 1);
         }
-        else if (8 < ratio && ratio <= 100 && model.FCoef <= 1.5)
+        else if (8 < ratio && ratio <= 100 && fCoef <= 1.5)
         {
             result = ratio / (3.556 * Math.Pow(ratio, 2d) - 35.2 * ratio + 120);
         }
-        else if (8 < ratio && ratio <= 100 && model.FCoef > 1.5)
+        else if (8 < ratio && ratio <= 100 && fCoef > 1.5)
         {
             result = 1 / (0.1 * Math.Pow(ratio, 2d) + 2.456 * ratio - 17.8);
         }
-        else if (ratio > 100 && model.FCoef <= 1.5)
+        else if (ratio > 100 && fCoef <= 1.5)
         {
             result = 144.3 * Math.Cbrt(Math.Pow(ratio, -7d));
         }
@@ -236,7 +278,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             result = 37.76 * Math.Cbrt(Math.Pow(ratio, -7d));
         }
 
-        _reportModelBuilder.SetS1Value(result);
+        // _reportModelBuilder.SetS1Value(result);
 
         return result;
     }

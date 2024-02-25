@@ -386,20 +386,56 @@ export default class SingleSource extends React.Component {
     }
 
     private _renderSolutions() {
-        const items: CollapseProps['items'] = this._calculationResults.map((results, index) => {
-            const pdf = this._reports.get(results.reportId) ?? null;
-
+        const items: CollapseProps['items'] = this._calculationResults.map((result, index) => {
             return {
-                key: index,
-                label: `Вычисления (${results.name})`,
-                children: <PdfViewer key={`pdf${index}`} pdfData={pdf} />,
-                extra: <DownloadOutlined onClick={(event) => {
-                    event.stopPropagation();
-                    this._downloadReport(results.reportId);
-                }} />
-
+                key: `solution_base${index}`,
+                label: `Вычисления (${result.name})`,
+                children: this._renderSolution(result, index),
+                extra: result.applicationIds && result.applicationIds.length > 0
+                    ? <DownloadOutlined onClick={(event) => {
+                        event.stopPropagation();
+                        this._downloadReport(result.reportId);
+                    }}
+                    />
+                    : undefined
             }
         })
+
+        return <Collapse items={items} />
+    }
+
+    private _renderSolution(result: SingleSourceEmissionCalculationResult, index: number) {
+        const pdf = this._reports.get(result.reportId) ?? null;
+
+        if (!result.applicationIds || result.applicationIds.length == 0) {
+            return <PdfViewer key={`pdf${index}`} pdfData={pdf} />;
+        }
+
+        const items: CollapseProps['items'] = [];
+
+        items.push({
+            key: `solution_${index}`,
+            label: `Вычисления`,
+            children: <PdfViewer key={`pdf${index}`} pdfData={pdf} />,
+            extra: <DownloadOutlined onClick={(event) => {
+                event.stopPropagation();
+                this._downloadReport(result.reportId);
+            }} />
+        })
+
+        items.push(...result.applicationIds.map((applicationId, applicationIndex) => {
+            const applicationPdf = this._reports.get(applicationId) ?? null;
+
+            return {
+                key: `solution_${index}_application_${applicationIndex}`,
+                label: `Приложение №${applicationIndex + 1}`,
+                children: <PdfViewer key={`pdf${index}application${applicationIndex}`} pdfData={applicationPdf} />,
+                extra: <DownloadOutlined onClick={(event) => {
+                    event.stopPropagation();
+                    this._downloadReport(applicationId);
+                }} />
+            }
+        }))
 
         return <Collapse items={items} />
     }
@@ -491,6 +527,11 @@ export default class SingleSource extends React.Component {
         this._calculationResults.forEach(async (value) => {
             const data = await this._loadPdf(value.reportId);
             this._reports.set(value.reportId, data);
+            
+            value.applicationIds?.forEach(async applicationId => {
+                const applicationData = await this._loadPdf(applicationId);
+                this._reports.set(applicationId, applicationData);
+            })
         })
     }
 

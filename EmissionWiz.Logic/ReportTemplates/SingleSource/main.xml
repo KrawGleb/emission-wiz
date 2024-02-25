@@ -10,5 +10,8 @@
 	<block ref="/Blocks/c_formulas.xml"/>
 	<block ref="/Blocks/cy_formulas.xml"/>
 
+	<text>
+		Приложение 1 - Карта
+	</text>
 	<map keys="*" />
 </block>

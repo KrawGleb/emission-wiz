@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<block>
+	<block>
+		<text>
+			Приложение - Результаты рассчетов C на разных расстояниях X
+		</text>
+		<table key="C" type="EmissionWiz.Models.Calculations.SingleSource.SingleSourceCCalculationModel">
+			<column field="Distance" title="X, м" width="100" />
+			<column field="Value" title="C" width="100" />
+			<column field="S1CoefValue" title="S1" width="100" />
+		</table>
+	</block>
+</block>

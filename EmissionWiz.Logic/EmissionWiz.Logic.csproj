@@ -54,6 +54,9 @@
 		<None Update="ReportTemplates\SingleSource\Blocks\n_formulas.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Update="ReportTemplates\SingleSource\c_application.xml">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="ReportTemplates\SingleSource\main.xml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>

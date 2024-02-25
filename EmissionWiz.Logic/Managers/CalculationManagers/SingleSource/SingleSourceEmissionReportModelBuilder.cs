@@ -166,9 +166,9 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         return this;
     }
 
-    public ISingleSourceEmissionReportModelBuilder SetCValue(double c)
+    public ISingleSourceEmissionReportModelBuilder SetCValues(List<SingleSourceCCalculationModel> c)
     {
-        _model.CResult = c;
+        _model.Tables.Add("C", c.Cast<object>().ToList());
 
         return this;
     }

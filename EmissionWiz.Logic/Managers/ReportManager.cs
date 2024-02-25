@@ -1,6 +1,7 @@
 ﻿using CSharpMath.Rendering.Text;
 using CSharpMath.SkiaSharp;
 using EmissionWiz.Common.Templates;
+using EmissionWiz.Logic.Classes;
 using EmissionWiz.Models;
 using EmissionWiz.Models.Exceptions;
 using EmissionWiz.Models.Helpers;
@@ -13,6 +14,8 @@ using MigraDocCore.DocumentObjectModel.MigraDoc.DocumentObjectModel.Shapes;
 using MigraDocCore.Rendering;
 using PdfSharpCore.Utils;
 using SixLabors.ImageSharp.PixelFormats;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Xml.Linq;
 using Typography.TextBreak;
 
@@ -159,6 +162,9 @@ public class ReportManager : BaseManager, IReportManager
             case "map":
                 await RenderMap(element, pdf, model);
                 break;
+            case "table":
+                await RenderTable(element, pdf, model);
+                break;
             default:
                 _logger.LogInformation("Unknown element name: {0}", elementName);
                 break;
@@ -281,5 +287,44 @@ public class ReportManager : BaseManager, IReportManager
         }
         
         pdf.AddParagraph();
+    }
+
+    private async Task RenderTable(XElement element, Section pdf, ReportModelBase model)
+    {
+        var key = element.Attribute("key")
+            ?? throw new AppException("Cannot render table without 'key' attribute");
+
+        var typeName = element.Attribute("type")
+            ?? throw new AppException("Cannot render table without 'type' attribute");
+
+        var logicAssembly = typeof(LogicModule).Assembly;
+        var modelsAssembly = typeof(Constants).Assembly;
+        var type = logicAssembly.GetType(typeName.Value)
+            ?? modelsAssembly.GetType(typeName.Value)
+            ?? throw new AppException($"Unknown type: {typeName}");
+
+        var pdfTable = new PdfTable(type);
+        var data = model.Tables[key.Value];
+        var columns = element.Elements();
+
+        foreach (var column in columns)
+        {
+            var field = column.Attribute("field")
+                ?? throw new AppException("Cannot render column without 'field' attribute");
+
+            var width = column.Attribute("width")
+                ?? throw new AppException("Cannot render column without 'width' attribute");
+
+            var title = column.Attribute("title");
+
+
+            pdfTable.AddColumn(
+                (x => type.GetProperty(field.Value) != null ? type.GetProperty(field.Value).GetValue(x) : null), 
+                field.Value,
+                int.Parse(width.Value),
+                title?.Value);
+        }
+
+        pdfTable.Render(pdf, data);
     }
 }

@@ -10,6 +10,7 @@ export class BaseApiModelClass< T > {
 export interface ISingleSourceEmissionCalculationResult {
     name: string;
     reportId: string;
+    applicationIds: string[];
 
     c: number;
     cy: number;
@@ -22,6 +23,7 @@ export interface ISingleSourceEmissionCalculationResult {
 export class SingleSourceEmissionCalculationResult extends BaseApiModelClass< ISingleSourceEmissionCalculationResult > implements ISingleSourceEmissionCalculationResult {
     name: string;
     reportId: string;
+    applicationIds: string[];
 
     c: number;
     cy: number;
