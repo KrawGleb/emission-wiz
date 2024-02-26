@@ -17,19 +17,22 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
     private readonly ICalculationResultRepository _calculationResultRepository;
     private readonly IReportManager _reportManager;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IGeoTiffManager _geoTiffManager;
 
     public SingleSourceEmissionCalculationManager(
         ISingleSourceEmissionReportModelBuilder reportModelBuilder,
         IReportRepository reportRepository,
         ICalculationResultRepository calculationResultRepository,
         IReportManager reportManager,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IGeoTiffManager geoTiffManager)
     {
         _reportModelBuilder = reportModelBuilder;
         _reportRepository = reportRepository;
         _calculationResultRepository = calculationResultRepository;
         _reportManager = reportManager;
         _dateTimeProvider = dateTimeProvider;
+        _geoTiffManager = geoTiffManager;
     }
 
     public async Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceCalculationData calculationData)
@@ -61,6 +64,8 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         // TODO: Review all calculations - set result values right here
         var c = CalculateC(calculationData, results);
         _reportModelBuilder.SetCValues(c);
+
+        _geoTiffManager.BuildTiffFromFlatArray(c.Select(x => x.Value).ToArray());
 
         var reportModel = _reportModelBuilder.Build();
         var calculationResult = new CalculationResult()
