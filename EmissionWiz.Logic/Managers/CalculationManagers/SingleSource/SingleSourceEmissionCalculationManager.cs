@@ -1,13 +1,16 @@
-﻿using Autofac;
+﻿using System.Text.Json;
+using Autofac;
+using CoordinateSharp;
+using CSharpMath.Structures;
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Database;
+using EmissionWiz.Models.Dto;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Interfaces.Providers;
 using EmissionWiz.Models.Interfaces.Repositories;
 using EmissionWiz.Models.Templates;
-using System.Text.Json;
 
-namespace EmissionWiz.Logic.Managers.CalculationManagers.MaxConcentrationSingleSource;
+namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource;
 
 // Метод расчета максимальных разовых концентраций от выбросов одиночного точечного источника
 public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSourceEmissionCalculationManager
@@ -62,10 +65,18 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         results.Cy = CalculateCy(calculationData, results);
 
         // TODO: Review all calculations - set result values right here
-        var c = CalculateC(calculationData, results);
-        _reportModelBuilder.SetCValues(c);
+        //var c = CalculateC(calculationData, results);
+        //_reportModelBuilder.SetCValues(c);
 
-        _geoTiffManager.BuildTiffFromFlatArray(c.Select(x => x.Value).ToArray());
+        _geoTiffManager.GenerateGeoTiff( new GeoTiffOptions()
+        {
+            StartDistance = 0,
+            Distance = 2 * results.Xm,
+            Step = 1,
+            GetValueFunc = GetCalculateCFunc(calculationData, results),
+            MeterInPixel = 1,
+            Center = new Coordinate(calculationData.Lat, calculationData.Lon)
+        });
 
         var reportModel = _reportModelBuilder.Build();
         var calculationResult = new CalculationResult()
@@ -252,6 +263,28 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         }
 
         return results;
+    }
+
+    private Func<double, double> GetCalculateCFunc(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
+    {
+        return distance =>
+        {
+            var s1 = GetS1Coef(distance, intermediateResults.Xm, model.FCoef);
+
+            double result;
+            if (model.H < 10 && model.X / intermediateResults.Xm < 1)
+            {
+                var s1h = 0.125 * (10 - model.H) + 0.125 * (model.H - 2) * s1;
+                _reportModelBuilder.SetS1HValue(s1h);
+                result = s1h * intermediateResults.Cm;
+            }
+            else
+            {
+                result = s1 * intermediateResults.Cm;
+            }
+
+            return result;
+        };
     }
 
     private double GetS1Coef(double x, double xm, double fCoef)

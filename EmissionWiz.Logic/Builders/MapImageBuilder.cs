@@ -1,19 +1,15 @@
-﻿using EmissionWiz.Models.Attributes;
+﻿using CoordinateSharp;
 using EmissionWiz.Models.Configs;
-using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Map.Shapes;
 using Microsoft.Extensions.Options;
-using System.Text;
-using EmissionWiz.Models;
-using CoordinateSharp;
-using HandlebarsDotNet;
 using System.Globalization;
 using System.Web;
+using EmissionWiz.Models;
+using EmissionWiz.Models.Interfaces.Builders;
 
-namespace EmissionWiz.Logic.Managers;
+namespace EmissionWiz.Logic.Builders;
 
-[InstancePerDependency]
-internal class MapManager : BaseManager, IMapManager
+internal class MapImageBuilder : IMapImageBuilder
 {
     private readonly GeoApiConfiguration _geoApiConfiguration;
     private readonly HttpClient _geoApiClient;
@@ -22,7 +18,7 @@ internal class MapManager : BaseManager, IMapManager
     private readonly List<Marker> _markers = new();
     private readonly List<Circle> _circles = new();
 
-    public MapManager(
+    public MapImageBuilder(
         IOptions<GeoApiConfiguration> geoApiConfiguration,
         IHttpClientFactory httpClientFactory)
     {
@@ -61,9 +57,9 @@ internal class MapManager : BaseManager, IMapManager
 
         var response = await _geoApiClient.GetAsync(uri);
 
-            
+
         response.EnsureSuccessStatusCode();
-        return (response.Content.ReadAsStream(), legend);
+        return (await response.Content.ReadAsStreamAsync(), legend);
     }
 
     public void AddMarker(Marker marker)
@@ -101,7 +97,7 @@ internal class MapManager : BaseManager, IMapManager
     {
 
         var points = new List<(double, double)>();
-        for (int i = 0; i <= 360; i+=9)
+        for (int i = 0; i <= 360; i += 9)
         {
             var center = new Coordinate(circle.Center.Lat, circle.Center.Lon);
             center.Move(circle.Radius, i, CoordinateSharp.Shape.Sphere);

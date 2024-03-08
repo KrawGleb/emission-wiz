@@ -1,61 +1,94 @@
 ﻿using BitMiracle.LibTiff.Classic;
+using CoordinateSharp;
+using EmissionWiz.Models.Dto;
 using EmissionWiz.Models.Interfaces.Managers;
 
 namespace EmissionWiz.Logic.Managers;
 
 internal class GeoTiffManager : BaseManager, IGeoTiffManager
 {
-    public void BuildTiffFromFlatArray(double[] source)
+    private readonly IMapManager _mapManager;
+
+    public GeoTiffManager(IMapManager mapManager)
     {
-        var size = source.Length * 2;
-
-        using var output = Tiff.Open("test.tif", "w");
-        output.SetField(TiffTag.IMAGEWIDTH, size);
-        output.SetField(TiffTag.IMAGELENGTH, size);
-        output.SetField(TiffTag.SAMPLESPERPIXEL, 1);
-        output.SetField(TiffTag.BITSPERSAMPLE, 8);
-        output.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
-        output.SetField(TiffTag.ROWSPERSTRIP, size);
-        output.SetField(TiffTag.XRESOLUTION, 88.0);
-        output.SetField(TiffTag.YRESOLUTION, 88.0);
-        output.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
-        output.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
-        output.SetField(TiffTag.PHOTOMETRIC, Photometric.MINISBLACK);
-        output.SetField(TiffTag.COMPRESSION, Compression.NONE);
-        output.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
-
-        var byteArray = BuildByteArray(source);
-        for (var i = 0; i < byteArray.Length; i++)
-        {
-            output.WriteScanline(byteArray[i], i);
-        }
-
-        output.WriteDirectory();
+        _mapManager = mapManager;
     }
 
-    private byte[][] BuildByteArray(double[] source)
+    public void GenerateGeoTiff(GeoTiffOptions options)
     {
-        var halfOfSize = source.Length;
-        var size = halfOfSize * 2;
-        var result = new byte[size][];
+        // 1. Get real map image
+        // 2. Build tiff image
+        // 3. Combine 1st and 2nd
 
-        var max = source.Max();
-        var unifiedArr = source.Select(x => (byte)(x / max * 255)).ToArray();
+        BuildTiff(options);
 
-        for (var i = 0; i < size; i++)
+    }
+
+    public void BuildTiff(GeoTiffOptions options)
+    {
+        var raster = BuildRaster(options);
+        var size = raster.Count;
+        
+        using var tif = Tiff.Open($"{Guid.NewGuid()}_test.tif", "w");
+
+        tif.SetField(TiffTag.IMAGEWIDTH, size);
+        tif.SetField(TiffTag.IMAGELENGTH, size);
+
+        tif.SetField(TiffTag.SAMPLESPERPIXEL, 1);
+        tif.SetField(TiffTag.BITSPERSAMPLE, 16);
+
+        tif.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
+
+        tif.SetField(TiffTag.ROWSPERSTRIP, size);
+
+        tif.SetField(TiffTag.XRESOLUTION, 88.0);
+        tif.SetField(TiffTag.YRESOLUTION, 88.0);
+
+        tif.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
+        tif.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
+        tif.SetField(TiffTag.COMPRESSION, Compression.NONE);
+        tif.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
+
+        var rowIndex = 0;
+        foreach (var row in raster)
         {
-            result[i] = new byte[size];
+            var buffer = new byte[row.Count * sizeof(short)];
+            Buffer.BlockCopy(row.ToArray(), 0, buffer, 0, buffer.Length);
+            
+            tif.WriteScanline(buffer, rowIndex);
+            rowIndex++;
+        }
 
-            for (var j = 0; j < size; j++)
+        tif.WriteDirectory();
+    }
+
+    private List<List<short>> BuildRaster(GeoTiffOptions options)
+    {
+        var values = new List<List<double>>();
+
+        var maxValue = double.MinValue;
+        var minValue = double.MaxValue;
+
+        for (var row = options.Distance; row >= -options.Distance; row -= options.Step)
+        {
+            var rowValues = new List<double>();
+            values.Add(rowValues);
+
+            for (var col = options.Distance; col >= -options.Distance; col -= options.Step)
             {
-                var distance = Math.Sqrt(Math.Pow(Math.Abs(i - halfOfSize), 2) + Math.Pow(Math.Abs(j - halfOfSize), 2));
-                distance = distance > halfOfSize - 1 ? halfOfSize - 1 : distance;
+                var distance = Math.Sqrt(Math.Pow(row, 2) + Math.Pow(col, 2));
+                var value = options.GetValueFunc!(distance);
+                rowValues.Add(value);
 
-                result[i][j] = unifiedArr[(int)Math.Floor(distance)];
+                maxValue = double.Max(maxValue, value);
+                minValue = double.Min(minValue, value);
             }
         }
 
-        return result;
+        var unifiedValues = values
+            .Select(a => a.Select(x => (short)((x - minValue) / (maxValue - minValue) * short.MaxValue)).ToList())
+            .ToList();
+        
+        return unifiedValues;
     }
-
 }

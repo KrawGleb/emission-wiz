@@ -95,7 +95,7 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.XmResult = xm;
         _model.MapShapes.Add(Constants.MapKeys.SingleSource.XmDistance, () => new Circle
         {
-            Center = new Coordinates
+            Center = new SimpleCoordinates
             {
                 Lat = _model.Lat,
                 Lon = _model.Lon
@@ -140,7 +140,7 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.XmuResult = xmu;
         _model.MapShapes.Add(Constants.MapKeys.SingleSource.XmuDistance, () => new Circle
         {
-            Center = new Coordinates
+            Center = new SimpleCoordinates
             {
                 Lat = _model.Lat,
                 Lon = _model.Lon

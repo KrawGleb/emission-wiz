@@ -1,6 +1,8 @@
-﻿namespace EmissionWiz.Models.Interfaces.Managers;
+﻿using EmissionWiz.Models.Dto;
+
+namespace EmissionWiz.Models.Interfaces.Managers;
 
 public interface IGeoTiffManager : IBaseManager
 {
-    void BuildTiffFromFlatArray(double[] source);
+    void GenerateGeoTiff(GeoTiffOptions options);
 }

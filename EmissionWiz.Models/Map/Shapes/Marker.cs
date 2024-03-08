@@ -2,5 +2,5 @@
 
 public class Marker
 {
-    public Coordinates Coordinates { get; set; } = null!;
+    public SimpleCoordinates SimpleCoordinates { get; set; } = null!;
 }

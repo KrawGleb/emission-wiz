@@ -2,7 +2,7 @@
 
 public class Circle : Shape
 {
-    public Coordinates Center { get; set; } = null!;
+    public SimpleCoordinates Center { get; set; } = null!;
     public double Radius { get; set; }
 
     // ?
