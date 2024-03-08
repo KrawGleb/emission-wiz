@@ -75,7 +75,9 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             Step = 1,
             GetValueFunc = GetCalculateCFunc(calculationData, results),
             MeterInPixel = 1,
-            Center = new Coordinate(calculationData.Lat, calculationData.Lon)
+            Center = new Coordinate(calculationData.Lat, calculationData.Lon),
+            HighlightValue = 24906,
+            AcceptableError = 15
         });
 
         var reportModel = _reportModelBuilder.Build();
@@ -109,26 +111,26 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         ms.Position = 0; 
         ms.SetLength(0);
 
-        await _reportManager.FromTemplate(ms, cApplicationPath, reportModel);
-        var applicationFileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}_application.pdf";
+        //await _reportManager.FromTemplate(ms, cApplicationPath, reportModel);
+        //var applicationFileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}_application.pdf";
 
-        var application = new Report()
-        {
-            Id = Guid.NewGuid(),
-            OperationId = calculationResult.Id,
-            ContentType = "application/pdf",
-            FileName = applicationFileName,
-            Label = "SingleSource",
-            Timestamp = _dateTimeProvider.NowUtc,
-            Data = ms.ToArray()
-        };
+        //var application = new Report()
+        //{
+        //    Id = Guid.NewGuid(),
+        //    OperationId = calculationResult.Id,
+        //    ContentType = "application/pdf",
+        //    FileName = applicationFileName,
+        //    Label = "SingleSource",
+        //    Timestamp = _dateTimeProvider.NowUtc,
+        //    Data = ms.ToArray()
+        //};
 
         _calculationResultRepository.Add(calculationResult);
         _reportRepository.Add(report);
-        _reportRepository.Add(application);
+        //_reportRepository.Add(application);
 
         results.ReportId = report.Id;
-        results.ApplicationIds.Add(application.Id);
+        //results.ApplicationIds.Add(application.Id);
 
         return results;
     }

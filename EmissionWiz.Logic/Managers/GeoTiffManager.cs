@@ -51,6 +51,8 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         tif.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
         tif.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
 
+        tif.SetField(TiffTag.EXTRASAMPLES, 1, new[] { (short)ExtraSample.UNASSALPHA });
+
         var rowIndex = 0;
         foreach (var row in raster)
         {
@@ -91,15 +93,34 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
             .Select(a => a.Select(x => (short)((x - minValue) / (maxValue - minValue) * short.MaxValue)).ToList())
             .ToList();
 
-        return PaintRaster(unifiedValues);
+        return PaintRaster(unifiedValues, options.HighlightValue, options.AcceptableError);
     }
 
-    private List<List<short>> PaintRaster(List<List<short>> raster)
+    private List<List<short>> PaintRaster(List<List<short>> raster, double? highlightValue, double? acceptableError)
     {
+        short halfOfShort = short.MaxValue / 2;
+
         var colored = raster
-            .Select(x => x.SelectMany(v => new List<short> { short.MaxValue / 2, v, short.MaxValue / 2 }).ToList())
+            .Select(x => x.SelectMany(v =>
+            {
+                var defaultValue = new List<short> { halfOfShort, v, halfOfShort };
+                if (highlightValue == null)
+                {
+                    return defaultValue;
+                }
+
+                return ShouldHighlightValue(v, highlightValue.Value, acceptableError)
+                    ? [0, 0, 0]
+                    : defaultValue;
+            }).ToList())
             .ToList();
 
         return colored;
+    }
+
+    private bool ShouldHighlightValue(double value, double highlightValue, double? acceptableError)
+    {
+        acceptableError ??= 0;
+        return value >= highlightValue - acceptableError && value <= highlightValue + acceptableError;
     }
 }
