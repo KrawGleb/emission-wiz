@@ -28,13 +28,16 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
     {
         var raster = BuildRaster(options);
         var size = raster.Count;
-        
+
         using var tif = Tiff.Open($"{Guid.NewGuid()}_test.tif", "w");
 
         tif.SetField(TiffTag.IMAGEWIDTH, size);
         tif.SetField(TiffTag.IMAGELENGTH, size);
 
-        tif.SetField(TiffTag.SAMPLESPERPIXEL, 1);
+        tif.SetField(TiffTag.COMPRESSION, Compression.LZW);
+        tif.SetField(TiffTag.PHOTOMETRIC, Photometric.RGB);
+
+        tif.SetField(TiffTag.SAMPLESPERPIXEL, 3);
         tif.SetField(TiffTag.BITSPERSAMPLE, 16);
 
         tif.SetField(TiffTag.ORIENTATION, Orientation.TOPLEFT);
@@ -46,7 +49,6 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
 
         tif.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
         tif.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
-        tif.SetField(TiffTag.COMPRESSION, Compression.NONE);
         tif.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
 
         var rowIndex = 0;
@@ -54,7 +56,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         {
             var buffer = new byte[row.Count * sizeof(short)];
             Buffer.BlockCopy(row.ToArray(), 0, buffer, 0, buffer.Length);
-            
+
             tif.WriteScanline(buffer, rowIndex);
             rowIndex++;
         }
@@ -88,7 +90,16 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         var unifiedValues = values
             .Select(a => a.Select(x => (short)((x - minValue) / (maxValue - minValue) * short.MaxValue)).ToList())
             .ToList();
-        
-        return unifiedValues;
+
+        return PaintRaster(unifiedValues);
+    }
+
+    private List<List<short>> PaintRaster(List<List<short>> raster)
+    {
+        var colored = raster
+            .Select(x => x.SelectMany(v => new List<short> { short.MaxValue / 2, v, short.MaxValue / 2 }).ToList())
+            .ToList();
+
+        return colored;
     }
 }
