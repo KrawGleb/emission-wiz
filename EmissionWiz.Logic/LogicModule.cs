@@ -1,8 +1,10 @@
 ﻿using Autofac;
+using EmissionWiz.Logic.Builders;
 using EmissionWiz.Logic.Managers;
 using EmissionWiz.Logic.Providers;
 using EmissionWiz.Models;
 using EmissionWiz.Models.Attributes;
+using EmissionWiz.Models.Interfaces.Builders;
 using EmissionWiz.Models.Interfaces.Providers;
 
 namespace EmissionWiz.Logic
@@ -13,6 +15,7 @@ namespace EmissionWiz.Logic
         {
             builder.RegisterType<CurrentTimeProvider>().As<ICurrentTimeProvider>().SingleInstance();
             builder.RegisterType<DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
+            builder.RegisterType<MapImageBuilder>().As<IMapImageBuilder>().InstancePerLifetimeScope();
 
             var logicAssembly = typeof(LogicModule).Assembly;
             var modelAssembly = typeof(Constants).Assembly;

@@ -17,6 +17,7 @@ using SixLabors.ImageSharp.PixelFormats;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Xml.Linq;
+using EmissionWiz.Models.Interfaces.Builders;
 using Typography.TextBreak;
 
 namespace EmissionWiz.Logic.Managers;
@@ -218,7 +219,7 @@ public class ReportManager : BaseManager, IReportManager
 
         var latex = element.Value.Trim();
         var commentValue = element.Attribute("comment")?.Value;
-        var comment = commentValue?.ToString()
+        var comment = commentValue?
                     .Replace("&lt;", "<")
                     .Replace("&gt;", ">");
 
@@ -264,7 +265,7 @@ public class ReportManager : BaseManager, IReportManager
     private async Task RenderMap(XElement element, Section pdf, ReportModelBase model)
     {
         using var scope = _serviceScopeFactory.CreateScope();
-        var mapManager = scope.ServiceProvider.GetService<IMapManager>()
+        var mapManager = scope.ServiceProvider.GetService<IMapImageBuilder>()
             ?? throw new AppException("Failed to resolve IMapManager for ReportManager");
 
         var keys = element.Attribute("keys")?.Value.Split(',').ToList() ?? [];
@@ -278,10 +279,8 @@ public class ReportManager : BaseManager, IReportManager
         pdf.AddImage(ImageSource.FromStream(Guid.NewGuid().ToString(), () => image, 100));
         pdf.AddParagraph();
 
-        var defaultFont = new Font();
         foreach (var item in legend)
         {
-
             var paragraph = pdf.AddParagraph($"{Constants.SpecialChars.Square} {item.Key}");
             paragraph.Format.Font.Color = Color.FromRgbColor(255, Color.Parse(item.Value.Replace("#", "0x")));
         }

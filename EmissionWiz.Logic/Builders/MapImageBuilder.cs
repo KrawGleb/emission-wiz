@@ -23,7 +23,7 @@ internal class MapImageBuilder : IMapImageBuilder
         IHttpClientFactory httpClientFactory)
     {
         _geoApiConfiguration = geoApiConfiguration.Value;
-        _geoApiClient = httpClientFactory.CreateClient(Constants.HttpClientName.GeoApi);
+        _geoApiClient = httpClientFactory.CreateClient(Constants.HttpClientName.GeoApify);
     }
 
     public async Task<(Stream?, Dictionary<string, string>)> PrintAsync()
@@ -56,7 +56,6 @@ internal class MapImageBuilder : IMapImageBuilder
         string uri = uriBuilder.ToString();
 
         var response = await _geoApiClient.GetAsync(uri);
-
 
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadAsStreamAsync(), legend);

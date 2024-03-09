@@ -1,7 +1,9 @@
 ﻿using BitMiracle.LibTiff.Classic;
-using CoordinateSharp;
 using EmissionWiz.Models.Dto;
 using EmissionWiz.Models.Interfaces.Managers;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace EmissionWiz.Logic.Managers;
 
@@ -14,22 +16,39 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         _mapManager = mapManager;
     }
 
-    public void GenerateGeoTiff(GeoTiffOptions options)
+    public async Task GenerateGeoTiffAsync(GeoTiffOptions options)
     {
-        // 1. Get real map image
-        // 2. Build tiff image
+        // 1. Build tiff image
+        var tif = BuildTiff(options);
+
+        // 2. Get real map image
+        var tile = await _mapManager.GetTileAsync(new MapTileOptions()
+        {
+            Distance = options.Distance,
+            Center = options.Center,
+            Height = tif.Height,
+            Width = tif.Width,
+        });
+
+        tile.Seek(0, SeekOrigin.Begin);
+
         // 3. Combine 1st and 2nd
+        using var tifImage = await Image.LoadAsync(File.OpenRead(tif.TempFileName));
+        
+        using var tileImage = await Image.LoadAsync(tile);
+        using var resizedTileImage = tileImage.Clone(x => x.Resize(tif.Width, tif.Height));
 
-        BuildTiff(options);
-
+        using var output = tifImage.Clone(x => x.DrawImage(resizedTileImage, PixelColorBlendingMode.Overlay, PixelAlphaCompositionMode.SrcAtop, 0.25f));
+        await output.SaveAsync($"res_{Guid.NewGuid()}.jpg");
     }
 
-    public void BuildTiff(GeoTiffOptions options)
+    public TiffResult BuildTiff(GeoTiffOptions options)
     {
         var raster = BuildRaster(options);
         var size = raster.Count;
 
-        using var tif = Tiff.Open($"{Guid.NewGuid()}_test.tif", "w");
+        var tempFile = Path.GetTempFileName();
+        using var tif = Tiff.Open(tempFile, "w");
 
         tif.SetField(TiffTag.IMAGEWIDTH, size);
         tif.SetField(TiffTag.IMAGELENGTH, size);
@@ -64,6 +83,14 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         }
 
         tif.WriteDirectory();
+
+        return new TiffResult
+        {
+            Height = size,
+            Width = size,
+            Image = tif.GetStream(),
+            TempFileName = tempFile
+        };
     }
 
     private List<List<short>> BuildRaster(GeoTiffOptions options)
@@ -103,7 +130,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         var colored = raster
             .Select(x => x.SelectMany(v =>
             {
-                var defaultValue = new List<short> { halfOfShort, v, halfOfShort };
+                var defaultValue = new List<short> { v, v, v };
                 if (highlightValue == null)
                 {
                     return defaultValue;

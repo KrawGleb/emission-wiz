@@ -1,10 +1,8 @@
-﻿using EmissionWiz.Models.Map.Shapes;
+﻿using EmissionWiz.Models.Dto;
 
 namespace EmissionWiz.Models.Interfaces.Managers;
 
 public interface IMapManager : IBaseManager
 {
-    void AddMarker(Marker marker);
-    void DrawShape(Shape shape);
-    Task<(Stream?, Dictionary<string, string>)> PrintAsync();
+    Task<Stream> GetTileAsync(MapTileOptions options);
 }

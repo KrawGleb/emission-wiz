@@ -35,7 +35,7 @@ builder.Services.AddDbContextPool<EmissionWizDbContext>(opt =>
 
 builder.Services.AddHttpClient();
 builder.Services.Configure<GeoApiConfiguration>(config => builder.Configuration.GetSection("GeoApi").Bind(config));
-builder.Services.AddHttpClient(Constants.HttpClientName.GeoApi, (serviceProvider, httpClient) =>
+builder.Services.AddHttpClient(Constants.HttpClientName.GeoApify, (serviceProvider, httpClient) =>
 {
     var geoApiConfig = serviceProvider.GetRequiredService<IOptions<GeoApiConfiguration>>().Value;
     httpClient.BaseAddress = new Uri(geoApiConfig.BaseUrl);

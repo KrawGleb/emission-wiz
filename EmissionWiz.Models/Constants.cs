@@ -15,11 +15,6 @@ public static class Constants
         }
     }
 
-    public static class Templates
-    {
-        public const int StandartPrecision = 3;
-    }
-
     public class SpecialChars
     {
         public class Lower
@@ -54,12 +49,12 @@ public static class Constants
 
     public static class HttpClientName
     {
-        public const string GeoApi = nameof(GeoApi);
+        public const string GeoApify = nameof(GeoApify);
     }
 
-    public static class Math
+    public static class GeoApi
     {
-        public const double EarthRadius = 6_371 * 1_000;
+        public const int MaxHeightAndWidth = 4096;
     }
 }
 

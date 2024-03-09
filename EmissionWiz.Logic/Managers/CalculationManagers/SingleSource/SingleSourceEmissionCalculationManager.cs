@@ -68,7 +68,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         //var c = CalculateC(calculationData, results);
         //_reportModelBuilder.SetCValues(c);
 
-        _geoTiffManager.GenerateGeoTiff( new GeoTiffOptions()
+        await _geoTiffManager.GenerateGeoTiffAsync( new GeoTiffOptions()
         {
             StartDistance = 0,
             Distance = 2 * results.Xm,
