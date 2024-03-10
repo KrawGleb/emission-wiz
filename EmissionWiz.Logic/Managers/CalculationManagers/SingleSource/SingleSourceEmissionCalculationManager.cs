@@ -76,8 +76,8 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             GetValueFunc = GetCalculateCFunc(calculationData, results),
             MeterInPixel = 1,
             Center = new Coordinate(calculationData.Lat, calculationData.Lon),
-            HighlightValue = 24906,
-            AcceptableError = 15
+            HighlightValue = 0.05,
+            AcceptableError = 0.009
         });
 
         var reportModel = _reportModelBuilder.Build();

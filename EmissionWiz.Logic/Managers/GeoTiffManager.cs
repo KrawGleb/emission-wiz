@@ -95,21 +95,25 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
 
     private List<List<short>> BuildRaster(GeoTiffOptions options)
     {
-        var values = new List<List<double>>();
+        var values = new List<List<GeoTiffCellInfo>>();
 
         var maxValue = double.MinValue;
         var minValue = double.MaxValue;
 
         for (var row = options.Distance; row >= -options.Distance; row -= options.Step)
         {
-            var rowValues = new List<double>();
+            var rowValues = new List<GeoTiffCellInfo>();
             values.Add(rowValues);
 
             for (var col = options.Distance; col >= -options.Distance; col -= options.Step)
             {
                 var distance = Math.Sqrt(Math.Pow(row, 2) + Math.Pow(col, 2));
                 var value = options.GetValueFunc!(distance);
-                rowValues.Add(value);
+                rowValues.Add(new GeoTiffCellInfo()
+                {
+                    Value = value,
+                    IsHighlighted = ShouldHighlightValue(value, options.HighlightValue, options.AcceptableError)
+                });
 
                 maxValue = double.Max(maxValue, value);
                 minValue = double.Min(minValue, value);
@@ -117,36 +121,31 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         }
 
         var unifiedValues = values
-            .Select(a => a.Select(x => (short)((x - minValue) / (maxValue - minValue) * short.MaxValue)).ToList())
+            .Select(a => a.Select(x => new GeoTiffUnifiedCellInfo()
+            {
+                Value = (short)((x.Value - minValue) / (maxValue - minValue) * short.MaxValue),
+                IsHighlighted = x.IsHighlighted
+            }).ToList())
             .ToList();
 
-        return PaintRaster(unifiedValues, options.HighlightValue, options.AcceptableError);
+        return PaintRaster(unifiedValues);
     }
 
-    private List<List<short>> PaintRaster(List<List<short>> raster, double? highlightValue, double? acceptableError)
+    private List<List<short>> PaintRaster(List<List<GeoTiffUnifiedCellInfo>> raster)
     {
-        short halfOfShort = short.MaxValue / 2;
-
         var colored = raster
-            .Select(x => x.SelectMany(v =>
-            {
-                var defaultValue = new List<short> { v, v, v };
-                if (highlightValue == null)
-                {
-                    return defaultValue;
-                }
-
-                return ShouldHighlightValue(v, highlightValue.Value, acceptableError)
-                    ? [0, 0, 0]
-                    : defaultValue;
-            }).ToList())
+            .Select(x => x.SelectMany(v => v.IsHighlighted
+                ? [short.MaxValue / 2, 0, 0]
+                : new List<short> { v.Value, v.Value, v.Value }).ToList())
             .ToList();
 
         return colored;
     }
 
-    private bool ShouldHighlightValue(double value, double highlightValue, double? acceptableError)
+    private bool ShouldHighlightValue(double value, double? highlightValue, double? acceptableError)
     {
+        if (highlightValue == null) return false;
+
         acceptableError ??= 0;
         return value >= highlightValue - acceptableError && value <= highlightValue + acceptableError;
     }
