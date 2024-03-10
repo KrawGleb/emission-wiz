@@ -401,3 +401,5 @@ FodyWeavers.xsd
 *.tiff
 *.geotif
 *.geotiff
+
+EmissionWiz.API/*.jpg

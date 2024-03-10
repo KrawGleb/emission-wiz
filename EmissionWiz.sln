@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.Logic", "Emissi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.Models", "EmissionWiz.Models\EmissionWiz.Models.csproj", "{467569AD-2F53-42F2-8737-8DE12F04D7EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmissionWiz.DataProvider", "EmissionWiz.DataProvider\EmissionWiz.DataProvider.csproj", "{8A20C12B-7FFA-4239-B196-986674AB6A49}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmissionWiz.DataProvider", "EmissionWiz.DataProvider\EmissionWiz.DataProvider.csproj", "{8A20C12B-7FFA-4239-B196-986674AB6A49}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
