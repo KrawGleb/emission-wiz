@@ -14,6 +14,22 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
     public GeoTiffManager(IMapManager mapManager)
     {
         _mapManager = mapManager;
+
+        Tiff.SetTagExtender(TagExtender);
+    }
+
+    public const TiffTag ProjCenterLongGeoKey = (TiffTag)3088;
+    public const TiffTag ProjCenterLatGeoKey = (TiffTag)3089;
+
+    public static void TagExtender(Tiff tif)
+    {
+        TiffFieldInfo[] tiffFieldInfo = [
+             new TiffFieldInfo(ProjCenterLatGeoKey, 2, 2, TiffType.DOUBLE,
+                    FieldBit.Custom, true, true, "ProjCenterLatGeoKey"),
+            new TiffFieldInfo(ProjCenterLongGeoKey, 2, 2, TiffType.DOUBLE,
+                    FieldBit.Custom, true, true, "ProjCenterLongGeoKey")];
+
+        tif.MergeFieldInfo(tiffFieldInfo, tiffFieldInfo.Length);
     }
 
     public async Task GenerateGeoTiffAsync(GeoTiffOptions options)
@@ -34,12 +50,14 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
 
         // 3. Combine 1st and 2nd
         using var tifImage = await Image.LoadAsync(File.OpenRead(tif.TempFileName));
-        
+
         using var tileImage = await Image.LoadAsync(tile);
         using var resizedTileImage = tileImage.Clone(x => x.Resize(tif.Width, tif.Height));
 
+        var filePath = $"res_{Guid.NewGuid()}.tif";
+
         using var output = tifImage.Clone(x => x.DrawImage(resizedTileImage, PixelColorBlendingMode.Overlay, PixelAlphaCompositionMode.SrcAtop, 0.25f));
-        await output.SaveAsync($"res_{Guid.NewGuid()}.jpg");
+        await output.SaveAsTiffAsync(filePath);
     }
 
     public TiffResult BuildTiff(GeoTiffOptions options)
@@ -48,7 +66,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         var size = raster.Count;
 
         var tempFile = Path.GetTempFileName();
-        using var tif = Tiff.Open(tempFile, "w");
+        using var tif = Tiff.Open(tempFile, "w8");
 
         tif.SetField(TiffTag.IMAGEWIDTH, size);
         tif.SetField(TiffTag.IMAGELENGTH, size);
@@ -71,6 +89,10 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         tif.SetField(TiffTag.FILLORDER, FillOrder.MSB2LSB);
 
         tif.SetField(TiffTag.EXTRASAMPLES, 1, new[] { (short)ExtraSample.UNASSALPHA });
+
+        // Geo data
+        tif.SetField(ProjCenterLatGeoKey, 1, new double[] { options.Center.Latitude.DecimalDegree });
+        tif.SetField(ProjCenterLongGeoKey, 1, new double[] { options.Center.Longitude.DecimalDegree });
 
         var rowIndex = 0;
         foreach (var row in raster)
