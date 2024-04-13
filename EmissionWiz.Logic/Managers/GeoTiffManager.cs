@@ -1,4 +1,5 @@
 ﻿using BitMiracle.LibTiff.Classic;
+using CoordinateSharp;
 using EmissionWiz.Models.Dto;
 using EmissionWiz.Models.Interfaces.Managers;
 using SixLabors.ImageSharp;
@@ -24,10 +25,11 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
     public static void TagExtender(Tiff tif)
     {
         TiffFieldInfo[] tiffFieldInfo = [
-             new TiffFieldInfo(ProjCenterLatGeoKey, 2, 2, TiffType.DOUBLE,
-                    FieldBit.Custom, true, true, "ProjCenterLatGeoKey"),
-            new TiffFieldInfo(ProjCenterLongGeoKey, 2, 2, TiffType.DOUBLE,
-                    FieldBit.Custom, true, true, "ProjCenterLongGeoKey")];
+            new TiffFieldInfo(TiffTag.GEOTIFF_MODELTIEPOINTTAG, 6, 6, TiffType.DOUBLE, 
+                    FieldBit.Custom, false, true, "MODELTILEPOINTTAG"),
+            new TiffFieldInfo(TiffTag.GEOTIFF_MODELPIXELSCALETAG, 3, 3, TiffType.DOUBLE, 
+                    FieldBit.Custom, false, true, "MODELPIXELSCALETAG")
+            ];
 
         tif.MergeFieldInfo(tiffFieldInfo, tiffFieldInfo.Length);
     }
@@ -81,8 +83,8 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
 
         tif.SetField(TiffTag.ROWSPERSTRIP, size);
 
-        tif.SetField(TiffTag.XRESOLUTION, 88.0);
-        tif.SetField(TiffTag.YRESOLUTION, 88.0);
+        tif.SetField(TiffTag.XRESOLUTION, 80.0);
+        tif.SetField(TiffTag.YRESOLUTION, 80.0);
 
         tif.SetField(TiffTag.RESOLUTIONUNIT, ResUnit.CENTIMETER);
         tif.SetField(TiffTag.PLANARCONFIG, PlanarConfig.CONTIG);
@@ -91,8 +93,18 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         tif.SetField(TiffTag.EXTRASAMPLES, 1, new[] { (short)ExtraSample.UNASSALPHA });
 
         // Geo data
-        tif.SetField(ProjCenterLatGeoKey, 1, new double[] { options.Center.Latitude.DecimalDegree });
-        tif.SetField(ProjCenterLongGeoKey, 1, new double[] { options.Center.Longitude.DecimalDegree });
+        var topLeftCorner = new Coordinate(options.Center.Latitude.DecimalDegree, options.Center.Longitude.DecimalDegree);
+        topLeftCorner.Move(options.Distance, 0, Shape.Sphere);
+        topLeftCorner.Move(options.Distance, -90, Shape.Sphere);
+
+        var scale = new double[] { 1, 1, 0 };
+        tif.SetField(TiffTag.GEOTIFF_MODELPIXELSCALETAG, 3, (object)scale);
+
+        var point = new double[] {
+            0, 0, 0,
+            topLeftCorner.UTM.Easting, topLeftCorner.UTM.Northing, 0,
+        };
+        tif.SetField(TiffTag.GEOTIFF_MODELTIEPOINTTAG, 6, (object)point);
 
         var rowIndex = 0;
         foreach (var row in raster)

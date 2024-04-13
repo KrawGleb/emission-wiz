@@ -28,11 +28,13 @@ internal class MapManager : BaseManager, IMapManager
     {
         var upperLeftCorner =
             new Coordinate(options.Center.Latitude.DecimalDegree, options.Center.Longitude.DecimalDegree);
-        upperLeftCorner.Move(options.Distance, -45, Shape.Sphere);
+        upperLeftCorner.Move(options.Distance, 0, Shape.Ellipsoid);
+        upperLeftCorner.Move(options.Distance, -90, Shape.Ellipsoid);
 
         var lowerRightCorner =
             new Coordinate(options.Center.Latitude.DecimalDegree, options.Center.Longitude.DecimalDegree);
-        lowerRightCorner.Move(options.Distance, 135, Shape.Sphere);
+        lowerRightCorner.Move(options.Distance, 90, Shape.Ellipsoid);
+        lowerRightCorner.Move(options.Distance, 180, Shape.Ellipsoid);
 
         var area =
             $"rect:{upperLeftCorner.Longitude.DecimalDegree},{upperLeftCorner.Latitude.DecimalDegree},{lowerRightCorner.Longitude.DecimalDegree},{lowerRightCorner.Latitude.DecimalDegree}";
