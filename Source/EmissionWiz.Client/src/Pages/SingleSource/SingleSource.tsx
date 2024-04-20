@@ -4,6 +4,7 @@ import { observer } from "mobx-react";
 import { MathComponent } from "mathjax-react";
 import { ICellRendererParams } from 'ag-grid-community';
 import { Button, Collapse, CollapseProps, Divider, Switch, Tooltip, TooltipProps } from 'antd';
+import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined } from "@ant-design/icons";
 
 import { BaseFormModel } from "../../Models/BaseFromModel";
 import { Report } from "../../Components/Report";
@@ -14,10 +15,10 @@ import { FormInput } from "../../Components/FormControls";
 import { collections, displayName, isNumber, isRequired } from "../../Services/Validation";
 import { downloadService } from "../../Services/DownloadService";
 import PdfViewer from "../../Components/PdfViewer";
-import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined } from "@ant-design/icons";
 import MapContainer, { UniqueMarker } from "../../Components/MapContainer";
 import DataGrid from "../../Components/DataGrid/DataGrid";
 import { DataGridColumn } from "../../Components/DataGrid/DataGridColumn";
+import WindRose from "../../Components/WindRose";
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -337,6 +338,9 @@ export default class SingleSource extends React.Component {
                                         placement: 'topLeft'
                                     } as TooltipProps} />
                             </>}
+                        </div>
+                        <div>
+                            <WindRose />
                         </div>
                         <div>
                             <DataGrid<SingleSourceEmissionSubstance>

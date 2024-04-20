@@ -7,6 +7,12 @@ using EmissionWiz.Models.Database;
 using EmissionWiz.Models.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Globalization;
+
+var cultureInfo = new CultureInfo("en-US");
+
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 
