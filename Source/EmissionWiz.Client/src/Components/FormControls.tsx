@@ -12,7 +12,7 @@ export interface IFormInputProps<T extends BaseFormModel> extends Omit<InputProp
     invalid?: boolean;
     smallValidationError?: boolean;
     placeholder?: string;
-    changeHandler?: Function;
+    changeHandler?: (value: React.ChangeEvent<HTMLInputElement>) => void;
     transformValueHandler?: (val: string) => string;
     style?: React.CSSProperties;
     className?: string;
@@ -21,7 +21,7 @@ export interface IFormInputProps<T extends BaseFormModel> extends Omit<InputProp
 
 
 @observer
-export class FormInput<T extends BaseFormModel> extends React.Component<IFormInputProps<T>, {}> {
+export class FormInput<T extends BaseFormModel> extends React.Component<IFormInputProps<T>> {
     @observable
     private accessor _wasChanged: boolean = false;
 
