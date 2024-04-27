@@ -13,7 +13,7 @@ public class GeoTiffOptions
     /// Input: Distance
     /// Output: Value
     /// </summary>
-    public Func<double, double>? GetValueFunc { get; set; }
+    public Func<double, double, double>? GetValueFunc { get; set; }
 
     public double StartDistance { get; set; } = double.MaxValue;
     public double Distance { get; set; } = double.MinValue;

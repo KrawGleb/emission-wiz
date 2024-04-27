@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { observable, action, computed } from 'mobx';
 
 type IBaseFormModelInternal = {

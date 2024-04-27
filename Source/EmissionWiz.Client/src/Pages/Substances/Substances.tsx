@@ -16,7 +16,6 @@ export default class Substances extends React.Component {
 
   constructor(props: object) {
     super(props);
-
     void this._loadSubstances();
   }
 
@@ -24,9 +23,12 @@ export default class Substances extends React.Component {
     return (
       <Report title="Вещества">
         <DataGrid<SubstanceDto>
-          height="100%"
+          height={"80vh"}
           ref={this._gridRef}
           rowData={this._substances}
+          autoSizeStrategy={{
+            type: "fitCellContents",
+          }}
           columns={[
             {
               field: "code",
@@ -35,6 +37,7 @@ export default class Substances extends React.Component {
             {
               field: "name",
               headerName: "Наименование",
+              filter: "agTextColumnFilter",
             },
             {
               field: "chemicalFormula",

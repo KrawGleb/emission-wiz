@@ -1,3 +1,5 @@
+import { WindDirection } from "../Components/WindRose";
+
 export class BaseApiModelClass<T> {
   constructor(data?: T) {
     if (data)
@@ -65,6 +67,7 @@ export interface ISingleSourceInputModel {
   lat?: number;
   lon?: number;
   substances?: ISingleSourceEmissionSubstance[];
+  windRose: WindDirection[]
 }
 export class SingleSourceInputModel
   extends BaseApiModelClass<ISingleSourceInputModel>
@@ -86,6 +89,7 @@ export class SingleSourceInputModel
   b?: number;
   l?: number;
   substances?: SingleSourceEmissionSubstance[];
+  windRose: WindDirection[]
 }
 
 export interface ISubstanceDto {
@@ -109,4 +113,16 @@ export class SubstanceDto
   singleMaximumAllowableConcentration?: number;
   dailyAverageMaximumAllowableConcentration?: number;
   annualAverageMaximumAllowableConcentration?: number;
+}
+
+export interface ISplineData {
+  xs: number[];
+  ys: number[];
+  count: number;
+}
+
+export class SplineData extends BaseApiModelClass<ISplineData> implements ISplineData {
+  xs: number[];
+  ys: number[];
+  count: number;
 }

@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using Autofac;
 using CoordinateSharp;
-using CSharpMath.Structures;
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Database;
 using EmissionWiz.Models.Dto;
@@ -21,6 +21,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
     private readonly IReportManager _reportManager;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IGeoTiffManager _geoTiffManager;
+    private readonly IMathManager _mathManager;
 
     public SingleSourceEmissionCalculationManager(
         ISingleSourceEmissionReportModelBuilder reportModelBuilder,
@@ -28,7 +29,8 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         ICalculationResultRepository calculationResultRepository,
         IReportManager reportManager,
         IDateTimeProvider dateTimeProvider,
-        IGeoTiffManager geoTiffManager)
+        IGeoTiffManager geoTiffManager,
+        IMathManager mathManager)
     {
         _reportModelBuilder = reportModelBuilder;
         _reportRepository = reportRepository;
@@ -36,6 +38,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         _reportManager = reportManager;
         _dateTimeProvider = dateTimeProvider;
         _geoTiffManager = geoTiffManager;
+        _mathManager = mathManager;
     }
 
     public async Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceCalculationData calculationData)
@@ -54,7 +57,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             Um = CalculateUm(calculationData, sourceProperties)
         };
 
-        var r = GetRCoef(calculationData, results);
+        var r = GetRCoef(calculationData.U, results.Um);
         var p = GetPCoef(calculationData, results);
 
         sourceProperties.RCoef = r;
@@ -68,7 +71,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         //var c = CalculateC(calculationData, results);
         //_reportModelBuilder.SetCValues(c);
 
-        await _geoTiffManager.GenerateGeoTiffAsync( new GeoTiffOptions()
+        await _geoTiffManager.GenerateGeoTiffAsync(new GeoTiffOptions()
         {
             StartDistance = 0,
             Distance = 2 * results.Xm,
@@ -108,7 +111,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         };
 
         // Reuse ms
-        ms.Position = 0; 
+        ms.Position = 0;
         ms.SetLength(0);
 
         //await _reportManager.FromTemplate(ms, cApplicationPath, reportModel);
@@ -156,18 +159,16 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return cm;
     }
 
+    public double GetTyCoef(double u, double x, double y)
+    {
+        u = u <= 5 ? u : 5;
+        var ty = u * Math.Pow(y, 2.0d) / Math.Pow(x, 2.0d);
+        return ty;
+    }
+
     public double CalculateCy(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
     {
-        double ty;
-        if (model.U <= 5)
-        {
-            ty = model.U * Math.Pow(model.Y, 2.0d) / Math.Pow(model.X, 2.0d);
-        }
-        else
-        {
-            ty = 5 * Math.Pow(model.Y, 2.0d) / Math.Pow(model.X, 2.0d);
-        }
-
+        var ty = GetTyCoef(model.U, model.X, model.Y);
         var s2 = GetS2Coef(ty);
         var cy = s2 * intermediateResults.C;
 
@@ -267,25 +268,24 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return results;
     }
 
-    private Func<double, double> GetCalculateCFunc(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
+    private Func<double, double, double> GetCalculateCFunc(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
     {
-        return distance =>
+        var xs = model.WindRose.Select(x => x.Degree).ToList();
+        var xsCont = xs.Concat(xs.Select(x => x + 360)).ToArray();
+
+        var ys = model.WindRose.Select(x => x.Speed).ToList();
+        var ysCont = ys.Concat(ys).ToArray();
+
+        var splinedWindSpeed = _mathManager.Spline(xsCont, ysCont, 360);
+
+        return (distance, degree) =>
         {
-            var s1 = GetS1Coef(distance, intermediateResults.Xm, model.FCoef);
-
-            double result;
-            if (model.H < 10 && model.X / intermediateResults.Xm < 1)
-            {
-                var s1h = 0.125 * (10 - model.H) + 0.125 * (model.H - 2) * s1;
-                _reportModelBuilder.SetS1HValue(s1h);
-                result = s1h * intermediateResults.Cm;
-            }
-            else
-            {
-                result = s1 * intermediateResults.Cm;
-            }
-
-            return result;
+            var closestSpeedX = splinedWindSpeed.Xs.Select((x, i) => new { Index = i, Value = x }).OrderBy(x => Math.Abs(x.Value - degree)).First();
+            var closestSpeed = splinedWindSpeed.Ys[closestSpeedX.Index];
+            var rCoef = GetRCoef(closestSpeed, intermediateResults.Um);
+            var s1Coef = GetS1Coef(distance, intermediateResults.Xm, model.FCoef);
+           
+            return intermediateResults.Cm * rCoef * s1Coef;
         };
     }
 
@@ -332,9 +332,9 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    private double GetRCoef(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
+    private double GetRCoef(double u, double um)
     {
-        var ratio = model.U / intermediateResults.Um;
+        var ratio = u / um;
 
         double result;
         if (ratio <= 1)
@@ -346,7 +346,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             result = (3 * ratio) / (2 * Math.Pow(ratio, 2) - ratio + 2);
         }
 
-        _reportModelBuilder.SetRCoefValue(result);
+        // _reportModelBuilder.SetRCoefValue(result);
 
         return result;
     }

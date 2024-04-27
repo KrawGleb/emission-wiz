@@ -47,7 +47,8 @@ namespace EmissionWiz.API.Controllers
                     Y = model.Y,
                     B = model.B,
                     L = model.L,
-                    EmissionName = substance.Name
+                    EmissionName = substance.Name,
+                    WindRose = model.WindRose
                 });
 
                 results.Add(result);

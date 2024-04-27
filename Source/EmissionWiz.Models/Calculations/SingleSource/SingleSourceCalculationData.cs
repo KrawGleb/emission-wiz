@@ -1,4 +1,6 @@
-﻿namespace EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Dto;
+
+namespace EmissionWiz.Models.Calculations.SingleSource;
 
 public class SingleSourceCalculationData
 {
@@ -74,6 +76,11 @@ public class SingleSourceCalculationData
     /// Длина устья
     /// </summary>
     public double? L { get; set; }
+
+    /// <summary>
+    /// Роза ветров
+    /// </summary>
+    public List<WindDirection> WindRose { get; set; } = new();
 
     public double DeltaT => EmissionTemperature - AirTemperature;
 

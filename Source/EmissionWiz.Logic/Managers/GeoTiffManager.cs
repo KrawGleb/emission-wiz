@@ -134,15 +134,30 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         var maxValue = double.MinValue;
         var minValue = double.MaxValue;
 
-        for (var row = options.Distance; row >= -options.Distance; row -= options.Step)
+        for (var row = -options.Distance; row <= options.Distance; row += options.Step)
         {
             var rowValues = new List<GeoTiffCellInfo>();
             values.Add(rowValues);
 
-            for (var col = options.Distance; col >= -options.Distance; col -= options.Step)
+            for (var col = -options.Distance; col <= options.Distance; col += options.Step)
             {
                 var distance = Math.Sqrt(Math.Pow(row, 2) + Math.Pow(col, 2));
-                var value = options.GetValueFunc!(distance);
+                var degree = Math.Atan(Math.Abs(col / row)) * (180 / Math.PI);
+
+                if (col < 0)
+                {
+                    if (row > 0)
+                        degree = 180 + degree;
+                    else
+                        degree = 360 - degree;
+                }
+                else
+                {
+                    if (row > 0)
+                        degree = 180 - degree;
+                }
+              
+                var value = options.GetValueFunc!(distance, degree);
                 rowValues.Add(new GeoTiffCellInfo()
                 {
                     Value = value,
@@ -162,13 +177,13 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
             }).ToList())
             .ToList();
 
-        return PaintRaster(unifiedValues);
+        return PaintRaster(unifiedValues, false);
     }
 
-    private List<List<short>> PaintRaster(List<List<GeoTiffUnifiedCellInfo>> raster)
+    private List<List<short>> PaintRaster(List<List<GeoTiffUnifiedCellInfo>> raster, bool enableHighlighting)
     {
         var colored = raster
-            .Select(x => x.SelectMany(v => v.IsHighlighted
+            .Select(x => x.SelectMany(v => v.IsHighlighted && enableHighlighting
                 ? [short.MaxValue / 2, 0, 0]
                 : new List<short> { v.Value, v.Value, v.Value }).ToList())
             .ToList();

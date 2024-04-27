@@ -1,4 +1,6 @@
-﻿namespace EmissionWiz.Models.Calculations.SingleSource;
+﻿using EmissionWiz.Models.Dto;
+
+namespace EmissionWiz.Models.Calculations.SingleSource;
 
 public class SingleSourceInputModel
 {
@@ -71,6 +73,11 @@ public class SingleSourceInputModel
     /// Ширина устья (только для прямоугольного устья)
     /// </summary>
     public double? B { get; set; }
+
+    /// <summary>
+    /// Роза ветров
+    /// </summary>
+    public List<WindDirection> WindRose { get; set; } = new();
 
     public double Lat { get; set; }
     public double Lon { get; set; }
