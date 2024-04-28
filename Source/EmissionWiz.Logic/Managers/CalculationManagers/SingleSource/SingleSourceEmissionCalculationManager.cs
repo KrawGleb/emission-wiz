@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Autofac;
 using CoordinateSharp;
+using EmissionWiz.Models;
 using EmissionWiz.Models.Calculations.SingleSource;
 using EmissionWiz.Models.Database;
 using EmissionWiz.Models.Dto;
@@ -16,29 +16,26 @@ namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource;
 public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSourceEmissionCalculationManager
 {
     private readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
-    private readonly IReportRepository _reportRepository;
-    private readonly ICalculationResultRepository _calculationResultRepository;
     private readonly IReportManager _reportManager;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IGeoTiffManager _geoTiffManager;
     private readonly IMathManager _mathManager;
+    private readonly ITempFileRepository _tempFileRepository;
 
     public SingleSourceEmissionCalculationManager(
         ISingleSourceEmissionReportModelBuilder reportModelBuilder,
-        IReportRepository reportRepository,
-        ICalculationResultRepository calculationResultRepository,
         IReportManager reportManager,
         IDateTimeProvider dateTimeProvider,
         IGeoTiffManager geoTiffManager,
-        IMathManager mathManager)
+        IMathManager mathManager,
+        ITempFileRepository tempFileRepository)
     {
         _reportModelBuilder = reportModelBuilder;
-        _reportRepository = reportRepository;
-        _calculationResultRepository = calculationResultRepository;
         _reportManager = reportManager;
         _dateTimeProvider = dateTimeProvider;
         _geoTiffManager = geoTiffManager;
         _mathManager = mathManager;
+        _tempFileRepository = tempFileRepository;
     }
 
     public async Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceCalculationData calculationData)
@@ -68,10 +65,10 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         results.Cy = CalculateCy(calculationData, results);
 
         // TODO: Review all calculations - set result values right here
-        //var c = CalculateC(calculationData, results);
-        //_reportModelBuilder.SetCValues(c);
 
-        await _geoTiffManager.GenerateGeoTiffAsync(new GeoTiffOptions()
+        var sharedLabel = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}";
+
+        var geoTiffId = await _geoTiffManager.GenerateGeoTiffAsync(new GeoTiffOptions()
         {
             StartDistance = 0,
             Distance = 2 * results.Xm,
@@ -79,61 +76,37 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             GetValueFunc = GetCalculateCFunc(calculationData, results),
             MeterInPixel = 1,
             Center = new Coordinate(calculationData.Lat, calculationData.Lon),
-            HighlightValue = 0.05,
-            AcceptableError = 0.009
+
+            HighlightValue = calculationData.ResultsConfig.HighlightValue == null ? null : calculationData.ResultsConfig.HighlightValue * results.Cm,
+            AcceptableError = calculationData.ResultsConfig.AcceptableError == null ? null : calculationData.ResultsConfig.AcceptableError * results.Cm,
+            PrintMap = calculationData.ResultsConfig.PrintMap,
+
+            OutputFileLabel = sharedLabel,
+            OutputFileName = sharedLabel + ".tif",
         });
+        results.GeoTiffId = geoTiffId;
 
         var reportModel = _reportModelBuilder.Build();
-        var calculationResult = new CalculationResult()
-        {
-            Id = Guid.NewGuid(),
-            Results = JsonSerializer.Serialize(results),
-            Timestamp = _dateTimeProvider.NowUtc
-        };
 
         var basePath = Path.GetDirectoryName(typeof(SingleSourceReportModel).Assembly.Location);
         var mainPath = basePath + @"\ReportTemplates\SingleSource\main.xml";
-        var cApplicationPath = basePath + @"\ReportTemplates\SingleSource\c_application.xml";
 
         using var ms = new MemoryStream();
         await _reportManager.FromTemplate(ms, mainPath, reportModel);
         var fileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}.pdf";
 
-        var report = new Report()
+        var tempFile = new TempFile
         {
             Id = Guid.NewGuid(),
-            OperationId = calculationResult.Id,
-            ContentType = "application/pdf",
-            FileName = fileName,
-            Label = "SingleSource",
+            Label = sharedLabel,
+            Data = ms.ToArray(),
             Timestamp = _dateTimeProvider.NowUtc,
-            Data = ms.ToArray()
+            ContentType = Constants.ContentType.Pdf,
+            FileName = sharedLabel + ".pdf",
         };
 
-        // Reuse ms
-        ms.Position = 0;
-        ms.SetLength(0);
-
-        //await _reportManager.FromTemplate(ms, cApplicationPath, reportModel);
-        //var applicationFileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}_application.pdf";
-
-        //var application = new Report()
-        //{
-        //    Id = Guid.NewGuid(),
-        //    OperationId = calculationResult.Id,
-        //    ContentType = "application/pdf",
-        //    FileName = applicationFileName,
-        //    Label = "SingleSource",
-        //    Timestamp = _dateTimeProvider.NowUtc,
-        //    Data = ms.ToArray()
-        //};
-
-        _calculationResultRepository.Add(calculationResult);
-        _reportRepository.Add(report);
-        //_reportRepository.Add(application);
-
-        results.ReportId = report.Id;
-        //results.ApplicationIds.Add(application.Id);
+        _tempFileRepository.Add(tempFile);
+        results.ReportId = tempFile.Id;
 
         return results;
     }
@@ -284,7 +257,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             var closestSpeed = splinedWindSpeed.Ys[closestSpeedX.Index];
             var rCoef = GetRCoef(closestSpeed, intermediateResults.Um);
             var s1Coef = GetS1Coef(distance, intermediateResults.Xm, model.FCoef);
-           
+
             return intermediateResults.Cm * rCoef * s1Coef;
         };
     }

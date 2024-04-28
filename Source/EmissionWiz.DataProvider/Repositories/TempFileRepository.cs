@@ -4,6 +4,6 @@ using EmissionWiz.Models.Interfaces.Repositories;
 
 namespace EmissionWiz.DataProvider.Repositories;
 
-internal class CalculationResultRepository : GenericRepository<CalculationResult>, ICalculationResultRepository
+internal class TempFileRepository : GenericRepository<TempFile>, ITempFileRepository
 {
 }

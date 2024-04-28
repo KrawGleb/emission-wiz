@@ -1,3 +1,5 @@
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { computed } from "mobx";
 
 export class collections {
@@ -82,8 +84,8 @@ export function isNumber(msg?: string) {
         const validation = {
             fieldName: name,
             validateFunction: (obj: any) => {
-                let isValid = !obj[name] || !isNaN(Number(obj[name]));
-                let errorMessage = `Поле "${getDisplayName(obj, name)}" должно быть числом`;
+                const isValid = !obj[name] || !isNaN(Number(obj[name]));
+                const errorMessage = `Поле "${getDisplayName(obj, name)}" должно быть числом`;
                 return isValid ? undefined : msg || errorMessage;
             }
         };

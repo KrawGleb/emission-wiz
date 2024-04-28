@@ -85,4 +85,6 @@ public class SingleSourceInputModel
     public double DeltaT => EmissionTemperature - AirTemperature;
 
     public List<SingleSourceEmissionSubstance> Substances { get; set; } = new();
+
+    public SingleSourceResultsConfig ResultsConfig { get; set; } = new();
 }

@@ -85,4 +85,5 @@ public class SingleSourceCalculationData
     public double DeltaT => EmissionTemperature - AirTemperature;
 
     public string? EmissionName { get; set; }
+    public SingleSourceResultsConfig ResultsConfig { get; set; } = new();
 }

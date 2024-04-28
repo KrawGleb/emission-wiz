@@ -11,9 +11,8 @@ namespace EmissionWiz.Models.Database;
 public interface IDatabaseContext: IAsyncDisposable
 {
     IModel Model { get; }
-    DbSet<CalculationResult> CalculationResults { get; }
-    DbSet<Report> Reports { get; }
     DbSet<Substance> Substances { get; }
+    DbSet<TempFile> TempFiles { get; }
     Task<int> CommitChangesAsync(CancellationToken cancellationToken = default);
     DbSet<TEntity> Set<TEntity>() where TEntity : class;
     EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
@@ -26,9 +25,8 @@ public interface IDatabaseContext: IAsyncDisposable
 }
 public partial class EmissionWizDbContext : DbContext
 {
-    public virtual DbSet<CalculationResult> CalculationResults { get; set; } = null!;
-    public virtual DbSet<Report> Reports { get; set; } = null!;
     public virtual DbSet<Substance> Substances { get; set; } = null!;
+    public virtual DbSet<TempFile> TempFiles { get; set; } = null!;
 
     public IComponentContext ComponentContext { get; }
     public AsyncLock AsyncLock { get; } = new AsyncLock();
@@ -40,23 +38,15 @@ public partial class EmissionWizDbContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<CalculationResult>(entity =>
+        modelBuilder.Entity<Substance>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
+            entity.Property(e => e.Code).ValueGeneratedNever();
         });
-        modelBuilder.Entity<Report>(entity =>
+        modelBuilder.Entity<TempFile>(entity =>
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
             entity.Property(e => e.ContentType).IsUnicode(false);
             entity.Property(e => e.Label).IsUnicode(false);
-            entity.HasOne(d => d.CalculationResult)
-                .WithMany(p => p.Reports)
-                .HasForeignKey(d => d.OperationId)
-                .HasConstraintName("FK_Report_CalculationResult");
-        });
-        modelBuilder.Entity<Substance>(entity =>
-        {
-            entity.Property(e => e.Code).ValueGeneratedNever();
         });
         
                     

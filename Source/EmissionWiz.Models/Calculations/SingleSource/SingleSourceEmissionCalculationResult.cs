@@ -4,7 +4,7 @@ public class SingleSourceEmissionCalculationResult
 {
     public string? Name { get; set; }
     public Guid ReportId { get; set; }
-    public List<Guid> ApplicationIds { get; set; } = new();
+    public Guid GeoTiffId { get; set; }
 
     public double C { get; set; }
     public double Cm { get; set; }

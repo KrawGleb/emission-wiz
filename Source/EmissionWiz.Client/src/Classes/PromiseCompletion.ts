@@ -11,8 +11,8 @@ export enum CompletionType {
 }
 
 export class PromiseCompletion {
-    @observable private _promiseList: PromiseLike<void | {} | unknown>[] = [];
-    @observable private _completedOnce: boolean = false;
+    @observable private accessor _promiseList: PromiseLike<void | object | unknown>[] = [];
+    @observable private accessor _completedOnce: boolean = false;
     private _type: CompletionType;
     private _waiters: (() => void)[] = [];
 
@@ -40,11 +40,11 @@ export class PromiseCompletion {
         return promise;
     }
 
-    public subscribeRange (promises: PromiseLike<void | {}>[]) {
+    public subscribeRange (promises: PromiseLike<void | object>[]) {
         promises.forEach((p) => this.subscribe(p));
     }
 
-    public subscribe (promise: PromiseLike<void | {} | unknown>) {
+    public subscribe (promise: PromiseLike<void | object | unknown>) {
         if (this._promiseList.indexOf(promise) !== -1) {
             throw new Error('Promise is already registered!');
         }
@@ -56,7 +56,7 @@ export class PromiseCompletion {
         );
     }
 
-    private _complete (promise: PromiseLike<void | {} | unknown>) {
+    private _complete (promise: PromiseLike<void | object | unknown>) {
         window.setTimeout(() => {
             const index = this._promiseList.indexOf(promise);
             if (index === -1) throw new Error('Promise is not registered!');

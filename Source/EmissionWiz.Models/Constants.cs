@@ -4,6 +4,12 @@ namespace EmissionWiz.Models;
 
 public static class Constants
 {
+    public static class ContentType
+    {
+        public const string Tiff = "image/tiff";
+        public const string Pdf = "application/pdf";
+    }
+
     public static class Pdf
     {
         public static class CustomStyleNames

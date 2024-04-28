@@ -4,5 +4,5 @@ namespace EmissionWiz.Models.Interfaces.Managers;
 
 public interface IGeoTiffManager : IBaseManager
 {
-    Task GenerateGeoTiffAsync(GeoTiffOptions options);
+    Task<Guid> GenerateGeoTiffAsync(GeoTiffOptions options);
 }

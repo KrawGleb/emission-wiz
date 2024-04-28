@@ -3,14 +3,14 @@ import { action, observable } from 'mobx';
 import { observer } from 'mobx-react';
 import { MathComponent } from 'mathjax-react';
 import { ICellRendererParams } from 'ag-grid-community';
-import { Button, Collapse, CollapseProps, Divider, Switch, Tooltip, TooltipProps } from 'antd';
-import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined } from '@ant-design/icons';
+import { Button, Collapse, CollapseProps, Divider, Row, Switch, Tooltip, TooltipProps } from 'antd';
+import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined, PictureOutlined, SettingOutlined } from '@ant-design/icons';
 
 import { BaseFormModel } from '../../Models/BaseFromModel';
 import { Report } from '../../Components/Report';
 import ApiService from '../../Services/ApiService';
 import { ApiUrls } from '../../AppConstants/ApiUrls';
-import { SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel } from '../../Models/WebApiModels';
+import { SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel, SingleSourceResultsConfig } from '../../Models/WebApiModels';
 import { FormInput } from '../../Components/FormControls';
 import { collections, displayName, isNumber, isRequired } from '../../Services/Validation';
 import { downloadService } from '../../Services/DownloadService';
@@ -19,6 +19,8 @@ import MapContainer, { UniqueMarker } from '../../Components/MapContainer';
 import DataGrid from '../../Components/DataGrid/DataGrid';
 import { DataGridColumn } from '../../Components/DataGrid/DataGridColumn';
 import WindRose, { WindDirection } from '../../Components/WindRose';
+import { ModalButtonType, modalService } from '../../Components/Modal/Modal';
+import { SingleSourceResultsConfigurationDialog, SingleSourceResultsConfigurationDialogProps } from '../../Components/Dialogs/SingleSourceResultsConfigurationDialog';
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -109,6 +111,9 @@ export default class SingleSource extends React.Component {
 
     @observable
     private accessor _reports: Map<string, Blob | null> = new Map<string, Blob | null>();
+
+    @observable
+    private accessor _resultsConfig: SingleSourceResultsConfig | undefined;
 
     private _form: FormModel = new FormModel();
     private _gridRef = React.createRef<DataGrid<SingleSourceEmissionSubstance>>();
@@ -424,9 +429,14 @@ export default class SingleSource extends React.Component {
                             </Button>
                         </div>
                     </div>
-                    {!!this._calculationResults && (
-                        <>
-                            <div style={{ width: '66%' }} className="d-flex flex-column">
+                    <div style={{ width: '66%' }} className="d-flex flex-column">
+                        <Row style={{ gap: '4px', flexDirection: 'row-reverse' }}>
+                            <Button icon={<SettingOutlined />} type="link" onClick={() => this._openResultsConfigurationDialog()}>
+                                Настройка результатов
+                            </Button>
+                        </Row>
+                        {!!this._calculationResults && (
+                            <>
                                 <Divider orientation="left">
                                     <h4>Результаты:</h4>
                                 </Divider>
@@ -434,9 +444,9 @@ export default class SingleSource extends React.Component {
                                     {this._renderSolutions()}
                                     {this._renderResults()}
                                 </div>
-                            </div>
-                        </>
-                    )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </Report>
         );
@@ -447,16 +457,7 @@ export default class SingleSource extends React.Component {
             return {
                 key: `solution_base${index}`,
                 label: `Вычисления (${result.name})`,
-                children: this._renderSolution(result, index),
-                extra:
-                    result.applicationIds && result.applicationIds.length > 0 ? (
-                        <DownloadOutlined
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                this._downloadReport(result.reportId);
-                            }}
-                        />
-                    ) : undefined
+                children: this._renderSolution(result, index)
             };
         });
 
@@ -466,11 +467,25 @@ export default class SingleSource extends React.Component {
     private _renderSolution(result: SingleSourceEmissionCalculationResult, index: number) {
         const pdf = this._reports.get(result.reportId) ?? null;
 
-        if (!result.applicationIds || result.applicationIds.length == 0) {
-            return <PdfViewer key={`pdf${index}`} pdfData={pdf} />;
-        }
-
         const items: CollapseProps['items'] = [];
+
+        items.push({
+            key: `geotiff_${index}`,
+            label: 'GeoTiff',
+            children: (
+                <Row style={{ justifyContent: 'center' }}>
+                    <img src={`/api/tiff?id=${result.geoTiffId}`} />
+                </Row>
+            ),
+            extra: (
+                <PictureOutlined
+                    onClick={(event) => {
+                        event.stopPropagation();
+                        this._downloadFile(result.geoTiffId);
+                    }}
+                />
+            )
+        });
 
         items.push({
             key: `solution_${index}`,
@@ -480,31 +495,11 @@ export default class SingleSource extends React.Component {
                 <DownloadOutlined
                     onClick={(event) => {
                         event.stopPropagation();
-                        this._downloadReport(result.reportId);
+                        this._downloadFile(result.reportId);
                     }}
                 />
             )
         });
-
-        items.push(
-            ...result.applicationIds.map((applicationId, applicationIndex) => {
-                const applicationPdf = this._reports.get(applicationId) ?? null;
-
-                return {
-                    key: `solution_${index}_application_${applicationIndex}`,
-                    label: `Приложение №${applicationIndex + 1}`,
-                    children: <PdfViewer key={`pdf${index}application${applicationIndex}`} pdfData={applicationPdf} />,
-                    extra: (
-                        <DownloadOutlined
-                            onClick={(event) => {
-                                event.stopPropagation();
-                                this._downloadReport(applicationId);
-                            }}
-                        />
-                    )
-                };
-            })
-        );
 
         return <Collapse items={items} />;
     }
@@ -570,6 +565,15 @@ export default class SingleSource extends React.Component {
         );
     }
 
+    private async _openResultsConfigurationDialog() {
+        const resultsConfig = await modalService.show<SingleSourceResultsConfigurationDialogProps, SingleSourceResultsConfig>(SingleSourceResultsConfigurationDialog, {
+            printMap: this._resultsConfig?.printMap,
+            highlightValue: this._resultsConfig?.highlightValue,
+            acceptableError: this._resultsConfig?.acceptableError
+        });
+        if (resultsConfig.button === ModalButtonType.Save) this._resultsConfig = resultsConfig.result ?? undefined;
+    }
+
     @action
     private _fillWithTestData() {
         this._form.a = 200;
@@ -603,8 +607,8 @@ export default class SingleSource extends React.Component {
     }
 
     @action.bound
-    private async _downloadReport(reportId: string) {
-        downloadService.downloadFile(`${ApiUrls.SingleSourceReport}?reportId=${reportId}`);
+    private async _downloadFile(id: string) {
+        downloadService.downloadFile(`${ApiUrls.TempFile}?id=${id}`);
     }
 
     @action
@@ -614,7 +618,7 @@ export default class SingleSource extends React.Component {
     }
 
     private async _loadPdf(reportId: string) {
-        const { data } = await ApiService.getTypedData<Blob>(`${ApiUrls.SingleSourceReport}?reportId=${reportId}`, null, {
+        const { data } = await ApiService.getTypedData<Blob>(`${ApiUrls.TempFile}?id=${reportId}`, null, {
             responseType: 'blob'
         });
 
@@ -650,7 +654,8 @@ export default class SingleSource extends React.Component {
             b: this._form.b,
             l: this._form.l,
             substances: this._form.substances,
-            windRose: this._form.windSpeed
+            windRose: this._form.windSpeed,
+            resultsConfig: this._resultsConfig
         } as SingleSourceInputModel;
     }
 }

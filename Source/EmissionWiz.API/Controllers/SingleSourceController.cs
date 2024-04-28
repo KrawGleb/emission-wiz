@@ -11,18 +11,19 @@ namespace EmissionWiz.API.Controllers
 {
     public class SingleSourceController : BaseApiController
     {
-        private readonly IReportRepository _reportRepository;
+        private readonly ITempFileRepository _tempFileRepository;
 
-        public SingleSourceController(IReportRepository reportRepository)
+        public SingleSourceController(
+            ITempFileRepository tempFileRepository)
         {
-            _reportRepository = reportRepository;
+            _tempFileRepository = tempFileRepository;
         }
 
         [HttpPost]
         public async Task<IActionResult> Calculate([FromBody] SingleSourceInputModel model)
         {
             var results = new List<SingleSourceEmissionCalculationResult>();
-            
+
             foreach (var substance in model.Substances)
             {
                 CancellationToken.ThrowIfCancellationRequested();
@@ -48,7 +49,8 @@ namespace EmissionWiz.API.Controllers
                     B = model.B,
                     L = model.L,
                     EmissionName = substance.Name,
-                    WindRose = model.WindRose
+                    WindRose = model.WindRose,
+                    ResultsConfig = model.ResultsConfig,
                 });
 
                 results.Add(result);
@@ -63,7 +65,7 @@ namespace EmissionWiz.API.Controllers
         [HttpGet("Report")]
         public async Task<IActionResult> GetReport([FromQuery] Guid reportId)
         {
-            var report = await _reportRepository.GetByIdAsync(reportId)
+            var report = await _tempFileRepository.GetByIdAsync(reportId)
                 ?? throw new NotFoundException($"Report with id {reportId} was not found");
 
             if (report.Data == null)

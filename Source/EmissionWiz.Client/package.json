@@ -33,6 +33,7 @@
     "react-chartjs-2": "^5.2.0",
     "react-document-title": "^2.0.3",
     "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
     "react-pdf": "^7.6.0",
     "react-router-dom": "^6.21.1",
     "sass": "^1.69.5",

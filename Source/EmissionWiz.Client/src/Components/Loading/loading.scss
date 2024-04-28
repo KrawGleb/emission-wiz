@@ -1,0 +1,48 @@
+.loader {
+  position: fixed;
+  z-index: 100;
+  background-color: rgba(255, 255, 255, .8);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 64px;
+
+  &-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+    color: #999;
+    margin: -32px 0 0 -32px;
+    animation: spin .9s infinite linear;
+  }
+
+  &-suspense {
+    font-size: 20px;
+    background: transparent;
+  }
+
+  &-small {
+    font-size: 32px;
+
+    .loader-icon {
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      margin: -16px 0 0 -16px;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(1) rotate(360deg);
+  }
+}

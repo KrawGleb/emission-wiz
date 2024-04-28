@@ -12,7 +12,7 @@ ChartJS.register(
     Legend
 );
 
-export default class App extends React.Component<{}> {
+export default class App extends React.Component<object> {
     componentDidMount() {
         navigationStore.init();
     }

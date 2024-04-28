@@ -4,19 +4,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace EmissionWiz.Models.Database;
 
 
-[Table("Report")]
-public partial class Report
+[Table("TempFile")]
+public partial class TempFile
 {
     public Guid Id { get; set; }
 	
-    public Guid OperationId { get; set; }
-	
-    [Required]
-    [StringLength(1024)]
-    public string FileName { get; set; } = null!;
-	
     [Column(TypeName = "datetime")]
     public DateTime Timestamp { get; set; }
+	
+    public Guid? PrincipalId { get; set; }
+	
+    [Required]
+    [StringLength(255)]
+    public string FileName { get; set; } = null!;
 	
     [Required]
     [StringLength(255)]
@@ -27,7 +27,4 @@ public partial class Report
     [StringLength(512)]
     public string? Label { get; set; }
 	
-    [ForeignKey("OperationId")]
-    [InverseProperty("Reports")]
-    public CalculationResult CalculationResult { get; set; } = null!;
 }

@@ -1,7 +1,11 @@
 ﻿using BitMiracle.LibTiff.Classic;
 using CoordinateSharp;
+using EmissionWiz.Models;
+using EmissionWiz.Models.Database;
 using EmissionWiz.Models.Dto;
 using EmissionWiz.Models.Interfaces.Managers;
+using EmissionWiz.Models.Interfaces.Providers;
+using EmissionWiz.Models.Interfaces.Repositories;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -11,11 +15,17 @@ namespace EmissionWiz.Logic.Managers;
 internal class GeoTiffManager : BaseManager, IGeoTiffManager
 {
     private readonly IMapManager _mapManager;
+    private readonly ITempFileRepository _tempFileRepository;
+    private readonly IDateTimeProvider _dateTimeProvider;
 
-    public GeoTiffManager(IMapManager mapManager)
+    public GeoTiffManager(
+        IMapManager mapManager,
+        ITempFileRepository tempFileRepository,
+        IDateTimeProvider dateTimeProvider)
     {
         _mapManager = mapManager;
-
+        _tempFileRepository = tempFileRepository;
+        _dateTimeProvider = dateTimeProvider;
         Tiff.SetTagExtender(TagExtender);
     }
 
@@ -25,41 +35,60 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
     public static void TagExtender(Tiff tif)
     {
         TiffFieldInfo[] tiffFieldInfo = [
-            new TiffFieldInfo(TiffTag.GEOTIFF_MODELTIEPOINTTAG, 6, 6, TiffType.DOUBLE, 
+            new TiffFieldInfo(TiffTag.GEOTIFF_MODELTIEPOINTTAG, 6, 6, TiffType.DOUBLE,
                     FieldBit.Custom, false, true, "MODELTILEPOINTTAG"),
-            new TiffFieldInfo(TiffTag.GEOTIFF_MODELPIXELSCALETAG, 3, 3, TiffType.DOUBLE, 
+            new TiffFieldInfo(TiffTag.GEOTIFF_MODELPIXELSCALETAG, 3, 3, TiffType.DOUBLE,
                     FieldBit.Custom, false, true, "MODELPIXELSCALETAG")
             ];
 
         tif.MergeFieldInfo(tiffFieldInfo, tiffFieldInfo.Length);
     }
 
-    public async Task GenerateGeoTiffAsync(GeoTiffOptions options)
+    public async Task<Guid> GenerateGeoTiffAsync(GeoTiffOptions options)
     {
         // 1. Build tiff image
         var tif = BuildTiff(options);
-
-        // 2. Get real map image
-        var tile = await _mapManager.GetTileAsync(new MapTileOptions()
-        {
-            Distance = options.Distance,
-            Center = options.Center,
-            Height = tif.Height,
-            Width = tif.Width,
-        });
-
-        tile.Seek(0, SeekOrigin.Begin);
-
-        // 3. Combine 1st and 2nd
         using var tifImage = await Image.LoadAsync(File.OpenRead(tif.TempFileName));
+        using var ms = new MemoryStream();
+        
+        if (options.PrintMap)
+        {
+            // 2. Get real map image
+            var tile = await _mapManager.GetTileAsync(new MapTileOptions()
+            {
+                Distance = options.Distance,
+                Center = options.Center,
+                Height = tif.Height,
+                Width = tif.Width,
+            });
 
-        using var tileImage = await Image.LoadAsync(tile);
-        using var resizedTileImage = tileImage.Clone(x => x.Resize(tif.Width, tif.Height));
+            tile.Seek(0, SeekOrigin.Begin);
 
-        var filePath = $"res_{Guid.NewGuid()}.tif";
+            // 3. Combine 1st and 2nd
+            using var tileImage = await Image.LoadAsync(tile);
+            using var resizedTileImage = tileImage.Clone(x => x.Resize(tif.Width, tif.Height));
 
-        using var output = tifImage.Clone(x => x.DrawImage(resizedTileImage, PixelColorBlendingMode.Overlay, PixelAlphaCompositionMode.SrcAtop, 0.25f));
-        await output.SaveAsTiffAsync(filePath);
+            using var output = tifImage.Clone(x => x.DrawImage(resizedTileImage, PixelColorBlendingMode.Overlay, PixelAlphaCompositionMode.SrcAtop, 0.25f));
+            await output.SaveAsTiffAsync(ms);
+        }
+        else
+        {
+            await tifImage.SaveAsTiffAsync(ms);
+        }
+        
+        var data = ms.ToArray();
+        var tempFile = new TempFile
+        {
+            Id = Guid.NewGuid(),
+            ContentType = Constants.ContentType.Tiff,
+            Data = data,
+            Timestamp = _dateTimeProvider.NowUtc,
+            Label = options.OutputFileLabel,
+            FileName = options.OutputFileName
+        };
+
+        _tempFileRepository.Add(tempFile);
+        return tempFile.Id;
     }
 
     public TiffResult BuildTiff(GeoTiffOptions options)
@@ -156,7 +185,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
                     if (row > 0)
                         degree = 180 - degree;
                 }
-              
+
                 var value = options.GetValueFunc!(distance, degree);
                 rowValues.Add(new GeoTiffCellInfo()
                 {
@@ -177,7 +206,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
             }).ToList())
             .ToList();
 
-        return PaintRaster(unifiedValues, false);
+        return PaintRaster(unifiedValues, options.HighlightValue != null);
     }
 
     private List<List<short>> PaintRaster(List<List<GeoTiffUnifiedCellInfo>> raster, bool enableHighlighting)
@@ -185,7 +214,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         var colored = raster
             .Select(x => x.SelectMany(v => v.IsHighlighted && enableHighlighting
                 ? [short.MaxValue / 2, 0, 0]
-                : new List<short> { v.Value, v.Value, v.Value }).ToList())
+                : new List<short> { (short)(short.MaxValue - v.Value), (short)(short.MaxValue - v.Value), (short)(short.MaxValue - v.Value) }).ToList())
             .ToList();
 
         return colored;

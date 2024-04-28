@@ -8,7 +8,7 @@ export type AppContainerProps = {
 };
 
 @observer
-export class AppContainer extends React.Component<AppContainerProps, {}> {
+export class AppContainer extends React.Component<AppContainerProps, object> {
     private _autoDisposer: IReactionDisposer;
     private _isAdaptive: boolean = false;
     private _bodyClass: string = '';

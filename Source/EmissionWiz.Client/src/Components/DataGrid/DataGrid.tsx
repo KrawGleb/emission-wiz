@@ -22,26 +22,21 @@ export type DataGridProps<T extends object> = {
 @observer
 export default class DataGrid<T extends object> extends React.Component<DataGridProps<T>> {
     @observable
-    private accessor _initialRows: T[] | undefined;
+    private accessor _rows: T[] | undefined;
 
     @observable
     private accessor _gridRef = React.createRef<AgGridReact>();
 
     constructor(props: DataGridProps<T>) {
         super(props);
-        this._initialRows = props.rowData ?? [];
+        this._rows = props.rowData ?? [];
 
         if (this.props.addEmptyRow) 
-            this._initialRows.push({ } as T);
+            this._rows.push({ } as T);
     }
 
     render() {
         const gridHeight = this.props.height;
-
-        const rowData = this.props.rowData ?? [];
-        if (this.props.addEmptyRow) {
-            rowData.push({} as T);
-        }
 
         return (
             <div className="ag-theme-quartz mb-2" style={{ height: gridHeight }} >
@@ -51,7 +46,7 @@ export default class DataGrid<T extends object> extends React.Component<DataGrid
                     suppressNoRowsOverlay={this.props.suppressNoRowsOverlay}
                     columnDefs={this.props.columns}
                     onCellEditingStopped={(event) => this._onCellEditingStoped(event)}
-                    rowData={rowData}
+                    rowData={this._rows}
                     autoSizeStrategy={this.props.autoSizeStrategy ?? {
                         type: 'fitGridWidth',
                     }} 

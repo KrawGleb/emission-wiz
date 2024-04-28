@@ -17,7 +17,7 @@ const resizeHandler = () => {
     scrollDiv.style.visibility = 'hidden';
     document.body.appendChild(scrollDiv);
 
-    let scrollBarWidth = (scrollDiv.offsetWidth - scrollDiv.clientWidth);
+    const scrollBarWidth = (scrollDiv.offsetWidth - scrollDiv.clientWidth);
 
     document.body.removeChild(scrollDiv);
     document.body.style.setProperty('--scrollbar-width', scrollBarWidth + 'px');

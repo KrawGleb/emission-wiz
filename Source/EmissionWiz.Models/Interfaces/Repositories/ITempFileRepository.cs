@@ -2,6 +2,6 @@
 
 namespace EmissionWiz.Models.Interfaces.Repositories;
 
-public interface ICalculationResultRepository : IGenericRepository<CalculationResult>
+public interface ITempFileRepository : IGenericRepository<TempFile>
 {
 }
