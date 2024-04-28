@@ -4,7 +4,7 @@ import { observer } from 'mobx-react';
 import { MathComponent } from 'mathjax-react';
 import { ICellRendererParams } from 'ag-grid-community';
 import { Button, Collapse, CollapseProps, Divider, Row, Switch, Tooltip, TooltipProps } from 'antd';
-import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined, PictureOutlined, SettingOutlined } from '@ant-design/icons';
+import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 
 import { BaseFormModel } from '../../Models/BaseFromModel';
 import { Report } from '../../Components/Report';
@@ -474,11 +474,11 @@ export default class SingleSource extends React.Component {
             label: 'GeoTiff',
             children: (
                 <Row style={{ justifyContent: 'center' }}>
-                    <img src={`/api/tiff?id=${result.geoTiffId}`} />
+                    <img src={`/api/tiff?id=${result.geoTiffId}`} style={{ maxWidth: '100%' }} />
                 </Row>
             ),
             extra: (
-                <PictureOutlined
+                <DownloadOutlined
                     onClick={(event) => {
                         event.stopPropagation();
                         this._downloadFile(result.geoTiffId);
