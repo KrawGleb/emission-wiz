@@ -430,6 +430,11 @@ export default class SingleSource extends React.Component {
                         </div>
                     </div>
                     <div style={{ width: '66%' }} className="d-flex flex-column">
+                        {!!this._calculationResults && (
+                            <Divider orientation="left" style={{ width: '80%' }}>
+                                <h4>Результаты:</h4>
+                            </Divider>
+                        )}
                         <Row style={{ gap: '4px', flexDirection: 'row-reverse' }}>
                             <Button icon={<SettingOutlined />} type="link" onClick={() => this._openResultsConfigurationDialog()}>
                                 Настройка результатов
@@ -437,9 +442,6 @@ export default class SingleSource extends React.Component {
                         </Row>
                         {!!this._calculationResults && (
                             <>
-                                <Divider orientation="left">
-                                    <h4>Результаты:</h4>
-                                </Divider>
                                 <div className="p-2">
                                     {this._renderSolutions()}
                                     {this._renderResults()}
