@@ -14,6 +14,7 @@ export type SingleSourceResultsConfigurationDialogProps = {
     printMap?: boolean;
     highlightValue?: number;
     acceptableError?: number;
+    includeGeoTiffData?: boolean;
 };
 
 @observer
@@ -26,6 +27,7 @@ export class SingleSourceResultsConfigurationDialog extends React.PureComponent<
         this._from.printMap = props.printMap ?? true;
         this._from.highlightValue = props.highlightValue;
         this._from.acceptableError = props.acceptableError;
+        this._from.includeGeoTiffData = props.includeGeoTiffData ?? false; 
     }
 
     public getModalOptions(window: ModalWindow<SingleSourceResultsConfig>): ModalDialogOptions<SingleSourceResultsConfig> {
@@ -47,7 +49,8 @@ export class SingleSourceResultsConfigurationDialog extends React.PureComponent<
                         window.close(ModalButtonType.Save, {
                             printMap: this._from.printMap,
                             highlightValue: this._from.highlightValue,
-                            acceptableError: this._from.acceptableError
+                            acceptableError: this._from.acceptableError,
+                            includeGeoTiffData: this._from.includeGeoTiffData,
                         });
                     }
                 }
@@ -61,6 +64,7 @@ export class SingleSourceResultsConfigurationDialog extends React.PureComponent<
             <Col>
                 <Title level={5}>GeoTiff</Title>
                 <FormCheckbox formModel={this._from} name="printMap" checked={this._from.printMap} title="Наложить на карту" />
+                <FormCheckbox formModel={this._from} name="includeGeoTiffData" checked={this._from.includeGeoTiffData} title="Отчет со значениями" />
                 <Space direction="horizontal">
                     <Col>
                         <FormInput formModel={this._from} name="highlightValue" label="Выделить значение" addonAfter="Cm" hideValidationErrors />
@@ -77,6 +81,9 @@ export class SingleSourceResultsConfigurationDialog extends React.PureComponent<
 class FormModel extends BaseFormModel {
     @observable
     public accessor printMap: boolean = true;
+
+    @observable
+    public accessor includeGeoTiffData: boolean = false;
 
     @observable
     @isNumber()

@@ -68,7 +68,7 @@
 
 	{{#if ColdEmission}}
 		<text>
-			Для {{math f}} {{math GoE}} 100 (или 0 {{math LoE}} {{math Delta}}T {{math L}} 0.5) и v{{math Lower|m}}' {{math GoE}} 0.5 (холодные выбросы) при расчете c{{math Lower|m}} используется формула:
+			Для {{math f}} {{math GoE}} 100 (или 0 {{math LoE}} {{math Delta}}T &#60; 0.5) и v{{math Lower|m}}' {{math GoE}} 0.5 (холодные выбросы) при расчете c{{math Lower|m}} используется формула:
 		</text>
 		<formula>
 			c_{m} = \frac{A \cdot M \cdot F \cdot n \cdot \eta}{ H^{4/3} } \cdot K = \frac{ {{trimByPrecision A}}  \cdot {{trimByPrecision M}} \cdot {{trimByPrecision FCoef}} \cdot {{trimByPrecision NCoef}} \cdot {{trimByPrecision Eta}} }{ {{trimByPrecision H}} ^{4/3} } \cdot {{trimByPrecision KCoef}} = {{trimByPrecision CmResult}}
@@ -83,7 +83,7 @@
 
 	{{#if LowWind}}
 		<text>
-			Для {{math f}} {{math L}} 100 и v{{math m}} {{math L}} 0.5 или {{math f}} {{math GoE}} 100 и v{{math Lower|m}}' {{math LoE}} 0.5 (случаи предельно малых опасных скоростей ветра) расчет c{{math Lower|m}} производится по формуле:
+			Для {{math f}} &#60; 100 и v{{math m}} &#60; 0.5 или {{math f}} {{math GoE}} 100 и v{{math Lower|m}}' {{math LoE}} 0.5 (случаи предельно малых опасных скоростей ветра) расчет c{{math Lower|m}} производится по формуле:
 		</text>
 		<formula>
 			c_{m} = \frac{A \cdot M\cdot F \cdot m' \cdot \eta}{H^{\frac{7}{3} } } = \frac{ {{trimByPrecision A}} \cdot {{trimByPrecision M}} \cdot {{trimByPrecision FCoef}} \cdot {{trimByPrecision MICoef}} \cdot {{trimByPrecision Eta}} }{  {{trimByPrecision H}}^{\frac{7}{3} } } = {{trimByPrecision CmResult}}

@@ -8,6 +8,7 @@ public static class Constants
     {
         public const string Tiff = "image/tiff";
         public const string Pdf = "application/pdf";
+        public const string Xls = "application/vnd.ms-excel";
     }
 
     public static class Pdf
@@ -33,8 +34,6 @@ public static class Constants
 
         public const char GoE = '≥';
         public const char LoE = '≤';
-        public const string G = "&gt;";
-        public const string L = "&#60;";
 
         public const char Delta = 'Δ';
         public const char f = 'ƒ';

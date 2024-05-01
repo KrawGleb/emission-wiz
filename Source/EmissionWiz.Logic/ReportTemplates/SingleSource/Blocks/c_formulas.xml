@@ -22,7 +22,7 @@
 		
 		{{#if S1_Case7}}
 		<text>
-			Для наземных и низких источников выброса (высотой H не более 10м) при x/x{{math Lower|m}} {{math L}} 1 величина s<small>1</small> заменяется на величину определяемую по формуле: 
+			Для наземных и низких источников выброса (высотой H не более 10м) при x/x{{math Lower|m}} &#60; 1 величина s<small>1</small> заменяется на величину определяемую по формуле: 
 		</text>
 		<formula>
 			s_{1}^{н} = 0.125 \cdot (10 - H) + 0.125 \cdot (H - 2) \cdot s_{1} = 0.125 \cdot (10 - {{trimByPrecision H}} ) + 0.125 \cdot ( {{trimByPrecision H}} - 2) \cdot {{trimByPrecision S1Coef}} = {{trimByPrecision S1HCoef}}
@@ -31,20 +31,20 @@
 	{{/if}}
 
 	{{#if S1_Case2}}
-	<formula comment=", при 1 {{math L}} x/x{{math Lower|m}} {{math LoE}} 8">
+	<formula comment=", при 1 &#60; x/x{{math Lower|m}} {{math LoE}} 8">
 		s_{1} = \frac{1.13}{0.13 \cdot (x/x_{m})^2 + 1} = \frac{1.13}{0.13 \cdot ( {{trimByPrecision X}} /{{trimByPrecision Xm}})^2 + 1} = {{trimByPrecision S1Coef}}
 	</formula>
 	{{/if}}
 
 	{{#if S1_Case3}}
-	<formula comment=", при 8 {{math L}} x/x{{math Lower|m}} {{math LoE}} 100 и F {{math LoE}} 1.5">
+	<formula comment=", при 8 &#60; x/x{{math Lower|m}} {{math LoE}} 100 и F {{math LoE}} 1.5">
 		s_{1}=\frac{x/x_{m}}{3.556 \cdot (x/x_{m})^2-35.2\cdot(x/x_{m})+120} \\\\
 		\\quad \\quad =\frac{ {{trimByPrecision X}} / {{trimByPrecision Xm}} }{3.556 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^2-35.2\cdot( {{trimByPrecision X}} / {{trimByPrecision Xm}} )+120} = {{trimByPrecision S1Coef}} \\quad \\quad .
 	</formula>
 	{{/if}}
 
 	{{#if S1_Case4}}
-	<formula comment=", при 8 {{math L}} x/x{{math Lower|m}} {{math LoE}} 100 и F {{math G}} 1.5">
+	<formula comment=", при 8 &#60; x/x{{math Lower|m}} {{math LoE}} 100 и F &gt; 1.5">
 		s_{1}=\frac{1}{0.1 \cdot (x/x_{m})^2 + 2.456 \cdot (x/x_{m}) - 17.8} \\\\
 		\\quad \\quad =\frac{1}{0.1 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^2 + 2.456 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} ) - 17.8} = {{trimByPrecision S1Coef}} \\quad \\quad .
 	</formula>
@@ -57,7 +57,7 @@
 	{{/if}}
 
 	{{#if S1_Case6}}
-	<formula comment=", при x/x{{math Lower|m}} > 100 и F {{math G}} 1.5">
+	<formula comment=", при x/x{{math Lower|m}} > 100 и F &gt; 1.5">
 		s_{1} = 37.76 \cdot (x/x_{m})^{-7/3} = 37.76 \cdot ( {{trimByPrecision X}} / {{trimByPrecision Xm}} )^{-7/3} = {{trimByPrecision S1Coef}}
 	</formula>
 	{{/if}}

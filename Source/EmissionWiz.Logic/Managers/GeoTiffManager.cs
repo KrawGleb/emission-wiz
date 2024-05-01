@@ -93,7 +93,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
 
     public TiffResult BuildTiff(GeoTiffOptions options)
     {
-        var raster = BuildRaster(options);
+        var raster = options.Raster;
         var size = raster.Count;
 
         var tempFile = Path.GetTempFileName();
@@ -151,80 +151,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         {
             Height = size,
             Width = size,
-            Image = tif.GetStream(),
             TempFileName = tempFile
         };
-    }
-
-    private List<List<short>> BuildRaster(GeoTiffOptions options)
-    {
-        var values = new List<List<GeoTiffCellInfo>>();
-
-        var maxValue = double.MinValue;
-        var minValue = double.MaxValue;
-
-        for (var row = -options.Distance; row <= options.Distance; row += options.Step)
-        {
-            var rowValues = new List<GeoTiffCellInfo>();
-            values.Add(rowValues);
-
-            for (var col = -options.Distance; col <= options.Distance; col += options.Step)
-            {
-                var distance = Math.Sqrt(Math.Pow(row, 2) + Math.Pow(col, 2));
-                var degree = Math.Atan(Math.Abs(col / row)) * (180 / Math.PI);
-
-                if (col < 0)
-                {
-                    if (row > 0)
-                        degree = 180 + degree;
-                    else
-                        degree = 360 - degree;
-                }
-                else
-                {
-                    if (row > 0)
-                        degree = 180 - degree;
-                }
-
-                var value = options.GetValueFunc!(distance, degree);
-                rowValues.Add(new GeoTiffCellInfo()
-                {
-                    Value = value,
-                    IsHighlighted = ShouldHighlightValue(value, options.HighlightValue, options.AcceptableError)
-                });
-
-                maxValue = double.Max(maxValue, value);
-                minValue = double.Min(minValue, value);
-            }
-        }
-
-        var unifiedValues = values
-            .Select(a => a.Select(x => new GeoTiffUnifiedCellInfo()
-            {
-                Value = (short)((x.Value - minValue) / (maxValue - minValue) * short.MaxValue),
-                IsHighlighted = x.IsHighlighted
-            }).ToList())
-            .ToList();
-
-        return PaintRaster(unifiedValues, options.HighlightValue != null);
-    }
-
-    private List<List<short>> PaintRaster(List<List<GeoTiffUnifiedCellInfo>> raster, bool enableHighlighting)
-    {
-        var colored = raster
-            .Select(x => x.SelectMany(v => v.IsHighlighted && enableHighlighting
-                ? [short.MaxValue / 2, 0, 0]
-                : new List<short> { (short)(short.MaxValue - v.Value), (short)(short.MaxValue - v.Value), (short)(short.MaxValue - v.Value) }).ToList())
-            .ToList();
-
-        return colored;
-    }
-
-    private bool ShouldHighlightValue(double value, double? highlightValue, double? acceptableError)
-    {
-        if (highlightValue == null) return false;
-
-        acceptableError ??= 0;
-        return value >= highlightValue - acceptableError && value <= highlightValue + acceptableError;
     }
 }

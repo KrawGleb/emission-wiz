@@ -10,7 +10,7 @@ import { BaseFormModel } from '../../Models/BaseFromModel';
 import { Report } from '../../Components/Report';
 import ApiService from '../../Services/ApiService';
 import { ApiUrls } from '../../AppConstants/ApiUrls';
-import { SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel, SingleSourceResultsConfig } from '../../Models/WebApiModels';
+import { FileContent, FileContentType, SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel, SingleSourceResultsConfig } from '../../Models/WebApiModels';
 import { FormInput } from '../../Components/FormControls';
 import { collections, displayName, isNumber, isRequired } from '../../Services/Validation';
 import { downloadService } from '../../Services/DownloadService';
@@ -322,36 +322,6 @@ export default class SingleSource extends React.Component {
                                 }
                             />
 
-                            <FormInput
-                                formModel={this._form}
-                                name="x"
-                                placeholder="X"
-                                style={{ width: '80px' }}
-                                value={this._form.x}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Расстояние, м',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
-
-                            <FormInput
-                                formModel={this._form}
-                                name="y"
-                                placeholder="Y"
-                                style={{ width: '80px' }}
-                                value={this._form.y}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Расстояние по нормали к оси факела выброса, м',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
-
                             {this._form.isReactangle && (
                                 <>
                                     <FormInput
@@ -467,43 +437,45 @@ export default class SingleSource extends React.Component {
     }
 
     private _renderSolution(result: SingleSourceEmissionCalculationResult, index: number) {
-        const pdf = this._reports.get(result.reportId) ?? null;
-
         const items: CollapseProps['items'] = [];
 
-        items.push({
-            key: `geotiff_${index}`,
-            label: 'GeoTiff',
-            children: (
-                <Row style={{ justifyContent: 'center' }}>
-                    <img src={`/api/tiff?id=${result.geoTiffId}`} style={{ maxWidth: '100%' }} />
-                </Row>
-            ),
-            extra: (
-                <DownloadOutlined
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        this._downloadFile(result.geoTiffId);
-                    }}
-                />
-            )
-        });
-
-        items.push({
-            key: `solution_${index}`,
-            label: `Вычисления`,
-            children: <PdfViewer key={`pdf${index}`} pdfData={pdf} />,
-            extra: (
-                <DownloadOutlined
-                    onClick={(event) => {
-                        event.stopPropagation();
-                        this._downloadFile(result.reportId);
-                    }}
-                />
-            )
-        });
+        result.files
+            .slice()
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .forEach((value, i) => {
+                items.push({
+                    key: value.type + `_${index}_${i}`,
+                    label: value.name,
+                    children: this._renderFileContentPreview(value),
+                    extra: (
+                        <DownloadOutlined
+                            onClick={(event) => {
+                                event.stopPropagation();
+                                this._downloadFile(value.fileId);
+                            }}
+                        />
+                    )
+                });
+            });
 
         return <Collapse items={items} />;
+    }
+
+    private _renderFileContentPreview(fileContent: FileContent) {
+        if (fileContent.type === FileContentType.Image) {
+            return (
+                <Row style={{ justifyContent: 'center' }}>
+                    <img src={`/api/tiff?id=${fileContent.fileId}`} style={{ maxWidth: '100%' }} />
+                </Row>
+            );
+        }
+        else if (fileContent.type === FileContentType.Pdf) {
+            const pdf = this._reports.get(fileContent.fileId);
+            return <PdfViewer pdfData={pdf!} />
+        }
+        else {
+            return <div>Предпросмотр недоступен.</div>
+        }
     }
 
     private _renderResults() {
@@ -518,12 +490,6 @@ export default class SingleSource extends React.Component {
                 pinned: 'left'
             },
             {
-                field: 'c',
-                headerComponent: () => <MathComponent tex="c, \frac{mg}{m^3}" />,
-                headerTooltip: 'Приземная концентрация ЗВ',
-                cellRenderer: numberCellRenderer
-            },
-            {
                 field: 'cm',
                 headerComponent: () => <MathComponent tex="c_{m}, \frac{mg}{m^3}" />,
                 headerTooltip: 'Максимальная приземная разовая концентрация ЗВ',
@@ -533,12 +499,6 @@ export default class SingleSource extends React.Component {
                 field: 'cmu',
                 headerComponent: () => <MathComponent tex="c_{mu}, \frac{mg}{m^3}" />,
                 headerTooltip: 'Максимальная приземная концентрация ЗВ',
-                cellRenderer: numberCellRenderer
-            },
-            {
-                field: 'cy',
-                headerComponent: () => <MathComponent tex="c_{y}, \frac{mg}{m^3}" />,
-                headerTooltip: 'Приземная концентрация ЗВ на расстоянии y по нормали к оси факела выброса',
                 cellRenderer: numberCellRenderer
             },
             {
@@ -571,7 +531,8 @@ export default class SingleSource extends React.Component {
         const resultsConfig = await modalService.show<SingleSourceResultsConfigurationDialogProps, SingleSourceResultsConfig>(SingleSourceResultsConfigurationDialog, {
             printMap: this._resultsConfig?.printMap,
             highlightValue: this._resultsConfig?.highlightValue,
-            acceptableError: this._resultsConfig?.acceptableError
+            acceptableError: this._resultsConfig?.acceptableError,
+            includeGeoTiffData: this._resultsConfig?.includeGeoTiffData
         });
         if (resultsConfig.button === ModalButtonType.Save) this._resultsConfig = resultsConfig.result ?? undefined;
     }
@@ -598,13 +559,12 @@ export default class SingleSource extends React.Component {
         this._calculationResults = data;
 
         this._calculationResults.forEach(async (value) => {
-            const data = await this._loadPdf(value.reportId);
-            this._reports.set(value.reportId, data);
-
-            value.applicationIds?.forEach(async (applicationId) => {
-                const applicationData = await this._loadPdf(applicationId);
-                this._reports.set(applicationId, applicationData);
-            });
+            for (const file of value.files) {
+                if (file.type === FileContentType.Pdf) {
+                    const data = await this._loadPdf(file.fileId);
+                    this._reports.set(file.fileId, data);
+                }
+            }
         });
     }
 

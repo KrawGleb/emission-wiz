@@ -3,8 +3,7 @@
 public class SingleSourceEmissionCalculationResult
 {
     public string? Name { get; set; }
-    public Guid ReportId { get; set; }
-    public Guid GeoTiffId { get; set; }
+    public List<FileContent> Files { get; set; } = new();
 
     public double C { get; set; }
     public double Cm { get; set; }

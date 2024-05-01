@@ -10,12 +10,15 @@ export class BaseApiModelClass<T> {
     }
 }
 
+export enum FileContentType {
+    Unknown = -1,
+    Image = 0,
+    Pdf = 1,
+}
+
 export interface ISingleSourceEmissionCalculationResult {
     name: string;
-    reportId: string;
-    geoTiffId: string;
-    applicationIds: string[];
-
+    files: FileContent[];
     c: number;
     cy: number;
     cm: number;
@@ -26,10 +29,7 @@ export interface ISingleSourceEmissionCalculationResult {
 }
 export class SingleSourceEmissionCalculationResult extends BaseApiModelClass<ISingleSourceEmissionCalculationResult> implements ISingleSourceEmissionCalculationResult {
     name: string;
-    reportId: string;
-    geoTiffId: string;
-    applicationIds: string[];
-
+    files: FileContent[];
     c: number;
     cy: number;
     cm: number;
@@ -122,9 +122,24 @@ export interface ISingleSourceResultsConfig {
     printMap: boolean;
     highlightValue?: number;
     acceptableError?: number;
+    includeGeoTiffData?: boolean;
 }
 export class SingleSourceResultsConfig extends BaseApiModelClass<ISingleSourceResultsConfig> implements ISingleSourceResultsConfig {
     printMap: boolean;
     highlightValue?: number;
     acceptableError?: number;
+    includeGeoTiffData?: boolean;
+}
+
+export interface IFileContent {
+    fileId: string;
+    type: FileContentType,
+    name: string;
+    sortOrder: number
+}
+export class FileContent extends BaseApiModelClass<IFileContent> implements IFileContent {
+    fileId: string;
+    type: FileContentType;
+    name: string;
+    sortOrder: number;
 }

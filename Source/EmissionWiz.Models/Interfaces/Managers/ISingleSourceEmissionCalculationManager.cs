@@ -7,29 +7,17 @@ public interface ISingleSourceEmissionCalculationManager : IBaseManager
     Task<SingleSourceEmissionCalculationResult> Calculate(SingleSourceCalculationData calculationData);
 }
 
-public interface IMaxConcentrationCalculationManager : IBaseManager
+public interface ISingleSourceCmCalculationManager : IBaseManager
 {
-    double CalculateMaxConcentration(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
+    double CalculateCm(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
 }
 
-public interface IColdEmissionMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
-public interface IHotEmissionMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
-public interface ILowWindMaxConcentrationCalculationManager : IMaxConcentrationCalculationManager { }
-
-public interface IDangerousDistanceCalculationManager : IBaseManager
+public interface ISingleSourceXmCalculationManager : IBaseManager
 {
-    double CalculateDangerousDistance(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
+    double CalculateXm(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
 }
 
-public interface IColdEmissionDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager { }
-public interface IHotEmissionDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager { }
-public interface ILowWindDangerousDistanceCalculationManager : IDangerousDistanceCalculationManager { }
-
-public interface IDangerousWindSpeedCalculationManager
+public interface ISingleSourceUmCalculationManager
 {
-    double CalculateDangerousWindSpeed(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
+    double CalculateUm(SingleSourceCalculationData model, EmissionSourceProperties sourceProperties);
 }
-
-public interface IColdEmissionDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }
-public interface IHotEmissionDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }
-public interface ILowWindDangerousWindSpeedCalculationManager : IDangerousWindSpeedCalculationManager { }

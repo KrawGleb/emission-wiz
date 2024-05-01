@@ -13,7 +13,7 @@
 	</formula>
 	{{else}}
 		{{#if WindRatio_LoE_1}} <!-- 0.25 < u/um <= 1 -->
-		<formula comment=", при 0.25 {{math L}} u/u{{math Lower|m}} {{math LoE}} 1">
+		<formula comment=", при 0.25 &#60; u/u{{math Lower|m}} {{math LoE}} 1">
 			p = 8.43 \cdot (1 - \frac{u}{u_{m}})^5 + 1 = \\\\
 			\\quad \\quad  8.43 \cdot (1 - \frac{ {{trimByPrecision U}} }{ {{trimByPrecision Um}} })^5 + 1 = {{trimByPrecision PCoef}} \\quad \\quad .
 		</formula>

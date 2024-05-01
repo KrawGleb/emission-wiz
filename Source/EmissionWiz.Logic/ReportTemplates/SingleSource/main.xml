@@ -7,11 +7,11 @@
 	<block ref="/Blocks/um_formulas.xml" />
 	<block ref="/Blocks/cmu_formulas.xml"/>
 	<block ref="/Blocks/xmu_formulas.xml"/>
-	<block ref="/Blocks/c_formulas.xml"/>
-	<block ref="/Blocks/cy_formulas.xml"/>
+	<!--<block ref="/Blocks/c_formulas.xml"/>-->
+	<!--<block ref="/Blocks/cy_formulas.xml"/>-->
 
-	<text>
+	<!--<text>
 		Приложение 1 - Карта
 	</text>
-	<map keys="*" />
+	<map keys="*" />-->
 </block>
