@@ -3,7 +3,7 @@ import { action, observable } from 'mobx';
 import { observer } from 'mobx-react';
 import { MathComponent } from 'mathjax-react';
 import { ICellRendererParams } from 'ag-grid-community';
-import { Button, Collapse, CollapseProps, Divider, Row, Switch, Tooltip, TooltipProps } from 'antd';
+import { Button, Col, Collapse, CollapseProps, Divider, Row, Switch, Tooltip, TooltipProps } from 'antd';
 import { BorderOutlined, CloseOutlined, DownloadOutlined, EllipsisOutlined, SettingOutlined } from '@ant-design/icons';
 
 import { BaseFormModel } from '../../Models/BaseFromModel';
@@ -140,7 +140,7 @@ export default class SingleSource extends React.Component {
                                                     index={index}
                                                     subName="_lngLat.lat"
                                                     placeholder="lat"
-                                                    style={{ width: '80px' }}
+                                                    style={{ width: '90px' }}
                                                     value={marker._lngLat?.lat}
                                                     changeHandler={() => {
                                                         this._form.validate();
@@ -154,7 +154,7 @@ export default class SingleSource extends React.Component {
                                                     index={index}
                                                     subName="_lngLat.lng"
                                                     placeholder="lon"
-                                                    style={{ width: '80px' }}
+                                                    style={{ width: '90px' }}
                                                     value={marker._lngLat?.lng}
                                                     changeHandler={() => {
                                                         this._form.validate();
@@ -186,176 +186,214 @@ export default class SingleSource extends React.Component {
                                 />
                             </Tooltip>
                         </div>
-                        <div className="d-flex flex-row" style={{ gap: '20px', flexWrap: 'wrap' }}>
-                            <FormInput
-                                formModel={this._form}
-                                name="a"
-                                placeholder="A"
-                                style={{ width: '80px' }}
-                                value={this._form.a}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Коэффициент, зависящий от температурной стратификации атмосферы, определяющий условия горизонтального и вертикального рассеивания ЗВ в атмосферном воздухе',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                        <Row gutter={14}>
+                            <Col span={5}>
+                                <FormInput
+                                    label="A"
+                                    formModel={this._form}
+                                    name="a"
+                                    placeholder="A"
+                                    style={{ width: '90px' }}
+                                    value={this._form.a}
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Коэффициент, зависящий от температурной стратификации атмосферы, определяющий условия горизонтального и вертикального рассеивания ЗВ в атмосферном воздухе',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="f"
-                                placeholder="F"
-                                style={{ width: '80px' }}
-                                value={this._form.f}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Безразмерный коэффициент, учитывающий скорость оседания ЗВ (газообразных и аэрозолей, включая твердые частицы) в атмосферном воздухе',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="F"
+                                    formModel={this._form}
+                                    name="f"
+                                    placeholder="F"
+                                    style={{ width: '90px' }}
+                                    value={this._form.f}
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Безразмерный коэффициент, учитывающий скорость оседания ЗВ (газообразных и аэрозолей, включая твердые частицы) в атмосферном воздухе',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="eta"
-                                placeholder="η"
-                                style={{ width: '80px' }}
-                                value={this._form.eta}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Безразмерный коэффициент, учитывающий влияние рельефа местности',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="η"
+                                    formModel={this._form}
+                                    name="eta"
+                                    placeholder="η"
+                                    style={{ width: '90px' }}
+                                    value={this._form.eta}
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Безразмерный коэффициент, учитывающий влияние рельефа местности',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
+                            <Col span={5}>
+                                <FormInput
+                                    label="H"
+                                    formModel={this._form}
+                                    name="h"
+                                    placeholder="H"
+                                    style={{ width: '90px' }}
+                                    value={this._form.h}
+                                    suffix="м"
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Высота источника выброса, м',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="h"
-                                placeholder="H"
-                                style={{ width: '80px' }}
-                                value={this._form.h}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Высота источника выброса, м',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="D"
+                                    formModel={this._form}
+                                    name="d"
+                                    placeholder="D"
+                                    style={{ width: '90px' }}
+                                    value={this._form.d}
+                                    suffix="м"
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Диаметр устья источника выброса, м',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="d"
-                                placeholder="D"
-                                style={{ width: '80px' }}
-                                value={this._form.d}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Диаметр устья источника выброса, м',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="Тг"
+                                    formModel={this._form}
+                                    name="emissionTemperature"
+                                    placeholder="Tг"
+                                    style={{ width: '90px' }}
+                                    value={this._form.emissionTemperature}
+                                    suffix="°C"
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Температура выбрасываемой ГВС, °C',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="emissionTemperature"
-                                placeholder="Tг"
-                                style={{ width: '80px' }}
-                                value={this._form.emissionTemperature}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Температура выбрасываемой ГВС, °C',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="Тв"
+                                    formModel={this._form}
+                                    name="airTemperature"
+                                    placeholder="Tв"
+                                    style={{ width: '90px' }}
+                                    value={this._form.airTemperature}
+                                    suffix="°C"
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Температурой атмосферного воздуха, °C',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="airTemperature"
-                                placeholder="Tв"
-                                style={{ width: '80px' }}
-                                value={this._form.airTemperature}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Температурой атмосферного воздуха, °C',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="W"
+                                    formModel={this._form}
+                                    name="w"
+                                    placeholder="W"
+                                    style={{ width: '90px' }}
+                                    value={this._form.w}
+                                    suffix="м/c"
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Средняя скорость выхода ГВС из устья источника выброса, м/с',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
-                            <FormInput
-                                formModel={this._form}
-                                name="w"
-                                placeholder="W"
-                                style={{ width: '80px' }}
-                                value={this._form.w}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Средняя скорость выхода ГВС из устья источника выброса, м/с',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
-
-                            <FormInput
-                                formModel={this._form}
-                                name="u"
-                                placeholder="U"
-                                style={{ width: '80px' }}
-                                value={this._form.u}
-                                tooltip={
-                                    {
-                                        trigger: 'focus',
-                                        title: 'Скорость ветра, м/с',
-                                        placement: 'topLeft'
-                                    } as TooltipProps
-                                }
-                            />
+                            <Col span={5}>
+                                <FormInput
+                                    label="U"
+                                    formModel={this._form}
+                                    name="u"
+                                    placeholder="U"
+                                    style={{ width: '90px' }}
+                                    value={this._form.u}
+                                    suffix="м/c"
+                                    tooltip={
+                                        {
+                                            trigger: 'focus',
+                                            title: 'Скорость ветра, м/с',
+                                            placement: 'topLeft'
+                                        } as TooltipProps
+                                    }
+                                />
+                            </Col>
 
                             {this._form.isReactangle && (
                                 <>
-                                    <FormInput
-                                        formModel={this._form}
-                                        name="b"
-                                        placeholder="B"
-                                        style={{ width: '80px' }}
-                                        value={this._form.b}
-                                        tooltip={
-                                            {
-                                                trigger: 'focus',
-                                                title: 'Ширина устья, м',
-                                                placement: 'topLeft'
-                                            } as TooltipProps
-                                        }
-                                    />
+                                    <Col span={5}>
+                                        <FormInput
+                                            formModel={this._form}
+                                            name="b"
+                                            placeholder="B"
+                                            style={{ width: '90px' }}
+                                            value={this._form.b}
+                                            suffix="м"
+                                            tooltip={
+                                                {
+                                                    trigger: 'focus',
+                                                    title: 'Ширина устья, м',
+                                                    placement: 'topLeft'
+                                                } as TooltipProps
+                                            }
+                                        />
+                                    </Col>
 
-                                    <FormInput
-                                        formModel={this._form}
-                                        name="l"
-                                        placeholder="L"
-                                        style={{ width: '80px' }}
-                                        value={this._form.l}
-                                        tooltip={
-                                            {
-                                                trigger: 'focus',
-                                                title: 'Длина устья, м',
-                                                placement: 'topLeft'
-                                            } as TooltipProps
-                                        }
-                                    />
+                                    <Col span={5}>
+                                        <FormInput
+                                            formModel={this._form}
+                                            name="l"
+                                            placeholder="L"
+                                            style={{ width: '90px' }}
+                                            value={this._form.l}
+                                            suffix="м"
+                                            tooltip={
+                                                {
+                                                    trigger: 'focus',
+                                                    title: 'Длина устья, м',
+                                                    placement: 'topLeft'
+                                                } as TooltipProps
+                                            }
+                                        />
+                                    </Col>
                                 </>
                             )}
-                        </div>
+                        </Row>
                         <div>
                             <WindRose formModel={this._form} name="windSpeed" />
                         </div>
@@ -468,13 +506,11 @@ export default class SingleSource extends React.Component {
                     <img src={`/api/tiff?id=${fileContent.fileId}`} style={{ maxWidth: '100%' }} />
                 </Row>
             );
-        }
-        else if (fileContent.type === FileContentType.Pdf) {
+        } else if (fileContent.type === FileContentType.Pdf) {
             const pdf = this._reports.get(fileContent.fileId);
-            return <PdfViewer pdfData={pdf!} />
-        }
-        else {
-            return <div>Предпросмотр недоступен.</div>
+            return <PdfViewer pdfData={pdf!} />;
+        } else {
+            return <div>Предпросмотр недоступен.</div>;
         }
     }
 

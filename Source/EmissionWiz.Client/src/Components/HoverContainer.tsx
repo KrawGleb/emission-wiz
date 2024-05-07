@@ -16,7 +16,7 @@ type ContextMenuItemProps = {
 };
 
 @observer
-export class HoverContainer extends React.Component<ContextMenuItemProps, {}> {
+export class HoverContainer extends React.Component<ContextMenuItemProps, object> {
     @observable accessor isHovered: boolean = false;
     private _timer: number | null = null;
     private _delay: number = 300;
