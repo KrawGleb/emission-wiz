@@ -16,6 +16,7 @@ namespace EmissionWiz.Logic
             builder.RegisterType<CurrentTimeProvider>().As<ICurrentTimeProvider>().SingleInstance();
             builder.RegisterType<DateTimeProvider>().As<IDateTimeProvider>().SingleInstance();
             builder.RegisterType<MapImageBuilder>().As<IMapImageBuilder>().InstancePerLifetimeScope();
+            builder.RegisterType<GeoKeyDirectoryBuilder>().As<IGeoKeyDirectoryBuilder>().InstancePerLifetimeScope();
 
             var logicAssembly = typeof(LogicModule).Assembly;
             var modelAssembly = typeof(Constants).Assembly;

@@ -180,27 +180,6 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         return result;
     }
 
-    private Func<double, double, double> GetCalculateCFunc(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateResults)
-    {
-        var xs = model.WindRose.Select(x => x.Degree).ToList();
-        var xsCont = xs.Concat(xs.Select(x => x + 360)).ToArray();
-
-        var ys = model.WindRose.Select(x => x.Speed).ToList();
-        var ysCont = ys.Concat(ys).ToArray();
-
-        var splinedWindSpeed = _mathManager.Spline(xsCont, ysCont, 360);
-
-        return (distance, degree) =>
-        {
-            var closestSpeedX = splinedWindSpeed.Xs.Select((x, i) => new { Index = i, Value = x }).OrderBy(x => Math.Abs(x.Value - degree)).First();
-            var closestSpeed = splinedWindSpeed.Ys[closestSpeedX.Index];
-            var rCoef = SingleSourceCommon.GetRCoef(closestSpeed, intermediateResults.Um);
-            var s1Coef = SingleSourceCommon.GetS1Coef(distance, intermediateResults.Xm, model.FCoef);
-
-            return intermediateResults.Cm * rCoef * s1Coef;
-        };
-    }
-
     private double GetPCoef(SingleSourceCalculationData model, SingleSourceEmissionCalculationResult intermediateReults)
     {
         var ratio = model.U / intermediateReults.Um;

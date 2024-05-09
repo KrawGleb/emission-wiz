@@ -3,6 +3,7 @@ using CoordinateSharp;
 using EmissionWiz.Models;
 using EmissionWiz.Models.Database;
 using EmissionWiz.Models.Dto;
+using EmissionWiz.Models.Interfaces.Builders;
 using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Interfaces.Providers;
 using EmissionWiz.Models.Interfaces.Repositories;
@@ -17,20 +18,20 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
     private readonly IMapManager _mapManager;
     private readonly ITempFileRepository _tempFileRepository;
     private readonly IDateTimeProvider _dateTimeProvider;
+    private readonly IGeoKeyDirectoryBuilder _geoKeyDirectoryBuilder;
 
     public GeoTiffManager(
         IMapManager mapManager,
         ITempFileRepository tempFileRepository,
-        IDateTimeProvider dateTimeProvider)
+        IDateTimeProvider dateTimeProvider,
+        IGeoKeyDirectoryBuilder geoKeyDirectoryBuilder)
     {
         _mapManager = mapManager;
         _tempFileRepository = tempFileRepository;
         _dateTimeProvider = dateTimeProvider;
+        _geoKeyDirectoryBuilder = geoKeyDirectoryBuilder;
         Tiff.SetTagExtender(TagExtender);
     }
-
-    public const TiffTag ProjCenterLongGeoKey = (TiffTag)3088;
-    public const TiffTag ProjCenterLatGeoKey = (TiffTag)3089;
 
     public static void TagExtender(Tiff tif)
     {
@@ -38,7 +39,15 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
             new TiffFieldInfo(TiffTag.GEOTIFF_MODELTIEPOINTTAG, 6, 6, TiffType.DOUBLE,
                     FieldBit.Custom, false, true, "MODELTILEPOINTTAG"),
             new TiffFieldInfo(TiffTag.GEOTIFF_MODELPIXELSCALETAG, 3, 3, TiffType.DOUBLE,
-                    FieldBit.Custom, false, true, "MODELPIXELSCALETAG")
+                    FieldBit.Custom, false, true, "MODELPIXELSCALETAG"),
+            
+            // TODO: Fix count
+            new TiffFieldInfo(TiffTag.GEOTIFF_GEOKEYDIRECTORYTAG, 10, 10, TiffType.SLONG,
+                    FieldBit.Custom, false, true, "GEOKEYDIRECTORYTAG"),
+            new TiffFieldInfo(TiffTag.GEOTIFF_GEODOUBLEPARAMSTAG, 1, 1, TiffType.DOUBLE,
+                    FieldBit.Custom, false, true, "COORDINATESYSTEMTAG"),
+            new TiffFieldInfo(TiffTag.GEOTIFF_GEOASCIIPARAMSTAG, 1, 1, TiffType.ASCII,
+                    FieldBit.Custom, false, true, "COORDINATESYSTEMTAG"),
             ];
 
         tif.MergeFieldInfo(tiffFieldInfo, tiffFieldInfo.Length);
@@ -50,7 +59,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         var tif = BuildTiff(options);
         using var tifImage = await Image.LoadAsync(File.OpenRead(tif.TempFileName));
         using var ms = new MemoryStream();
-        
+
         if (options.PrintMap)
         {
             // 2. Get real map image
@@ -75,7 +84,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         {
             await tifImage.SaveAsTiffAsync(ms);
         }
-        
+
         var data = ms.ToArray();
         var tempFile = new TempFile
         {
@@ -130,10 +139,21 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
         tif.SetField(TiffTag.GEOTIFF_MODELPIXELSCALETAG, 3, (object)scale);
 
         var point = new double[] {
-            0, 0, 0,
-            topLeftCorner.UTM.Easting, topLeftCorner.UTM.Northing, 0,
+            0, 0, 0, // coordinate on image
+            topLeftCorner.UTM.Easting, topLeftCorner.UTM.Northing, 0, // coordinate on map
         };
         tif.SetField(TiffTag.GEOTIFF_MODELTIEPOINTTAG, 6, (object)point);
+
+        _geoKeyDirectoryBuilder
+             .AddKey(new GeoKey<ushort>
+             {
+                 KeyId = 3072, // ProjectedCSTypeGeoKey
+                 TIFFTagLocation = 0,
+                 Values = [ 32634 ]
+             });
+
+        var geoKeyDirectory = _geoKeyDirectoryBuilder.Build();
+        tif.SetField(TiffTag.GEOTIFF_GEOKEYDIRECTORYTAG, geoKeyDirectory.GeoKeyDirectoryTag.Length, geoKeyDirectory.GeoKeyDirectoryTag);
 
         var rowIndex = 0;
         foreach (var row in raster)
