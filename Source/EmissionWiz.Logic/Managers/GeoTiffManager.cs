@@ -149,7 +149,7 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
              {
                  KeyId = 3072, // ProjectedCSTypeGeoKey
                  TIFFTagLocation = 0,
-                 Values = [ 32634 ]
+                 Values = [ BuildCSCode(topLeftCorner) ]
              });
 
         var geoKeyDirectory = _geoKeyDirectoryBuilder.Build();
@@ -173,5 +173,18 @@ internal class GeoTiffManager : BaseManager, IGeoTiffManager
             Width = size,
             TempFileName = tempFile
         };
+    }
+
+    private ushort BuildCSCode(Coordinate coordinate)
+    {
+        var baseCode = 32000; // WGS84
+        if (coordinate.Latitude.Position == CoordinatesPosition.N)
+            baseCode += 600; // N
+        else
+            baseCode += 700; // S
+
+        baseCode += coordinate.UTM.LongZone;
+
+        return (ushort)baseCode;
     }
 }
