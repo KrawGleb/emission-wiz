@@ -401,6 +401,7 @@ export default class SingleSource extends React.Component {
                             <DataGrid<SingleSourceEmissionSubstance>
                                 editable
                                 ref={this._gridRef}
+                                rowData={this._form.substances}
                                 columns={[
                                     {
                                         field: 'name',

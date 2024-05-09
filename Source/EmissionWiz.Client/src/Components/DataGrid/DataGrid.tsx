@@ -34,7 +34,7 @@ export default class DataGrid<T extends object> extends React.Component<DataGrid
                     suppressLoadingOverlay
                     suppressNoRowsOverlay={this.props.suppressNoRowsOverlay}
                     columnDefs={this.props.columns}
-                    onCellEditingStopped={(event) => this._onCellEditingStoped(event)}
+                    onCellEditingStopped={(event) => this._onCellEditingStopped(event)}
                     rowData={this.props.addEmptyRow ? [...(this.props.rowData ?? []), {}] : this.props.rowData}
                     autoSizeStrategy={
                         this.props.autoSizeStrategy ?? {
@@ -57,7 +57,7 @@ export default class DataGrid<T extends object> extends React.Component<DataGrid
     }
 
     @action
-    private _onCellEditingStoped(event: CellEditingStoppedEvent) {
+    private _onCellEditingStopped(event: CellEditingStoppedEvent) {
         if (event.valueChanged && !event.oldValue) this._addEmptyRow();
 
         this.props.onChange?.();
