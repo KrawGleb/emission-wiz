@@ -105,6 +105,16 @@ class FormModel extends BaseFormModel {
     public accessor substances: SingleSourceEmissionSubstance[] = [];
 }
 
+export class SingleSourceEmissionSubstanceCell {
+    id: string;
+    name: string;
+    m: number;
+    nameOption: {
+        value: string;
+        label: string;
+    }
+}
+
 @observer
 export default class SingleSource extends React.Component {
     @observable private accessor _calculationResults: SingleSourceEmissionCalculationResult[];
@@ -113,7 +123,7 @@ export default class SingleSource extends React.Component {
     @observable private accessor _substances: SubstanceDto[];
 
     private _form: FormModel = new FormModel();
-    private _gridRef = React.createRef<DataGrid<SingleSourceEmissionSubstance>>();
+    private _gridRef = React.createRef<DataGrid<SingleSourceEmissionSubstanceCell>>();
     private _mapRef = React.createRef<MapContainer<FormModel>>();
 
     constructor(props: object) {
@@ -400,13 +410,19 @@ export default class SingleSource extends React.Component {
                             <WindRose formModel={this._form} name="windSpeed" />
                         </div>
                         <div>
-                            <DataGrid<SingleSourceEmissionSubstance>
+                            <DataGrid<SingleSourceEmissionSubstanceCell>
                                 editable
                                 ref={this._gridRef}
-                                rowData={this._form.substances}
+                                rowData={this._form.substances.map(x => ({
+                                    ...x,
+                                    nameOption: {
+                                        label: x.name,
+                                        value: x.id
+                                    }
+                                }))}
                                 columns={[
                                     {
-                                        field: 'name',
+                                        field: 'nameOption',
                                         editable: true,
                                         headerName: 'Наименование',
                                         cellEditor: DataGridDropdownCell,
@@ -416,13 +432,18 @@ export default class SingleSource extends React.Component {
                                                 value: x.code
                                             })) ?? []
                                         },
+                                        cellRenderer: (e: ICellRendererParams<SingleSourceEmissionSubstanceCell>) => e.getValue?.()?.label ?? '',
                                         onCellValueChanged: (event) => {
+                                            event.data.name = event.data.nameOption?.label;
+                                            event.data.id = event.data.nameOption?.value;
+
                                             if (!event.data.m) {
                                                 event.data.m = 0;
-                                                event.api.applyTransaction({
-                                                    update: [event.data]
-                                                });
                                             }
+
+                                            event.api.applyTransaction({
+                                                update: [event.data]
+                                            });
                                         }
                                     },
                                     {
@@ -662,6 +683,7 @@ export default class SingleSource extends React.Component {
             rows
                 ?.filter((v) => v.m !== undefined)
                 .map((v) => ({
+                    id: v.id,
                     name: v.name,
                     m: v.m
                 })) ?? [];

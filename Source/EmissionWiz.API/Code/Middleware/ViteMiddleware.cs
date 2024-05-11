@@ -13,7 +13,7 @@ internal static class ViteMiddleware
     private const string LOG_CATEGORY_NAME = "Microsoft.AspNetCore.SpaServices";
     private const string CLI_SERVE_COMPLETION_REGEX = "ready in";
     private const string CLI_PORT_USED_COMPLETION_REGEX = "is in use";
-    private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromSeconds(5); // This is a development-time only feature, so a very long timeout is fine
+    private static readonly TimeSpan RegexMatchTimeout = TimeSpan.FromSeconds(10); // This is a development-time only feature, so a very long timeout is fine
 
     public static void Attach(ISpaBuilder spaBuilder, string scriptName)
     {

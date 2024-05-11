@@ -14,7 +14,7 @@ interface ICellEditorReactComp {
 }
 
 const DataGridDropdownCell = forwardRef((props: ICellEditorReactComp, ref) => {
-    const [value, setValue] = useState(props.value);
+    const [value, setValue] = useState<string>(props.value?.value);
     const refInput = useRef<React.RefObject<unknown> | null>(null);
 
     useEffect(() => {
@@ -26,14 +26,23 @@ const DataGridDropdownCell = forwardRef((props: ICellEditorReactComp, ref) => {
     useImperativeHandle(ref, () => {
         return {
             getValue: () => {
-                return value;
+                const result = props.values.find(x => x.value === value);
+                return result;
             }
         };
     });
 
     const filterOption = (input: string, option?: { label: string; value: string }) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
 
-    return <Select showSearch filterOption={filterOption} style={{ width: '100%', height: '100%' }} value={value} onChange={setValue} options={props.values} />;
+    return (
+        <Select showSearch filterOption={filterOption} style={{ width: '100%', height: '100%' }} value={value} onChange={setValue}>
+            {props.values.map((x) => (
+                <Select.Option key={x.value} value={x.value}>
+                    {x.label}
+                </Select.Option>
+            ))}
+        </Select>
+    );
 });
 
 export default DataGridDropdownCell;

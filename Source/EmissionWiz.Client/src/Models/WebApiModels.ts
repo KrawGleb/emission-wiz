@@ -40,10 +40,12 @@ export class SingleSourceEmissionCalculationResult extends BaseApiModelClass<ISi
 }
 
 export interface ISingleSourceEmissionSubstance {
+    id: string;
     name: string;
     m: number;
 }
 export class SingleSourceEmissionSubstance extends BaseApiModelClass<ISingleSourceEmissionSubstance> implements ISingleSourceEmissionSubstance {
+    id: string;
     name: string;
     m: number;
 }
