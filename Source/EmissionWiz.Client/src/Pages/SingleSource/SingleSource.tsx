@@ -10,7 +10,7 @@ import { BaseFormModel } from '../../Models/BaseFromModel';
 import { Report } from '../../Components/Report';
 import ApiService from '../../Services/ApiService';
 import { ApiUrls } from '../../AppConstants/ApiUrls';
-import { FileContent, FileContentType, SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel, SingleSourceResultsConfig } from '../../Models/WebApiModels';
+import { FileContent, FileContentType, SingleSourceEmissionCalculationResult, SingleSourceEmissionSubstance, SingleSourceInputModel, SingleSourceResultsConfig, SubstanceDto } from '../../Models/WebApiModels';
 import { FormInput } from '../../Components/FormControls';
 import { collections, displayName, isNumber, isRequired } from '../../Services/Validation';
 import { downloadService } from '../../Services/DownloadService';
@@ -21,6 +21,7 @@ import { DataGridColumn } from '../../Components/DataGrid/DataGridColumn';
 import WindRose, { WindDirection } from '../../Components/WindRose';
 import { ModalButtonType, modalService } from '../../Components/Modal/Modal';
 import { SingleSourceResultsConfigurationDialog, SingleSourceResultsConfigurationDialogProps } from '../../Components/Dialogs/SingleSourceResultsConfigurationDialog';
+import DataGridDropdownCell from '../../Components/DataGrid/DataGridDropdownCell';
 
 class FormModel extends BaseFormModel {
     @isRequired()
@@ -106,18 +107,19 @@ class FormModel extends BaseFormModel {
 
 @observer
 export default class SingleSource extends React.Component {
-    @observable
-    private accessor _calculationResults: SingleSourceEmissionCalculationResult[];
-
-    @observable
-    private accessor _reports: Map<string, Blob | null> = new Map<string, Blob | null>();
-
-    @observable
-    private accessor _resultsConfig: SingleSourceResultsConfig | undefined;
+    @observable private accessor _calculationResults: SingleSourceEmissionCalculationResult[];
+    @observable private accessor _reports: Map<string, Blob | null> = new Map<string, Blob | null>();
+    @observable private accessor _resultsConfig: SingleSourceResultsConfig | undefined;
+    @observable private accessor _substances: SubstanceDto[];
 
     private _form: FormModel = new FormModel();
     private _gridRef = React.createRef<DataGrid<SingleSourceEmissionSubstance>>();
     private _mapRef = React.createRef<MapContainer<FormModel>>();
+
+    constructor(props: object) {
+        super(props);
+        void this._loadSubstances();
+    }
 
     render() {
         return (
@@ -406,7 +408,22 @@ export default class SingleSource extends React.Component {
                                     {
                                         field: 'name',
                                         editable: true,
-                                        headerName: 'Наименование'
+                                        headerName: 'Наименование',
+                                        cellEditor: DataGridDropdownCell,
+                                        cellEditorParams: {
+                                            values: this._substances?.map((x) => ({
+                                                label: x.name,
+                                                value: x.code
+                                            })) ?? []
+                                        },
+                                        onCellValueChanged: (event) => {
+                                            if (!event.data.m) {
+                                                event.data.m = 0;
+                                                event.api.applyTransaction({
+                                                    update: [event.data]
+                                                });
+                                            }
+                                        }
                                     },
                                     {
                                         field: 'm',
@@ -559,7 +576,15 @@ export default class SingleSource extends React.Component {
 
         return (
             <div className="mt-2">
-                <DataGrid<SingleSourceEmissionCalculationResult> suppressNoRowsOverlay columns={columns} rowData={this._calculationResults} height={(this._calculationResults.length * 100) % 500} />
+                <DataGrid<SingleSourceEmissionCalculationResult>
+                    suppressNoRowsOverlay
+                    autoSizeStrategy={{
+                        type: 'fitCellContents'
+                    }}
+                    columns={columns}
+                    rowData={this._calculationResults}
+                    height={(this._calculationResults.length * 100) % 500}
+                />
             </div>
         );
     }
@@ -616,6 +641,13 @@ export default class SingleSource extends React.Component {
         this._mapRef.current?.updateMarkers();
     }
 
+    @action.bound
+    private async _loadSubstances() {
+        const { data } = await ApiService.getTypedData<SubstanceDto[]>(ApiUrls.Substance);
+
+        this._substances = data;
+    }
+
     private async _loadPdf(reportId: string) {
         const { data } = await ApiService.getTypedData<Blob>(`${ApiUrls.TempFile}?id=${reportId}`, null, {
             responseType: 'blob'
@@ -628,7 +660,7 @@ export default class SingleSource extends React.Component {
         const rows = this._gridRef?.current?.rows;
         this._form.substances =
             rows
-                ?.filter((v) => v.m)
+                ?.filter((v) => v.m !== undefined)
                 .map((v) => ({
                     name: v.name,
                     m: v.m

@@ -1,12 +1,13 @@
-import { CellEditingStoppedEvent, CellKeyDownEvent, FullWidthCellKeyDownEvent, SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy, SizeColumnsToFitProvidedWidthStrategy } from 'ag-grid-community';
-import { AgGridReact } from 'ag-grid-react';
-import { observer } from 'mobx-react';
 import React from 'react';
+import { action, computed, observable } from 'mobx';
+import { observer } from 'mobx-react';
+import { AgGridReact } from 'ag-grid-react';
+import { CellEditingStoppedEvent, CellKeyDownEvent, FullWidthCellKeyDownEvent, SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy, SizeColumnsToFitProvidedWidthStrategy } from 'ag-grid-community';
+
+import { DataGridColumn } from './DataGridColumn';
 
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
-import { action, computed, observable } from 'mobx';
-import { DataGridColumn } from './DataGridColumn';
 
 export type DataGridProps<T extends object> = {
     editable?: boolean;
