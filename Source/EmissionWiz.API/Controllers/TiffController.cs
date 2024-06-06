@@ -1,4 +1,5 @@
-﻿using EmissionWiz.API.Controllers.Base;
+﻿
+using EmissionWiz.API.Controllers.Base;
 using EmissionWiz.Models.Interfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using SixLabors.ImageSharp;

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using EmissionWiz.API.Code.Helpers;
+using System.Reflection;
 
 namespace EmissionWiz.API.Code.Middleware;
 
@@ -45,6 +46,20 @@ public class HtmlFallbackMiddleware
             html = html.Replace("<head>", "<head>" + Environment.NewLine + viteClient);
             html = html.Replace("<head>", "<head>" + Environment.NewLine + $"<script type=\"module\">{viteModule}</script>");
         }
+
+        var cspBuilder = new ContentSecurityPolicyBuilder(response.Headers.ContentSecurityPolicy.ToString());
+
+        cspBuilder.Script
+            .AddSelf()
+            .AddSha256(viteModule);
+
+        cspBuilder.Style
+            .AddUnsafeInline();
+
+        cspBuilder.StyleElem
+            .AddUnsafeInline();
+
+        response.Headers.ContentSecurityPolicy = cspBuilder.Build();
 
         response.Headers.ContentType = "text/html";
 

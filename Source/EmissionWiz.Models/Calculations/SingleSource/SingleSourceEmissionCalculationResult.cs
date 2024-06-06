@@ -12,4 +12,6 @@ public class SingleSourceEmissionCalculationResult
     public double Um { get; set; }
     public double Xm { get; set; }
     public double Xmu { get;set; }
+
+    public Dictionary<string, List<string>> ValidationErrors { get; set; } = new();
 }

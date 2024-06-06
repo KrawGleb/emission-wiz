@@ -27,7 +27,7 @@ public class SingleSourceEmissionReportModelBuilder : BaseManager, ISingleSource
         _model.Y = model.Y;
         _model.Lat = model.Lat;
         _model.Lon = model.Lon;
-        _model.EmissionName = model.EmissionName;
+        _model.EmissionName = model.SubstanceName;
         _model.L = model.L;
         _model.B = model.B;
 

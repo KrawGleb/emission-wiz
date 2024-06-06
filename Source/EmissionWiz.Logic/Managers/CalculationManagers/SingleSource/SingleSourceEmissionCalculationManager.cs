@@ -9,6 +9,7 @@ using EmissionWiz.Models.Interfaces.Managers;
 using EmissionWiz.Models.Interfaces.Providers;
 using EmissionWiz.Models.Interfaces.Repositories;
 using EmissionWiz.Models.Templates;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmissionWiz.Logic.Managers.CalculationManagers.SingleSource;
 
@@ -17,6 +18,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
 {
     private readonly ISingleSourceEmissionReportModelBuilder _reportModelBuilder;
     private readonly ISingleSourceGeoTiffManager _singleSourceGeoTiffManager;
+    private readonly ISubstanceRepository _substanceRepository;
     private readonly IReportManager _reportManager;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly IMathManager _mathManager;
@@ -25,6 +27,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
     public SingleSourceEmissionCalculationManager(
         ISingleSourceEmissionReportModelBuilder reportModelBuilder,
         ISingleSourceGeoTiffManager singleSourceGeoTiffManager,
+        ISubstanceRepository substanceRepository,
         IReportManager reportManager,
         IDateTimeProvider dateTimeProvider,
         IMathManager mathManager,
@@ -32,6 +35,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
     {
         _reportModelBuilder = reportModelBuilder;
         _singleSourceGeoTiffManager = singleSourceGeoTiffManager;
+        _substanceRepository = substanceRepository;
         _reportManager = reportManager;
         _dateTimeProvider = dateTimeProvider;
         _mathManager = mathManager;
@@ -48,7 +52,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
 
         var results = new SingleSourceEmissionCalculationResult()
         {
-            Name = calculationData.EmissionName,
+            Name = calculationData.SubstanceName,
             Cm = CalculateCm(calculationData, sourceProperties),
             Xm = CalculateXm(calculationData, sourceProperties),
             Um = CalculateUm(calculationData, sourceProperties)
@@ -72,7 +76,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             .SetCmuValue(results.Cmu)
             .SetXmuValue(results.Xmu);
 
-        var sharedLabel = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}";
+        var sharedLabel = $"SingleSource_{calculationData.SubstanceName}_{_dateTimeProvider.NowUtc}";
 
         var geoTiffResult = await _singleSourceGeoTiffManager.BuildGeoTiff(results, calculationData, new SingleSourceGeoTiffOptions()
         {
@@ -118,7 +122,7 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
 
         using var ms = new MemoryStream();
         await _reportManager.FromTemplate(ms, mainPath, reportModel);
-        var fileName = $"SingleSource_{calculationData.EmissionName}_{_dateTimeProvider.NowUtc}.pdf";
+        var fileName = $"SingleSource_{calculationData.SubstanceName}_{_dateTimeProvider.NowUtc}.pdf";
 
         var tempFile = new TempFile
         {
@@ -138,6 +142,13 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
             SortOrder = 3,
             Type = Models.Enums.FileContentType.Pdf
         });
+
+        Substance? substance = null;
+        if (calculationData.SubstanceId != null)
+            substance = await _substanceRepository.Read(x => x.Code == calculationData.SubstanceId.Value).FirstOrDefaultAsync();
+
+        if (substance != null)
+            ValidateResults(substance, results);
 
         return results;
     }
@@ -236,19 +247,22 @@ public class SingleSourceEmissionCalculationManager : BaseManager, ISingleSource
         };
     }
 
-    private double GetS2Coef(double ty)
-    {
-        var result = 1.0d / Math.Pow((1 + 5d * ty + 12.8d * Math.Pow(ty, 2.0d) + 17 * Math.Pow(ty, 3.0d) + 45.1d * Math.Pow(ty, 4)), 2.0d);
-
-        _reportModelBuilder.SetS2Value(result);
-
-        return result;
-    }
-
     private double GetV1(SingleSourceCalculationData model)
     {
         var result = Math.PI * Math.Pow(model.D, 2d) / 4 * model.W;
 
         return result;
+    }
+
+    private void ValidateResults(Substance substance, SingleSourceEmissionCalculationResult results)
+    {
+        if ((double)(substance.SingleMaximumAllowableConcentration ?? 0) <= results.Cm)
+        {
+            var validationError = $"Максимальная концентрация превышает значение ПДК ({substance.SingleMaximumAllowableConcentration})";
+            if (results.ValidationErrors.TryGetValue(nameof(results.Cm), out var errors))
+                errors.Add(validationError);
+            else
+                results.ValidationErrors[nameof(results.Cm)] = [validationError];
+        }
     }
 }
