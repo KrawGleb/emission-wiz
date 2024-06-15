@@ -24,7 +24,7 @@ internal class SingleSourceCmCalculationManager : BaseManager, ISingleSourceCmCa
             return numerator / denominator;
 
         }
-        else if (sourceProperties.F < 100 && sourceProperties.Vm < 0.5 || sourceProperties.F >= 100 && sourceProperties.VmI < 0.5)
+        else if ((sourceProperties.F < 100 && sourceProperties.Vm < 0.5) || (sourceProperties.F >= 100 && sourceProperties.VmI < 0.5))
         {
             var mi = GetMICoefficient(sourceProperties);
             var numerator = data.A * data.M * data.FCoef * mi * data.Eta;
@@ -35,7 +35,7 @@ internal class SingleSourceCmCalculationManager : BaseManager, ISingleSourceCmCa
         else {
             var m = GetMCoefficient(sourceProperties);
             var n = GetNCoefficient(sourceProperties.Vm);
-            var numerator = data.A * data.M * m * n * data.Eta;
+            var numerator = data.A * data.M * sourceProperties.F * m * n * data.Eta;
             var denominator = Math.Pow(data.H, 2d) * Math.Cbrt(sourceProperties.V1 * data.DeltaT);
 
             return numerator / denominator;

@@ -47,19 +47,19 @@ public class HtmlFallbackMiddleware
             html = html.Replace("<head>", "<head>" + Environment.NewLine + $"<script type=\"module\">{viteModule}</script>");
         }
 
-        var cspBuilder = new ContentSecurityPolicyBuilder(response.Headers.ContentSecurityPolicy.ToString());
+        //var cspBuilder = new ContentSecurityPolicyBuilder(response.Headers.ContentSecurityPolicy.ToString());
 
-        cspBuilder.Script
-            .AddSelf()
-            .AddSha256(viteModule);
+        //cspBuilder.Script
+        //    .AddSelf()
+        //    .AddSha256(viteModule);
 
-        cspBuilder.Style
-            .AddUnsafeInline();
+        //cspBuilder.Style
+        //    .AddUnsafeInline();
 
-        cspBuilder.StyleElem
-            .AddUnsafeInline();
+        //cspBuilder.StyleElem
+        //    .AddUnsafeInline();
 
-        response.Headers.ContentSecurityPolicy = cspBuilder.Build();
+        //response.Headers.ContentSecurityPolicy = cspBuilder.Build();
 
         response.Headers.ContentType = "text/html";
 

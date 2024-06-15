@@ -1,7 +1,6 @@
 ﻿using EmissionWiz.Models.Dto;
 using EmissionWiz.Models.Exceptions;
 using EmissionWiz.Models.Interfaces.Builders;
-using Org.BouncyCastle.Bcpg;
 
 namespace EmissionWiz.Logic.Builders;
 
